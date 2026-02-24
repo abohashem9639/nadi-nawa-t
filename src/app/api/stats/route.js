@@ -4,33 +4,39 @@ import getDb from '@/lib/db';
 // GET — SuperAdmin stats
 export async function GET() {
     try {
-        const db = getDb();
+        const db = await getDb();
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-        const totalIftars = db.prepare('SELECT COUNT(*) as count FROM iftars').get().count;
+        const totalIftarsRes = await db.query('SELECT COUNT(*) as count FROM iftars');
+        const totalIftars = parseInt(totalIftarsRes.rows[0].count);
 
-        const totalRegistrations = db.prepare('SELECT COUNT(*) as count FROM registrations').get().count;
+        const totalRegRes = await db.query('SELECT COUNT(*) as count FROM registrations');
+        const totalRegistrations = parseInt(totalRegRes.rows[0].count);
 
-        const totalCheckins = db.prepare(
-            'SELECT COUNT(*) as count FROM registrations WHERE checked_in = 1'
-        ).get().count;
+        const totalCheckinsRes = await db.query('SELECT COUNT(*) as count FROM registrations WHERE checked_in = 1');
+        const totalCheckins = parseInt(totalCheckinsRes.rows[0].count);
 
-        const todayIftarIds = db.prepare('SELECT id FROM iftars WHERE date = ?').all(today).map(i => i.id);
+        const { rows: todayIftars } = await db.query('SELECT id FROM iftars WHERE date = $1', [today]);
+        const todayIftarIds = todayIftars.map(i => i.id);
 
         let todayRegistrations = 0;
         let todayCheckins = 0;
 
         if (todayIftarIds.length > 0) {
-            const placeholders = todayIftarIds.map(() => '?').join(',');
+            const placeholders = todayIftarIds.map((_, i) => `$${i + 1}`).join(',');
 
-            todayRegistrations = db.prepare(
-                `SELECT COUNT(*) as count FROM registrations WHERE iftar_id IN (${placeholders})`
-            ).get(...todayIftarIds).count;
+            const todayRegRes = await db.query(
+                `SELECT COUNT(*) as count FROM registrations WHERE iftar_id IN (${placeholders})`,
+                todayIftarIds
+            );
+            todayRegistrations = parseInt(todayRegRes.rows[0].count);
 
-            todayCheckins = db.prepare(
-                `SELECT COUNT(*) as count FROM registrations WHERE iftar_id IN (${placeholders}) AND checked_in = 1`
-            ).get(...todayIftarIds).count;
+            const todayCheckinsRes = await db.query(
+                `SELECT COUNT(*) as count FROM registrations WHERE iftar_id IN (${placeholders}) AND checked_in = 1`,
+                todayIftarIds
+            );
+            todayCheckins = parseInt(todayCheckinsRes.rows[0].count);
         }
 
         return NextResponse.json({

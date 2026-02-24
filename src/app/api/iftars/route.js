@@ -4,7 +4,7 @@ import getDb from '@/lib/db';
 // GET — List today's active iftars (public) or filtered by gender
 export async function GET(request) {
     try {
-        const db = getDb();
+        const db = await getDb();
         const { searchParams } = new URL(request.url);
         const gender = searchParams.get('gender');
         const allDates = searchParams.get('all') === 'true';
@@ -19,7 +19,7 @@ export async function GET(request) {
         if (allDates) {
             // For SuperAdmin — all iftars
             if (gender) {
-                query = 'SELECT * FROM iftars WHERE gender = ? ORDER BY date DESC';
+                query = 'SELECT * FROM iftars WHERE gender = $1 ORDER BY date DESC';
                 params = [gender];
             } else {
                 query = 'SELECT * FROM iftars ORDER BY date DESC';
@@ -28,32 +28,36 @@ export async function GET(request) {
         } else {
             // For students — only today's active iftars
             if (gender) {
-                query = 'SELECT * FROM iftars WHERE date = ? AND is_active = 1 AND gender = ? ORDER BY created_at DESC';
+                query = 'SELECT * FROM iftars WHERE date = $1 AND is_active = 1 AND gender = $2 ORDER BY created_at DESC';
                 params = [today, gender];
             } else {
-                query = 'SELECT * FROM iftars WHERE date = ? AND is_active = 1 ORDER BY created_at DESC';
+                query = 'SELECT * FROM iftars WHERE date = $1 AND is_active = 1 ORDER BY created_at DESC';
                 params = [today];
             }
         }
 
-        const iftars = db.prepare(query).all(...params);
+        const { rows: iftars } = await db.query(query, params);
 
         // Add registration count to each iftar
-        const iftarsWithCounts = iftars.map(iftar => {
-            const regCount = db.prepare(
-                'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = ?'
-            ).get(iftar.id).count;
+        const iftarsWithCounts = await Promise.all(iftars.map(async (iftar) => {
+            const { rows: regRows } = await db.query(
+                'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = $1',
+                [iftar.id]
+            );
+            const regCount = parseInt(regRows[0].count);
 
-            const checkinCount = db.prepare(
-                'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = ? AND checked_in = 1'
-            ).get(iftar.id).count;
+            const { rows: checkinRows } = await db.query(
+                'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = $1 AND checked_in = 1',
+                [iftar.id]
+            );
+            const checkinCount = parseInt(checkinRows[0].count);
 
             return {
                 ...iftar,
                 registered: regCount,
                 checkedIn: checkinCount,
             };
-        });
+        }));
 
         return NextResponse.json({ iftars: iftarsWithCounts });
     } catch (error) {
@@ -65,7 +69,7 @@ export async function GET(request) {
 // POST — Create new iftar (SuperAdmin only)
 export async function POST(request) {
     try {
-        const db = getDb();
+        const db = await getDb();
         const body = await request.json();
         const { title, date, capacity, gender } = body;
 
@@ -80,9 +84,10 @@ export async function POST(request) {
         const { v4: uuidv4 } = await import('uuid');
         const id = uuidv4();
 
-        db.prepare(
-            'INSERT INTO iftars (id, title, date, capacity, gender, is_active) VALUES (?, ?, ?, ?, ?, 1)'
-        ).run(id, title, date, parseInt(capacity), gender);
+        await db.query(
+            'INSERT INTO iftars (id, title, date, capacity, gender, is_active) VALUES ($1, $2, $3, $4, $5, 1)',
+            [id, title, date, parseInt(capacity), gender]
+        );
 
         return NextResponse.json({ success: true, id }, { status: 201 });
     } catch (error) {

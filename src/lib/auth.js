@@ -5,8 +5,9 @@ import getDb from './db';
 const SESSION_COOKIE = 'ghiras_session';
 
 export async function login(username, password) {
-    const db = getDb();
-    const admin = db.prepare('SELECT * FROM admins WHERE username = ?').get(username);
+    const db = await getDb();
+    const { rows } = await db.query('SELECT * FROM admins WHERE username = $1', [username]);
+    const admin = rows[0];
 
     if (!admin) return null;
     if (!compareSync(password, admin.password_hash)) return null;

@@ -1,24 +1,23 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { Pool } from 'pg';
 import { hashSync } from 'bcryptjs';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'ghiras.db');
+let pool;
 
-let db;
-
-function getDb() {
-  if (!db) {
-    db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
-    initTables();
-    seedAdmins();
-  }
-  return db;
+if (process.env.DATABASE_URL) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
 }
 
-function initTables() {
-  db.exec(`
+let initialized = false;
+
+export async function initDb() {
+  if (!pool || initialized) return;
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS admins (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -34,7 +33,7 @@ function initTables() {
       capacity INTEGER NOT NULL,
       gender TEXT NOT NULL CHECK(gender IN ('male', 'female')),
       is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS registrations (
@@ -44,27 +43,31 @@ function initTables() {
       mobile_number TEXT NOT NULL,
       qr_token TEXT UNIQUE NOT NULL,
       checked_in INTEGER NOT NULL DEFAULT 0,
-      registered_at TEXT NOT NULL DEFAULT (datetime('now')),
-      checked_in_at TEXT,
+      registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      checked_in_at TIMESTAMP WITH TIME ZONE,
       FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE,
       UNIQUE(iftar_id, mobile_number)
     );
   `);
-}
 
-function seedAdmins() {
-  const count = db.prepare('SELECT COUNT(*) as c FROM admins').get().c;
-  if (count === 0) {
-    const insert = db.prepare(
-      'INSERT INTO admins (id, username, password_hash, role, name) VALUES (?, ?, ?, ?, ?)'
-    );
-
+  const { rows } = await pool.query('SELECT COUNT(*) as c FROM admins');
+  if (parseInt(rows[0].c) === 0) {
     const defaultPassword = hashSync('admin123', 10);
-
-    insert.run('sa-001', 'superadmin', defaultPassword, 'superadmin', 'المشرف العام');
-    insert.run('ma-001', 'maleadmin', defaultPassword, 'male_admin', 'مشرف الذكور');
-    insert.run('fa-001', 'femaleadmin', defaultPassword, 'female_admin', 'مشرفة الإناث');
+    const query = 'INSERT INTO admins (id, username, password_hash, role, name) VALUES ($1, $2, $3, $4, $5)';
+    await pool.query(query, ['sa-001', 'superadmin', defaultPassword, 'superadmin', 'المشرف العام']);
+    await pool.query(query, ['ma-001', 'maleadmin', defaultPassword, 'male_admin', 'مشرف الذكور']);
+    await pool.query(query, ['fa-001', 'femaleadmin', defaultPassword, 'female_admin', 'مشرفة الإناث']);
   }
+
+  initialized = true;
 }
 
-export default getDb;
+export default async function getDb() {
+  if (!pool) {
+    throw new Error("DATABASE_URL is not set");
+  }
+  if (!initialized) {
+    await initDb();
+  }
+  return pool;
+}

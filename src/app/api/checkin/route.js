@@ -4,7 +4,7 @@ import getDb from '@/lib/db';
 // POST — QR Check-in
 export async function POST(request) {
     try {
-        const db = getDb();
+        const db = await getDb();
         const body = await request.json();
         const { qrToken, adminGender } = body;
 
@@ -13,9 +13,11 @@ export async function POST(request) {
         }
 
         // Find registration by QR token
-        const registration = db.prepare(
-            'SELECT r.*, i.gender, i.title as iftar_title FROM registrations r JOIN iftars i ON r.iftar_id = i.id WHERE r.qr_token = ?'
-        ).get(qrToken);
+        const { rows } = await db.query(
+            'SELECT r.*, i.gender, i.title as iftar_title FROM registrations r JOIN iftars i ON r.iftar_id = i.id WHERE r.qr_token = $1',
+            [qrToken]
+        );
+        const registration = rows[0];
 
         if (!registration) {
             return NextResponse.json({
@@ -46,9 +48,10 @@ export async function POST(request) {
 
         // Check in the student
         const now = new Date().toISOString();
-        db.prepare(
-            'UPDATE registrations SET checked_in = 1, checked_in_at = ? WHERE id = ?'
-        ).run(now, registration.id);
+        await db.query(
+            'UPDATE registrations SET checked_in = 1, checked_in_at = $1 WHERE id = $2',
+            [now, registration.id]
+        );
 
         return NextResponse.json({
             status: 'success',

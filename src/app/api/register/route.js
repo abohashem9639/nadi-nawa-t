@@ -4,7 +4,7 @@ import getDb from '@/lib/db';
 // POST — Student registration
 export async function POST(request) {
     try {
-        const db = getDb();
+        const db = await getDb();
         const body = await request.json();
         const { iftarId, studentName, mobileNumber } = body;
 
@@ -13,18 +13,22 @@ export async function POST(request) {
         }
 
         // Check iftar exists and is active
-        const iftar = db.prepare(
-            'SELECT * FROM iftars WHERE id = ? AND is_active = 1'
-        ).get(iftarId);
+        const { rows: iftars } = await db.query(
+            'SELECT * FROM iftars WHERE id = $1 AND is_active = 1',
+            [iftarId]
+        );
+        const iftar = iftars[0];
 
         if (!iftar) {
             return NextResponse.json({ error: 'iftar_not_found' }, { status: 404 });
         }
 
         // Check if already registered
-        const existing = db.prepare(
-            'SELECT * FROM registrations WHERE iftar_id = ? AND mobile_number = ?'
-        ).get(iftarId, mobileNumber);
+        const { rows: existings } = await db.query(
+            'SELECT * FROM registrations WHERE iftar_id = $1 AND mobile_number = $2',
+            [iftarId, mobileNumber]
+        );
+        const existing = existings[0];
 
         if (existing) {
             return NextResponse.json({
@@ -34,9 +38,11 @@ export async function POST(request) {
         }
 
         // Check capacity
-        const regCount = db.prepare(
-            'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = ?'
-        ).get(iftarId).count;
+        const { rows: regCountRows } = await db.query(
+            'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = $1',
+            [iftarId]
+        );
+        const regCount = parseInt(regCountRows[0].count);
 
         if (regCount >= iftar.capacity) {
             return NextResponse.json({ error: 'full' }, { status: 409 });
@@ -47,9 +53,10 @@ export async function POST(request) {
         const id = uuidv4();
         const qrToken = uuidv4();
 
-        db.prepare(
-            'INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token) VALUES (?, ?, ?, ?, ?)'
-        ).run(id, iftarId, studentName.trim(), mobileNumber.trim(), qrToken);
+        await db.query(
+            'INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token) VALUES ($1, $2, $3, $4, $5)',
+            [id, iftarId, studentName.trim(), mobileNumber.trim(), qrToken]
+        );
 
         return NextResponse.json({
             success: true,
