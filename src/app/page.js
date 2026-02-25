@@ -109,26 +109,27 @@ export default function HomePage() {
         <div className="info-sections animate-slide-up" style={{ animationDelay: '0.3s', marginTop: '60px' }}>
 
           {/* Nadi Nawa Section */}
-          <div className="card mb-5" style={{
+          <div className="card mb-4 mt-5" style={{
             background: 'linear-gradient(145deg, var(--bg-card), rgba(16, 185, 129, 0.05))',
             border: '1px solid rgba(16, 185, 129, 0.1)',
-            textAlign: 'center'
+            textAlign: 'center',
+            padding: '24px 20px'
           }}>
-            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '16px' }}>
+            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '24px' }}>
               {t('home.clubTitle')}
             </h2>
 
-            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 0 16px 0', color: 'var(--text-secondary)', lineHeight: '1.5', fontSize: '0.95rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
+            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 auto', maxWidth: '400px', color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '0.95rem', textAlign: 'start' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
                 <span>{t('home.clubPoint1')}</span>
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
                 <span>{t('home.clubPoint2')}</span>
               </li>
-              <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
                 <span>{t('home.clubPoint3')}</span>
               </li>
             </ul>
@@ -138,12 +139,13 @@ export default function HomePage() {
           <div className="card mb-5" style={{
             background: 'linear-gradient(145deg, var(--bg-card), rgba(16, 185, 129, 0.05))',
             border: '1px solid rgba(16, 185, 129, 0.1)',
-            textAlign: 'center'
+            textAlign: 'center',
+            padding: '24px 20px'
           }}>
-            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '12px' }}>
+            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '16px' }}>
               {t('home.whatIsGhirasTitle')}
             </h2>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', fontSize: '1rem' }}>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '1rem', textAlign: 'justify', textAlignLast: 'center' }}>
               {t('home.ghirasDesc')}
             </p>
           </div>
