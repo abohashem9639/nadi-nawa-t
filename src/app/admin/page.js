@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { ScanLine, StopCircle, CheckCircle2, AlertTriangle, XCircle, Moon, Loader2, Users } from 'lucide-react';
 
@@ -15,6 +16,7 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(true);
     const [scanResult, setScanResult] = useState(null);
     const [scannerActive, setScannerActive] = useState(false);
+    const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
     const [isScanning, setIsScanning] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const scannerRef = useRef(null);
@@ -159,7 +161,14 @@ export default function AdminPage() {
                 );
             } catch (err) {
                 console.error('Scanner error:', err);
-                alert('Camera setup failed or denied. Please ensure camera permissions are granted.');
+                setDialogConfig({
+                    isOpen: true,
+                    title: 'Camera Error',
+                    message: 'Camera setup failed or denied. Please ensure camera permissions are granted.',
+                    type: 'danger',
+                    hideCancel: true,
+                    onConfirm: () => setDialogConfig({ isOpen: false })
+                });
                 setScannerActive(false);
             }
         }, 100);
@@ -303,7 +312,17 @@ export default function AdminPage() {
 
                     </>
                 )}
-            </main >
+            </main>
+
+            <ConfirmDialog
+                isOpen={dialogConfig.isOpen}
+                title={dialogConfig.title}
+                message={dialogConfig.message}
+                type={dialogConfig.type}
+                hideCancel={dialogConfig.hideCancel}
+                onConfirm={dialogConfig.onConfirm}
+                onCancel={() => setDialogConfig({ isOpen: false })}
+            />
         </>
     );
 }

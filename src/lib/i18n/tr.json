@@ -10,7 +10,13 @@
         "seatsRemaining": "koltuk kaldı",
         "male": "Erkek",
         "female": "Kadın",
-        "full": "Dolu"
+        "full": "Dolu",
+        "whatIsGhirasTitle": "Ghiras - 26 Nedir?",
+        "ghirasDesc": "Sakarya'da Arap öğrencileri hedefleyen merkezi ve uzmanlaşmış bir öğrenci programı. Dağınık Ramazan çabalarını birleştirmeyi ve kaynakları en yüksek kalite ve şeffaflık standartlarına uygun olarak onurlu iftar yemekleri ve inanç temelli ortamlar sağlamaya yönlendirmeyi amaçlamaktadır.",
+        "clubTitle": "Nadi Nawa | Sakarya Gençlik Etkinlikleri",
+        "clubEng": "Nadi Nawa Alshababi",
+        "clubMotto": "Özümüzden başladık, hakikat üzerinde toplanmış eğitimli gençler.",
+        "followUs": "Bizi platformlarımızdan takip edin"
     },
     "register": {
         "title": "İftar Kaydı",
@@ -70,6 +76,8 @@
         "banError": "İşlem başarısız",
         "banConfirm": "Bu öğrenciyi engellemek istediğinizden emin misiniz? Tekrar kayıt olamayacaklar.",
         "unbanConfirm": "Bu öğrencinin engelini kaldırmak istediğinizden emin misiniz?",
+        "confirm": "Onayla",
+        "cancel": "İptal",
         "logout": "Çıkış Yap"
     },
     "superadmin": {
@@ -93,9 +101,10 @@
         "stats": "İstatistikler",
         "totalIftars": "Toplam İftar",
         "totalRegistrations": "Toplam Kayıt",
-        "totalCheckins": "Toplam Giriş",
-        "todayRegistrations": "Bugünün Kayıtları",
-        "logout": "Çıkış"
+        "totalCheckins": "Toplam Katılımlar",
+        "todayRegistrations": "Bugünkü Kayıtlar",
+        "toggleIftarConfirm": "Bu iftarın durumunu değiştirmek istediğinizden emin misiniz?",
+        "logout": "Çıkış Yap"
     },
     "language": "Türkçe",
     "dir": "ltr"

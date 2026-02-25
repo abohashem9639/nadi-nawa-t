@@ -10,7 +10,13 @@
         "seatsRemaining": "seats remaining",
         "male": "Male",
         "female": "Female",
-        "full": "Full"
+        "full": "Full",
+        "whatIsGhirasTitle": "What is Ghiras - 26?",
+        "ghirasDesc": "A central specialized student program in Sakarya, targeting Arab students. It aims to unify scattered Ramadan efforts and direct resources to secure dignified iftar meals and faith-based environments, adhering to the highest standards of quality and transparency.",
+        "clubTitle": "Nadi Nawa | Sakarya Youth Events",
+        "clubEng": "Nadi Nawa Alshababi",
+        "clubMotto": "From the core we started, educated youth gathered upon truth.",
+        "followUs": "Follow us on our platforms"
     },
     "register": {
         "title": "Iftar Registration",
@@ -70,6 +76,8 @@
         "banError": "Failed to perform action",
         "banConfirm": "Are you sure you want to block this student? They won't be able to register again.",
         "unbanConfirm": "Are you sure you want to unblock this student?",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
         "logout": "Logout"
     },
     "superadmin": {
@@ -95,6 +103,7 @@
         "totalRegistrations": "Total Registrations",
         "totalCheckins": "Total Check-ins",
         "todayRegistrations": "Today's Registrations",
+        "toggleIftarConfirm": "Are you sure you want to toggle the status of this iftar?",
         "logout": "Logout"
     },
     "language": "English",

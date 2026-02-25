@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, ArrowLeft, Users, CheckCircle2, Circle, UserX, UserCheck } from 'lucide-react';
 
@@ -16,6 +17,8 @@ export default function SuperAdminIftarDetailsPage() {
     const [iftar, setIftar] = useState(null);
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
 
     useEffect(() => {
         checkAuth();
@@ -80,22 +83,43 @@ export default function SuperAdminIftarDetailsPage() {
     };
 
     async function blockStudent(mobileNumber, action) {
-        if (!confirm(t(action === 'ban' ? 'admin.banConfirm' : 'admin.unbanConfirm') || 'Are you sure?')) return;
-        try {
-            const res = await fetch('/api/ban', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mobileNumber, action })
-            });
-            if (res.ok) {
-                fetchStudents(); // Refresh
-            } else {
-                alert(t('admin.banError') || 'Error occurred');
+        setDialogConfig({
+            isOpen: true,
+            title: t(action === 'ban' ? 'admin.banStudent' : 'admin.unbanStudent') || 'Ban Student',
+            message: t(action === 'ban' ? 'admin.banConfirm' : 'admin.unbanConfirm') || 'Are you sure?',
+            type: action === 'ban' ? 'danger' : 'primary',
+            onConfirm: async () => {
+                try {
+                    const res = await fetch('/api/ban', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mobileNumber, action })
+                    });
+                    if (res.ok) {
+                        fetchStudents(); // Refresh
+                    } else {
+                        setDialogConfig({
+                            isOpen: true,
+                            title: 'Error',
+                            message: t('admin.banError') || 'Error occurred',
+                            type: 'danger',
+                            hideCancel: true,
+                            onConfirm: () => setDialogConfig({ isOpen: false }),
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    setDialogConfig({
+                        isOpen: true,
+                        title: 'Error',
+                        message: t('admin.banError') || 'Error occurred',
+                        type: 'danger',
+                        hideCancel: true,
+                        onConfirm: () => setDialogConfig({ isOpen: false }),
+                    });
+                }
             }
-        } catch (error) {
-            console.error(error);
-            alert(t('admin.banError') || 'Error occurred');
-        }
+        });
     }
 
     if (loading) {
@@ -234,6 +258,16 @@ export default function SuperAdminIftarDetailsPage() {
                     )}
                 </div>
             </main>
+
+            <ConfirmDialog
+                isOpen={dialogConfig.isOpen}
+                title={dialogConfig.title}
+                message={dialogConfig.message}
+                type={dialogConfig.type}
+                hideCancel={dialogConfig.hideCancel}
+                onConfirm={dialogConfig.onConfirm}
+                onCancel={() => setDialogConfig({ isOpen: false })}
+            />
         </>
     );
 }

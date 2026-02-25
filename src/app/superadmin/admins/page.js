@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, ArrowLeft, UserPlus, Shield, UserX } from 'lucide-react';
 
@@ -21,6 +22,8 @@ export default function SuperAdminManageAdmins() {
     const [role, setRole] = useState('male_admin');
     const [creating, setCreating] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
 
     useEffect(() => {
         checkAuth();
@@ -92,14 +95,20 @@ export default function SuperAdminManageAdmins() {
             ? `هل أنت متأكد من حذف المشرف ${adminName}؟`
             : `Are you sure you want to delete admin ${adminName}?`;
 
-        if (!confirm(confirmMsg)) return;
-
-        try {
-            await fetch(`/api/admins/${id}`, { method: 'DELETE' });
-            await fetchAdmins();
-        } catch (err) {
-            console.error('Error deleting admin:', err);
-        }
+        setDialogConfig({
+            isOpen: true,
+            title: t('superadmin.delete') || 'Delete',
+            message: confirmMsg,
+            type: 'danger',
+            onConfirm: async () => {
+                try {
+                    await fetch(`/api/admins/${id}`, { method: 'DELETE' });
+                    await fetchAdmins();
+                } catch (err) {
+                    console.error('Error deleting admin:', err);
+                }
+            }
+        });
     }
 
     async function handleLogout() {
@@ -255,6 +264,15 @@ export default function SuperAdminManageAdmins() {
                     )}
                 </div>
             </main>
+
+            <ConfirmDialog
+                isOpen={dialogConfig.isOpen}
+                title={dialogConfig.title}
+                message={dialogConfig.message}
+                type={dialogConfig.type}
+                onConfirm={dialogConfig.onConfirm}
+                onCancel={() => setDialogConfig({ isOpen: false })}
+            />
         </>
     );
 }

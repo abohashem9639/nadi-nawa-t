@@ -105,6 +105,55 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Informational Sections */}
+        <div className="info-sections mt-5 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+
+          {/* Ghiras-26 Section */}
+          <div className="card mb-4" style={{
+            background: 'linear-gradient(145deg, var(--bg-card), rgba(16, 185, 129, 0.05))',
+            border: '1px solid rgba(16, 185, 129, 0.1)',
+            textAlign: 'center'
+          }}>
+            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '12px' }}>
+              {t('home.whatIsGhirasTitle')}
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', fontSize: '1rem' }}>
+              {t('home.ghirasDesc')}
+            </p>
+          </div>
+
+          {/* Nadi Nawa Section */}
+          <div className="card mb-4" style={{ textAlign: 'center' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <img
+                src="/nadi_nawa.png"
+                alt="Nadi Nawa Logo"
+                style={{ height: '60px', width: 'auto', margin: '0 auto', opacity: 0.9 }}
+              />
+            </div>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>
+              {t('home.clubTitle')}
+            </h2>
+            <p style={{ fontSize: '0.9rem', color: 'var(--brand-medium)', marginBottom: '12px', letterSpacing: '2px' }}>
+              {t('home.clubEng')}
+            </p>
+            <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '20px' }}>
+              "{t('home.clubMotto')}"
+            </p>
+
+            <a
+              href="https://linktr.ee/NadiNawa"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              style={{ display: 'inline-block', minWidth: '200px' }}
+            >
+              {t('home.followUs')}
+            </a>
+          </div>
+
+        </div>
+
       </main>
     </>
   );

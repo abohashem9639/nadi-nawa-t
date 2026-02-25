@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, Moon, Users, Shield } from 'lucide-react';
 
@@ -21,6 +22,8 @@ export default function SuperAdminPage() {
     const [capacity, setCapacity] = useState('');
     const [gender, setGender] = useState('male');
     const [creating, setCreating] = useState(false);
+
+    const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
 
     useEffect(() => {
         checkAuth();
@@ -79,18 +82,33 @@ export default function SuperAdminPage() {
     }
 
     async function toggleActive(id) {
-        await fetch(`/api/iftars/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ toggleActive: true }),
+        setDialogConfig({
+            isOpen: true,
+            title: t('superadmin.toggleActive') || 'Toggle Iftar Status',
+            message: t('superadmin.toggleIftarConfirm') || 'Are you sure you want to toggle the status of this iftar?',
+            type: 'primary',
+            onConfirm: async () => {
+                await fetch(`/api/iftars/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ toggleActive: true }),
+                });
+                await fetchIftars();
+            }
         });
-        await fetchIftars();
     }
 
     async function deleteIftar(id) {
-        if (!confirm(t('superadmin.deleteConfirm'))) return;
-        await fetch(`/api/iftars/${id}`, { method: 'DELETE' });
-        await Promise.all([fetchIftars(), fetchStats()]);
+        setDialogConfig({
+            isOpen: true,
+            title: t('superadmin.delete') || 'Delete',
+            message: t('superadmin.deleteConfirm') || 'Are you sure you want to delete this iftar?',
+            type: 'danger',
+            onConfirm: async () => {
+                await fetch(`/api/iftars/${id}`, { method: 'DELETE' });
+                await Promise.all([fetchIftars(), fetchStats()]);
+            }
+        });
     }
 
     async function handleLogout() {
@@ -280,6 +298,15 @@ export default function SuperAdminPage() {
                     )}
                 </div>
             </main>
+
+            <ConfirmDialog
+                isOpen={dialogConfig.isOpen}
+                title={dialogConfig.title}
+                message={dialogConfig.message}
+                type={dialogConfig.type}
+                onConfirm={dialogConfig.onConfirm}
+                onCancel={() => setDialogConfig({ isOpen: false })}
+            />
         </>
     );
 }

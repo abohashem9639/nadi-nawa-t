@@ -19,10 +19,10 @@ export async function GET(request) {
         if (allDates) {
             // For SuperAdmin — all iftars
             if (gender) {
-                query = 'SELECT * FROM iftars WHERE gender = $1 ORDER BY date DESC';
+                query = 'SELECT * FROM iftars WHERE gender = $1 ORDER BY date DESC, created_at DESC';
                 params = [gender];
             } else {
-                query = 'SELECT * FROM iftars ORDER BY date DESC';
+                query = 'SELECT * FROM iftars ORDER BY date DESC, created_at DESC';
                 params = [];
             }
         } else {
