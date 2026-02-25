@@ -49,7 +49,7 @@ function CountrySelector({ selectedCode, onSelect, lang }) {
 
             {isOpen && (
                 <div style={{
-                    position: 'absolute', top: '100%', left: 0,
+                    position: 'absolute', top: '100%', [lang === 'ar' ? 'right' : 'left']: 0,
                     width: '280px', zIndex: 50, background: 'var(--bg-card)',
                     border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)',
                     marginTop: '4px', boxShadow: 'var(--shadow-md)',
@@ -275,7 +275,7 @@ export default function RegisterPage() {
                         {qrDataUrl && (
                             <div className="qr-container mt-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <div className="qr-wrapper">
-                                    <img src={qrDataUrl} alt="QR Code" width={280} height={280} />
+                                    <img src={qrDataUrl} alt="QR Code" width={180} height={180} />
                                 </div>
                                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '8px' }}>
                                     {studentName}
