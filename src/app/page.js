@@ -108,27 +108,17 @@ export default function HomePage() {
         {/* Informational Sections */}
         <div className="info-sections animate-slide-up" style={{ animationDelay: '0.3s', marginTop: '60px' }}>
 
-          {/* Ghiras-26 Section */}
-          <div className="card mb-4" style={{
+          {/* Nadi Nawa Section */}
+          <div className="card mb-5" style={{
             background: 'linear-gradient(145deg, var(--bg-card), rgba(16, 185, 129, 0.05))',
             border: '1px solid rgba(16, 185, 129, 0.1)',
             textAlign: 'center'
           }}>
-            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '12px' }}>
-              {t('home.whatIsGhirasTitle')}
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', fontSize: '1rem' }}>
-              {t('home.ghirasDesc')}
-            </p>
-          </div>
-
-          {/* Nadi Nawa Section */}
-          <div className="card mb-4" style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '16px' }}>
+            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '16px' }}>
               {t('home.clubTitle')}
             </h2>
 
-            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 0 24px 0', color: 'var(--text-secondary)', lineHeight: '1.5', fontSize: '0.95rem' }}>
+            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 0 16px 0', color: 'var(--text-secondary)', lineHeight: '1.5', fontSize: '0.95rem' }}>
               <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
                 <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
                 <span>{t('home.clubPoint1')}</span>
@@ -142,7 +132,24 @@ export default function HomePage() {
                 <span>{t('home.clubPoint3')}</span>
               </li>
             </ul>
+          </div>
 
+          {/* Ghiras-26 Section */}
+          <div className="card mb-5" style={{
+            background: 'linear-gradient(145deg, var(--bg-card), rgba(16, 185, 129, 0.05))',
+            border: '1px solid rgba(16, 185, 129, 0.1)',
+            textAlign: 'center'
+          }}>
+            <h2 className="section-title" style={{ color: 'var(--brand-primary)', marginBottom: '12px' }}>
+              {t('home.whatIsGhirasTitle')}
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', fontSize: '1rem' }}>
+              {t('home.ghirasDesc')}
+            </p>
+          </div>
+
+          {/* Follow Button */}
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <a
               href="https://linktr.ee/NadiNawa"
               target="_blank"
