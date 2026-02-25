@@ -14,6 +14,8 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(true);
     const [scanResult, setScanResult] = useState(null);
     const [scannerActive, setScannerActive] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [manualToken, setManualToken] = useState('');
     const scannerRef = useRef(null);
     const html5QrRef = useRef(null);
@@ -51,7 +53,11 @@ export default function AdminPage() {
     }
 
     async function handleCheckin(qrToken) {
+        if (isScanning || showModal) return; // Prevent double scans
+
+        setIsScanning(true);
         const gender = admin.role === 'male_admin' ? 'male' : 'female';
+
         try {
             const res = await fetch('/api/checkin', {
                 method: 'POST',
@@ -93,11 +99,29 @@ export default function AdminPage() {
             const genderFilter = admin.role === 'male_admin' ? 'male' : 'female';
             await fetchTodayIftar(genderFilter);
 
-            // Auto-clear result after 5 seconds
-            setTimeout(() => setScanResult(null), 5000);
+            setIsScanning(false);
+            setShowModal(true);
+
+            if (html5QrRef.current) {
+                html5QrRef.current.pause(true);
+            }
+
         } catch (err) {
             console.error(err);
             setScanResult({ type: 'error', message: t('admin.statusNotFound') });
+            setIsScanning(false);
+            setShowModal(true);
+            if (html5QrRef.current) {
+                html5QrRef.current.pause(true);
+            }
+        }
+    }
+
+    function closeResultModal() {
+        setShowModal(false);
+        setScanResult(null);
+        if (html5QrRef.current) {
+            try { html5QrRef.current.resume(); } catch { }
         }
     }
 
@@ -125,10 +149,6 @@ export default function AdminPage() {
                     },
                     (decodedText) => {
                         handleCheckin(decodedText);
-                        scanner.pause(true);
-                        setTimeout(() => {
-                            try { scanner.resume(); } catch { }
-                        }, 3000);
                     },
                     (error) => {
                         // ignore errors during scan
@@ -219,15 +239,7 @@ export default function AdminPage() {
                             </div>
                         </div>
 
-                        {/* Check-in Result */}
-                        {scanResult && (
-                            <div className={`checkin-result ${scanResult.type}`} key={Date.now()}>
-                                <div>{scanResult.message}</div>
-                                {scanResult.studentName && (
-                                    <div className="checkin-student-name">{scanResult.studentName}</div>
-                                )}
-                            </div>
-                        )}
+                        {/* Removes old inline Check-in Result string */}
 
                         {/* QR Scanner */}
                         <div className="card mb-3 animate-slide-up">
@@ -250,6 +262,12 @@ export default function AdminPage() {
 
                             <div className="scanner-area" style={{ display: scannerActive ? 'block' : 'none' }}>
                                 <div id="qr-reader" ref={scannerRef}></div>
+                                {isScanning && (
+                                    <div className="scanner-loading">
+                                        <div className="spinner"></div>
+                                        <div className="scanner-loading-text">{t('admin.checkingIn') || 'جاري التحقق...'}</div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Manual Token Input */}
@@ -270,6 +288,30 @@ export default function AdminPage() {
                                 </form>
                             </div>
                         </div>
+                        {/* Result Modal Overlay */}
+                        {showModal && scanResult && (
+                            <div className="modal-overlay">
+                                <div className={`result-modal ${scanResult.type}`}>
+                                    <div className="modal-icon">
+                                        {scanResult.type === 'success' ? '✅' : scanResult.type === 'warning' ? '⚠️' : '❌'}
+                                    </div>
+
+                                    {scanResult.studentName && (
+                                        <div className="modal-student">{scanResult.studentName}</div>
+                                    )}
+
+                                    <div className="modal-message">{scanResult.message}</div>
+
+                                    <button
+                                        className="btn btn-primary btn-full mt-3"
+                                        onClick={closeResultModal}
+                                    >
+                                        {t('admin.btnContinue') || 'متابعة'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                     </>
                 )}
             </main>
