@@ -106,7 +106,7 @@ export default function HomePage() {
         )}
 
         {/* Informational Sections */}
-        <div className="info-sections mt-5 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+        <div className="info-sections animate-slide-up" style={{ animationDelay: '0.3s', marginTop: '60px' }}>
 
           {/* Ghiras-26 Section */}
           <div className="card mb-4" style={{
