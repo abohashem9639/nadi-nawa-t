@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { ScanLine, StopCircle, CheckCircle2, AlertTriangle, XCircle, Moon, Loader2 } from 'lucide-react';
+import { ScanLine, StopCircle, CheckCircle2, AlertTriangle, XCircle, Moon, Loader2, Users } from 'lucide-react';
 
 export default function AdminPage() {
     const { t } = useTranslation();
@@ -235,6 +235,14 @@ export default function AdminPage() {
                                 </div>
                             </div>
                         </div>
+                        <div className="mt-3">
+                            <button
+                                className="btn btn-secondary btn-full"
+                                onClick={() => router.push(`/admin/students?iftarId=${iftar.id}`)}
+                            >
+                                <Users size={18} /> {t('admin.viewStudents') || 'عرض سجل الطلاب'}
+                            </button>
+                        </div>
 
                         {/* Removes old inline Check-in Result string */}
 
@@ -295,7 +303,7 @@ export default function AdminPage() {
 
                     </>
                 )}
-            </main>
+            </main >
         </>
     );
 }

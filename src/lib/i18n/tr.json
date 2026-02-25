@@ -23,6 +23,7 @@
         "success": "Kayıt Başarılı!",
         "successMsg": "Aşağıdaki QR kodunu kaydedin ve girişte gösterin",
         "alreadyRegistered": "Bu iftar için zaten kayıtlısınız",
+        "alreadyRegisteredOther": "Başka bir iftara zaten kayıtlısınız. Birden fazla iftara kayıt olamazsınız.",
         "full": "Üzgünüz, bu iftar dolu",
         "error": "Bir hata oluştu, lütfen tekrar deneyin",
         "back": "Ana Sayfaya Dön"

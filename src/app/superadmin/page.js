@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, Moon } from 'lucide-react';
+import { Loader2, Moon, Users, Shield } from 'lucide-react';
 
 export default function SuperAdminPage() {
     const { t } = useTranslation();
@@ -115,7 +115,15 @@ export default function SuperAdminPage() {
             <main className="container" style={{ paddingBottom: '40px' }}>
                 <div className="page-header">
                     <h1 className="page-title">{t('superadmin.title')}</h1>
-                    <p className="page-subtitle">{admin?.name}</p>
+                    <p className="page-subtitle mb-3">{admin?.name}</p>
+
+                    <button
+                        className="btn btn-secondary btn-sm flex items-center gap-2"
+                        onClick={() => router.push('/superadmin/admins')}
+                        style={{ margin: '0 auto', opacity: 0.9 }}
+                    >
+                        <Shield size={16} /> {dir === 'rtl' ? 'إدارة المشرفين' : 'Manage Admins'}
+                    </button>
                 </div>
 
                 {/* Stats */}
@@ -221,6 +229,7 @@ export default function SuperAdminPage() {
                                         <th>{t('superadmin.capacity')}</th>
                                         <th>{t('admin.registered')}</th>
                                         <th>{t('admin.checkedIn')}</th>
+                                        <th>{t('admin.viewStudents') || 'الطلاب'}</th>
                                         <th>{t('superadmin.toggleActive')}</th>
                                         <th></th>
                                     </tr>
@@ -238,6 +247,15 @@ export default function SuperAdminPage() {
                                             <td>{iftar.capacity}</td>
                                             <td>{iftar.registered || 0}</td>
                                             <td>{iftar.checkedIn || 0}</td>
+                                            <td>
+                                                <button
+                                                    className="btn btn-sm btn-secondary"
+                                                    onClick={() => router.push(`/admin/students?iftarId=${iftar.id}`)}
+                                                    title={t('admin.viewStudents') || 'عرض سجل الطلاب'}
+                                                >
+                                                    <Users size={16} />
+                                                </button>
+                                            </td>
                                             <td>
                                                 <button
                                                     className={`btn btn-sm ${iftar.is_active ? 'btn-success' : 'btn-secondary'}`}

@@ -14,6 +14,7 @@ export default function RegisterPage() {
 
     const [iftar, setIftar] = useState(null);
     const [studentName, setStudentName] = useState('');
+    const [countryCode, setCountryCode] = useState('+90');
     const [mobileNumber, setMobileNumber] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null); // { type: 'success'|'error', qrToken, message }
@@ -63,7 +64,7 @@ export default function RegisterPage() {
                 body: JSON.stringify({
                     iftarId,
                     studentName: studentName.trim(),
-                    mobileNumber: mobileNumber.trim(),
+                    mobileNumber: `${countryCode}${mobileNumber.trim()}`,
                 }),
             });
 
@@ -75,6 +76,8 @@ export default function RegisterPage() {
             } else if (data.error === 'already_registered') {
                 setResult({ type: 'warning', message: t('register.alreadyRegistered') });
                 await generateQR(data.qrToken);
+            } else if (data.error === 'already_registered_other') {
+                setResult({ type: 'error', message: t('register.alreadyRegisteredOther') || 'You are already registered for a different Iftar. You can only register for one.' });
             } else if (data.error === 'full') {
                 setResult({ type: 'error', message: t('register.full') });
             } else {
@@ -121,16 +124,40 @@ export default function RegisterPage() {
 
                             <div className="form-group">
                                 <label className="form-label">{t('register.mobile')}</label>
-                                <input
-                                    type="tel"
-                                    className="form-input"
-                                    placeholder={t('register.mobilePlaceholder')}
-                                    value={mobileNumber}
-                                    onChange={(e) => setMobileNumber(e.target.value)}
-                                    required
-                                    dir="ltr"
-                                    style={{ textAlign: 'left' }}
-                                />
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <select
+                                        className="form-select"
+                                        style={{ width: '100px', flexShrink: 0, padding: '12px 8px' }}
+                                        value={countryCode}
+                                        onChange={(e) => setCountryCode(e.target.value)}
+                                        dir="ltr"
+                                    >
+                                        <option value="+90">🇹🇷 +90</option>
+                                        <option value="+966">🇸🇦 +966</option>
+                                        <option value="+962">🇯🇴 +962</option>
+                                        <option value="+20">🇪🇬 +20</option>
+                                        <option value="+970">🇵🇸 +970</option>
+                                        <option value="+963">🇸🇾 +963</option>
+                                        <option value="+961">🇱🇧 +961</option>
+                                        <option value="+964">🇮🇶 +964</option>
+                                        <option value="+213">🇩🇿 +213</option>
+                                        <option value="+212">🇲🇦 +212</option>
+                                        <option value="+216">🇹🇳 +216</option>
+                                        <option value="+965">🇰🇼 +965</option>
+                                        <option value="+974">🇶🇦 +974</option>
+                                        <option value="+971">🇦🇪 +971</option>
+                                    </select>
+                                    <input
+                                        type="tel"
+                                        className="form-input"
+                                        placeholder={t('register.mobilePlaceholder')}
+                                        value={mobileNumber}
+                                        onChange={(e) => setMobileNumber(e.target.value)}
+                                        required
+                                        dir="ltr"
+                                        style={{ textAlign: 'left', flex: 1 }}
+                                    />
+                                </div>
                             </div>
 
                             {result?.type === 'error' && (

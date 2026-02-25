@@ -23,18 +23,28 @@ export async function POST(request) {
             return NextResponse.json({ error: 'iftar_not_found' }, { status: 404 });
         }
 
-        // Check if already registered
+        const cleanMobile = mobileNumber.trim();
+
+        // Check if already registered globally
         const { rows: existings } = await db.query(
-            'SELECT * FROM registrations WHERE iftar_id = $1 AND mobile_number = $2',
-            [iftarId, mobileNumber]
+            'SELECT * FROM registrations WHERE mobile_number = $1',
+            [cleanMobile]
         );
         const existing = existings[0];
 
         if (existing) {
-            return NextResponse.json({
-                error: 'already_registered',
-                qrToken: existing.qr_token,
-            }, { status: 409 });
+            // Already registered for exactly this iftar
+            if (existing.iftar_id === iftarId) {
+                return NextResponse.json({
+                    error: 'already_registered',
+                    qrToken: existing.qr_token,
+                }, { status: 409 });
+            } else {
+                // Registered for a different iftar
+                return NextResponse.json({
+                    error: 'already_registered_other'
+                }, { status: 409 });
+            }
         }
 
         // Check capacity
@@ -55,7 +65,7 @@ export async function POST(request) {
 
         await db.query(
             'INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token) VALUES ($1, $2, $3, $4, $5)',
-            [id, iftarId, studentName.trim(), mobileNumber.trim(), qrToken]
+            [id, iftarId, studentName.trim(), cleanMobile, qrToken]
         );
 
         return NextResponse.json({

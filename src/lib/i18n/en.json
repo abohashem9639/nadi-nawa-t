@@ -23,6 +23,7 @@
         "success": "Registration Successful!",
         "successMsg": "Save the QR code below and show it at the entrance",
         "alreadyRegistered": "You are already registered for this iftar",
+        "alreadyRegisteredOther": "You are already registered for another iftar. You cannot register for more than one.",
         "full": "Sorry, this iftar is full",
         "error": "An error occurred, please try again",
         "back": "Back to Home"

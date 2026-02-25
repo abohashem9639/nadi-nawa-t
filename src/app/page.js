@@ -105,11 +105,6 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="text-center mt-4 mb-3 flex justify-center">
-          <a href="/login" className="btn btn-secondary btn-sm flex items-center gap-2" style={{ opacity: 0.6 }}>
-            <Lock size={14} /> {t('login.title')}
-          </a>
-        </div>
       </main>
     </>
   );

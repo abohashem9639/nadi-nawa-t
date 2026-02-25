@@ -40,14 +40,25 @@ export async function initDb() {
       id TEXT PRIMARY KEY,
       iftar_id TEXT NOT NULL,
       student_name TEXT NOT NULL,
-      mobile_number TEXT NOT NULL,
+      mobile_number TEXT UNIQUE NOT NULL,
       qr_token TEXT UNIQUE NOT NULL,
       checked_in INTEGER NOT NULL DEFAULT 0,
       registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       checked_in_at TIMESTAMP WITH TIME ZONE,
-      FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE,
-      UNIQUE(iftar_id, mobile_number)
+      FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE
     );
+
+    -- Postgres requires explicit drops for altering table constraints cleanly in simple scripts. 
+    -- Since this is an MVP in early dev, we attempt to add the constraint if it was missing.
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'registrations_mobile_number_key'
+      ) THEN
+        ALTER TABLE registrations DROP CONSTRAINT IF EXISTS registrations_iftar_id_mobile_number_key;
+        ALTER TABLE registrations ADD CONSTRAINT registrations_mobile_number_key UNIQUE (mobile_number);
+      END IF;
+    END $$;
   `);
 
   const { rows } = await pool.query('SELECT COUNT(*) as c FROM admins');
