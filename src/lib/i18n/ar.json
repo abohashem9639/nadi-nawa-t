@@ -50,6 +50,12 @@
     "statusAlready": "⚠️ تم تسجيل حضوره مسبقاً",
     "statusNotFound": "❌ غير مسجل",
     "statusWrongSection": "❌ مسجل في قسم آخر",
+    "checkinSuccess": "تم تسجيل الحضور بنجاح",
+    "checkinAlready": "تم تسجيل حضوره مسبقاً",
+    "checkinNotFound": "غير مسجل أو الرمز غير صالح",
+    "checkinWrongSection": "مسجل في قسم آخر",
+    "checkingIn": "جاري التحقق...",
+    "btnContinue": "متابعة",
     "studentName": "اسم الطالب",
     "noIftar": "لا يوجد إفطار لهذا القسم اليوم",
     "logout": "تسجيل الخروج"

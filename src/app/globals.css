@@ -617,6 +617,54 @@ h4 {
   }
 }
 
+@media (min-width: 769px) {
+  .desktop-actions {
+    display: block !important;
+  }
+
+  .settings-btn {
+    display: none !important;
+  }
+}
+
+/* ── Mobile Menu ── */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.mobile-menu-card {
+  background: var(--bg-card);
+  width: 100%;
+  border-radius: 20px 20px 0 0;
+  padding: 24px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);

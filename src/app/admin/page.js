@@ -11,7 +11,6 @@ export default function AdminPage() {
 
     const [admin, setAdmin] = useState(null);
     const [iftar, setIftar] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [scanResult, setScanResult] = useState(null);
     const [scannerActive, setScannerActive] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
@@ -19,6 +18,7 @@ export default function AdminPage() {
     const [manualToken, setManualToken] = useState('');
     const scannerRef = useRef(null);
     const html5QrRef = useRef(null);
+    const isScanningRef = useRef(false); // Ref for immediate sync logic in callbacks
 
     useEffect(() => {
         checkAuth();
@@ -53,9 +53,18 @@ export default function AdminPage() {
     }
 
     async function handleCheckin(qrToken) {
-        if (isScanning || showModal) return; // Prevent double scans
+        // Prevent multiple scans
+        if (isScanningRef.current || showModal) return;
 
+        // Lock the scanner immediately
+        isScanningRef.current = true;
         setIsScanning(true);
+
+        // Pause the camera feed instantly to prevent further callbacks
+        if (html5QrRef.current) {
+            try { html5QrRef.current.pause(true); } catch { }
+        }
+
         const gender = admin.role === 'male_admin' ? 'male' : 'female';
 
         try {
@@ -72,20 +81,20 @@ export default function AdminPage() {
             switch (data.status) {
                 case 'success':
                     type = 'success';
-                    message = t('admin.statusSuccess');
+                    message = t('admin.checkinSuccess');
                     break;
                 case 'already_checked_in':
                     type = 'warning';
-                    message = t('admin.statusAlready');
+                    message = t('admin.checkinAlready');
                     break;
                 case 'wrong_section':
                     type = 'error';
-                    message = t('admin.statusWrongSection');
+                    message = t('admin.checkinWrongSection');
                     break;
                 case 'not_found':
                 default:
                     type = 'error';
-                    message = t('admin.statusNotFound');
+                    message = t('admin.checkinNotFound');
                     break;
             }
 
@@ -101,25 +110,18 @@ export default function AdminPage() {
 
             setIsScanning(false);
             setShowModal(true);
-
-            if (html5QrRef.current) {
-                html5QrRef.current.pause(true);
-            }
-
         } catch (err) {
             console.error(err);
-            setScanResult({ type: 'error', message: t('admin.statusNotFound') });
+            setScanResult({ type: 'error', message: t('admin.checkinNotFound') });
             setIsScanning(false);
             setShowModal(true);
-            if (html5QrRef.current) {
-                html5QrRef.current.pause(true);
-            }
         }
     }
 
     function closeResultModal() {
         setShowModal(false);
         setScanResult(null);
+        isScanningRef.current = false;
         if (html5QrRef.current) {
             try { html5QrRef.current.resume(); } catch { }
         }
