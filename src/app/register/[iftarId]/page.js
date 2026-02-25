@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { Calendar, User } from 'lucide-react';
 
 export default function RegisterPage() {
     const { t } = useTranslation();
@@ -93,10 +94,10 @@ export default function RegisterPage() {
                 <div className="page-header">
                     <h1 className="page-title">{t('register.title')}</h1>
                     {iftar && (
-                        <p className="page-subtitle">
-                            {iftar.title} — 📅 {iftar.date}
-                            <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'}`} style={{ marginInlineStart: '12px' }}>
-                                {iftar.gender === 'male' ? `🧑 ${t('home.male')}` : `👩 ${t('home.female')}`}
+                        <p className="page-subtitle flex items-center justify-center gap-2">
+                            {iftar.title} — <Calendar size={14} className="ml-1" /> {iftar.date}
+                            <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'} flex items-center gap-1`} style={{ marginInlineStart: '12px' }}>
+                                <User size={14} /> {iftar.gender === 'male' ? t('home.male') : t('home.female')}
                             </span>
                         </p>
                     )}

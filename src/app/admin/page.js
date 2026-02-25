@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { ScanLine, StopCircle, CheckCircle2, AlertTriangle, XCircle, Moon, Loader2 } from 'lucide-react';
 
 export default function AdminPage() {
     const { t } = useTranslation();
@@ -16,7 +17,6 @@ export default function AdminPage() {
     const [scannerActive, setScannerActive] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [manualToken, setManualToken] = useState('');
     const scannerRef = useRef(null);
     const html5QrRef = useRef(null);
     const isScanningRef = useRef(false); // Ref for immediate sync logic in callbacks
@@ -179,14 +179,6 @@ export default function AdminPage() {
         setScannerActive(false);
     }
 
-    function handleManualSubmit(e) {
-        e.preventDefault();
-        if (manualToken.trim()) {
-            handleCheckin(manualToken.trim());
-            setManualToken('');
-        }
-    }
-
     async function handleLogout() {
         stopScanner();
         await fetch('/api/auth/logout', { method: 'POST' });
@@ -197,7 +189,9 @@ export default function AdminPage() {
         return (
             <>
                 <Header />
-                <div className="empty-state"><div className="empty-state-icon">⏳</div></div>
+                <div className="empty-state">
+                    <Loader2 className="spinner mx-auto" size={48} color="var(--brand-medium)" />
+                </div>
             </>
         );
     }
@@ -213,7 +207,7 @@ export default function AdminPage() {
 
                 {!iftar ? (
                     <div className="empty-state animate-fade-in">
-                        <div className="empty-state-icon">🌙</div>
+                        <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
                         <p className="empty-state-text">{t('admin.noIftar')}</p>
                     </div>
                 ) : (
@@ -254,11 +248,11 @@ export default function AdminPage() {
                             <div className="text-center mb-2">
                                 {!scannerActive ? (
                                     <button className="btn btn-primary" onClick={startScanner}>
-                                        📷 {t('admin.scanQR')}
+                                        <ScanLine size={20} /> {t('admin.scanQR')}
                                     </button>
                                 ) : (
                                     <button className="btn btn-danger" onClick={stopScanner}>
-                                        ⏹ Stop
+                                        <StopCircle size={20} /> Stop
                                     </button>
                                 )}
                             </div>
@@ -267,36 +261,20 @@ export default function AdminPage() {
                                 <div id="qr-reader" ref={scannerRef}></div>
                                 {isScanning && (
                                     <div className="scanner-loading">
-                                        <div className="spinner"></div>
+                                        <Loader2 className="spinner" size={40} color="var(--brand-medium)" />
                                         <div className="scanner-loading-text">{t('admin.checkingIn') || 'جاري التحقق...'}</div>
                                     </div>
                                 )}
-                            </div>
-
-                            {/* Manual Token Input */}
-                            <div className="mt-3">
-                                <form onSubmit={handleManualSubmit} style={{ display: 'flex', gap: '8px' }}>
-                                    <input
-                                        type="text"
-                                        className="form-input"
-                                        placeholder="Manual Token..."
-                                        value={manualToken}
-                                        onChange={(e) => setManualToken(e.target.value)}
-                                        dir="ltr"
-                                        style={{ flex: 1 }}
-                                    />
-                                    <button type="submit" className="btn btn-primary btn-sm">
-                                        ✓
-                                    </button>
-                                </form>
                             </div>
                         </div>
                         {/* Result Modal Overlay */}
                         {showModal && scanResult && (
                             <div className="modal-overlay">
                                 <div className={`result-modal ${scanResult.type}`}>
-                                    <div className="modal-icon">
-                                        {scanResult.type === 'success' ? '✅' : scanResult.type === 'warning' ? '⚠️' : '❌'}
+                                    <div className="modal-icon flex justify-center mb-3">
+                                        {scanResult.type === 'success' ? <CheckCircle2 size={64} className="text-emerald-500" color="var(--success)" /> :
+                                            scanResult.type === 'warning' ? <AlertTriangle size={64} className="text-amber-500" color="var(--warning)" /> :
+                                                <XCircle size={64} className="text-red-500" color="var(--danger)" />}
                                     </div>
 
                                     {scanResult.studentName && (

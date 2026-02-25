@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { Settings, X } from 'lucide-react';
 
 export default function Header({ showLogout, onLogout }) {
     const { t, lang, switchLang } = useTranslation();
@@ -28,9 +29,9 @@ export default function Header({ showLogout, onLogout }) {
                 <button
                     className="btn btn-secondary btn-sm settings-btn"
                     onClick={() => setMenuOpen(!menuOpen)}
-                    style={{ padding: '8px', fontSize: '1.2rem', borderColor: 'transparent', background: 'transparent' }}
+                    style={{ padding: '8px', borderColor: 'transparent', background: 'transparent' }}
                 >
-                    ⚙️
+                    <Settings size={22} color="var(--text-primary)" />
                 </button>
 
                 {/* Mobile Sliding Menu */}
@@ -39,7 +40,9 @@ export default function Header({ showLogout, onLogout }) {
                         <div className="mobile-menu-card" onClick={(e) => e.stopPropagation()}>
                             <div className="mobile-menu-header">
                                 <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{t('language') || 'Settings'}</h3>
-                                <button className="btn-close" onClick={() => setMenuOpen(false)}>✕</button>
+                                <button className="btn-close" onClick={() => setMenuOpen(false)}>
+                                    <X size={20} />
+                                </button>
                             </div>
 
                             <div className="mobile-menu-content">

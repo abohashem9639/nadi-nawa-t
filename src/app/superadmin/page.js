@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { Loader2, Moon } from 'lucide-react';
 
 export default function SuperAdminPage() {
     const { t } = useTranslation();
@@ -101,7 +102,9 @@ export default function SuperAdminPage() {
         return (
             <>
                 <Header />
-                <div className="empty-state"><div className="empty-state-icon">⏳</div></div>
+                <div className="empty-state">
+                    <Loader2 className="spinner mx-auto" size={48} color="var(--brand-medium)" />
+                </div>
             </>
         );
     }
@@ -204,7 +207,7 @@ export default function SuperAdminPage() {
 
                     {iftars.length === 0 ? (
                         <div className="empty-state">
-                            <div className="empty-state-icon">🌙</div>
+                            <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
                             <p className="empty-state-text">No iftars yet</p>
                         </div>
                     ) : (

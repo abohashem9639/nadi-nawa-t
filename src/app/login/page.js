@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { Home } from 'lucide-react';
 
 export default function LoginPage() {
     const { t } = useTranslation();
@@ -97,9 +98,9 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <div className="text-center mt-3">
-                    <a href="/" className="btn btn-secondary btn-sm" style={{ opacity: 0.7 }}>
-                        🏠
+                <div className="text-center mt-3 flex justify-center">
+                    <a href="/" className="btn btn-secondary btn-sm flex items-center gap-2" style={{ opacity: 0.7 }}>
+                        <Home size={16} />
                     </a>
                 </div>
             </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { Loader2, Moon, Calendar, User, Users, Lock } from 'lucide-react';
 
 export default function HomePage() {
   const { t } = useTranslation();
@@ -38,11 +39,11 @@ export default function HomePage() {
 
         {loading ? (
           <div className="empty-state">
-            <div className="empty-state-icon">⏳</div>
+            <Loader2 className="spinner mx-auto" size={48} color="var(--brand-medium)" />
           </div>
         ) : iftars.length === 0 ? (
           <div className="empty-state animate-fade-in">
-            <div className="empty-state-icon">🌙</div>
+            <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
             <p className="empty-state-text">{t('home.noIftars')}</p>
           </div>
         ) : (
@@ -63,16 +64,18 @@ export default function HomePage() {
                   <div className="iftar-card-header">
                     <div>
                       <h3 className="iftar-card-title">{iftar.title}</h3>
-                      <p className="iftar-card-date">📅 {iftar.date}</p>
+                      <p className="iftar-card-date flex items-center gap-1 mt-1">
+                        <Calendar size={14} /> {iftar.date}
+                      </p>
                     </div>
-                    <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'}`}>
-                      {iftar.gender === 'male' ? `🧑 ${t('home.male')}` : `👩 ${t('home.female')}`}
+                    <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'} flex items-center gap-1`}>
+                      <User size={14} /> {iftar.gender === 'male' ? t('home.male') : t('home.female')}
                     </span>
                   </div>
 
-                  <div className="iftar-card-info">
-                    <span className="iftar-card-capacity">
-                      🪑 {remaining > 0 ? `${remaining} ${t('home.seatsRemaining')}` : t('home.full')}
+                  <div className="iftar-card-info flex items-center gap-2">
+                    <span className="iftar-card-capacity flex items-center gap-1">
+                      <Users size={14} /> {remaining > 0 ? `${remaining} ${t('home.seatsRemaining')}` : t('home.full')}
                     </span>
                     <span>{iftar.registered} / {iftar.capacity}</span>
                   </div>
@@ -102,9 +105,9 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="text-center mt-4 mb-3">
-          <a href="/login" className="btn btn-secondary btn-sm" style={{ opacity: 0.6 }}>
-            🔐 {t('login.title')}
+        <div className="text-center mt-4 mb-3 flex justify-center">
+          <a href="/login" className="btn btn-secondary btn-sm flex items-center gap-2" style={{ opacity: 0.6 }}>
+            <Lock size={14} /> {t('login.title')}
           </a>
         </div>
       </main>
