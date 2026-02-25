@@ -105,7 +105,11 @@
         "totalCheckins": "Total Check-ins",
         "todayRegistrations": "Today's Registrations",
         "toggleIftarConfirm": "Are you sure you want to toggle the status of this iftar?",
-        "logout": "Logout"
+        "logout": "Logout",
+        "editCapacity": "Edit Capacity",
+        "newCapacity": "New Capacity",
+        "save": "Save",
+        "cancel": "Cancel"
     },
     "language": "English",
     "dir": "ltr"

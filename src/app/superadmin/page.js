@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, Moon, Users, Shield } from 'lucide-react';
+import { Loader2, Moon, Users, Shield, Edit2 } from 'lucide-react';
 
 export default function SuperAdminPage() {
     const { t, isRtl } = useTranslation();
@@ -24,6 +24,7 @@ export default function SuperAdminPage() {
     const [creating, setCreating] = useState(false);
 
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
+    const [editCapacityModal, setEditCapacityModal] = useState({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' });
 
     useEffect(() => {
         checkAuth();
@@ -96,6 +97,32 @@ export default function SuperAdminPage() {
                 await fetchIftars();
             }
         });
+    }
+
+    async function handleSaveCapacity(e) {
+        e.preventDefault();
+        try {
+            const res = await fetch(`/api/iftars/${editCapacityModal.iftarId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ capacity: parseInt(editCapacityModal.newCapacity) })
+            });
+
+            if (res.ok) {
+                setEditCapacityModal({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' });
+                fetchIftars();
+            } else {
+                setDialogConfig({
+                    isOpen: true,
+                    title: 'Error',
+                    message: 'Failed to update capacity',
+                    type: 'danger',
+                    onConfirm: () => { }
+                });
+            }
+        } catch (error) {
+            console.error('Error updating capacity:', error);
+        }
     }
 
     async function deleteIftar(id) {
@@ -262,7 +289,16 @@ export default function SuperAdminPage() {
                                                     {iftar.gender === 'male' ? t('superadmin.male') : t('superadmin.female')}
                                                 </span>
                                             </td>
-                                            <td>{iftar.capacity}</td>
+                                            <td>
+                                                <div
+                                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--brand-primary)', fontWeight: 500 }}
+                                                    onClick={() => setEditCapacityModal({ isOpen: true, iftarId: iftar.id, currentCapacity: iftar.capacity, newCapacity: iftar.capacity, title: iftar.title })}
+                                                    title={t('superadmin.editCapacity')}
+                                                >
+                                                    {iftar.capacity}
+                                                    <Edit2 size={14} />
+                                                </div>
+                                            </td>
                                             <td>{iftar.registered || 0}</td>
                                             <td>{iftar.checkedIn || 0}</td>
                                             <td>
@@ -307,6 +343,50 @@ export default function SuperAdminPage() {
                 onConfirm={dialogConfig.onConfirm}
                 onCancel={() => setDialogConfig({ isOpen: false })}
             />
+
+            {editCapacityModal.isOpen && (
+                <div className="modal-overlay" onClick={() => setEditCapacityModal({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' })}>
+                    <div className="result-modal primary" onClick={(e) => e.stopPropagation()} style={{ padding: '24px 20px', maxWidth: '400px', width: '90%' }}>
+                        <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                            {t('superadmin.editCapacity')}
+                        </h3>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem' }}>
+                            {editCapacityModal.title}
+                        </p>
+                        <form onSubmit={handleSaveCapacity}>
+                            <div className="form-group">
+                                <label className="form-label">{t('superadmin.newCapacity')}</label>
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    min="1"
+                                    value={editCapacityModal.newCapacity}
+                                    onChange={(e) => setEditCapacityModal({ ...editCapacityModal, newCapacity: e.target.value })}
+                                    required
+                                    dir="ltr"
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setEditCapacityModal({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' })}
+                                    style={{ flex: 1 }}
+                                >
+                                    {t('superadmin.cancel') || 'Cancel'}
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    style={{ flex: 1 }}
+                                >
+                                    {t('superadmin.save') || 'Save'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

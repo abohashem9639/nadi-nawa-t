@@ -105,7 +105,11 @@
         "totalCheckins": "Toplam Katılımlar",
         "todayRegistrations": "Bugünkü Kayıtlar",
         "toggleIftarConfirm": "Bu iftarın durumunu değiştirmek istediğinizden emin misiniz?",
-        "logout": "Çıkış Yap"
+        "logout": "Çıkış Yap",
+        "editCapacity": "Kapasiteyi Düzenle",
+        "newCapacity": "Yeni Kapasite",
+        "save": "Kaydet",
+        "cancel": "İptal"
     },
     "language": "Türkçe",
     "dir": "ltr"

@@ -105,7 +105,11 @@
     "totalCheckins": "إجمالي الحضور",
     "todayRegistrations": "تسجيلات اليوم",
     "toggleIftarConfirm": "هل أنت متأكد من تغيير حالة هذا الإفطار؟",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "editCapacity": "تعديل السعة",
+    "newCapacity": "السعة الجديدة",
+    "save": "حفظ",
+    "cancel": "إلغاء"
   },
   "language": "العربية",
   "dir": "rtl"
