@@ -103,38 +103,45 @@ export default function AdminPage() {
 
     async function startScanner() {
         try {
-            const { Html5Qrcode } = await import('html5-qrcode');
-            const scanner = new Html5Qrcode('qr-reader');
-            html5QrRef.current = scanner;
+            const { Html5QrcodeScanner } = await import('html5-qrcode');
 
-            await scanner.start(
-                { facingMode: 'environment' },
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                },
-                (decodedText) => {
-                    handleCheckin(decodedText);
-                    // Brief pause to avoid multiple scans
-                    scanner.pause(true);
-                    setTimeout(() => {
-                        try { scanner.resume(); } catch { }
-                    }, 2000);
-                },
-                () => { } // ignore errors
-            );
+            // Clear any existing instance first
+            if (html5QrRef.current) {
+                try { await html5QrRef.current.clear(); } catch { }
+            }
 
             setScannerActive(true);
+
+            // Use Html5QrcodeScanner for built-in UI
+            const scanner = new Html5QrcodeScanner(
+                "qr-reader",
+                { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true },
+                false
+            );
+
+            html5QrRef.current = scanner;
+
+            scanner.render((decodedText) => {
+                handleCheckin(decodedText);
+                // Pause automatically handled by handleCheckin logic or manual action
+                scanner.pause(true);
+                setTimeout(() => {
+                    try { scanner.resume(); } catch { }
+                }, 3000);
+            }, (error) => {
+                // ignore errors during scan
+            });
+
         } catch (err) {
             console.error('Scanner error:', err);
-            alert('Camera access denied or not available');
+            alert('Camera setup failed');
+            setScannerActive(false);
         }
     }
 
     function stopScanner() {
         if (html5QrRef.current) {
             try {
-                html5QrRef.current.stop();
                 html5QrRef.current.clear();
             } catch { }
             html5QrRef.current = null;
