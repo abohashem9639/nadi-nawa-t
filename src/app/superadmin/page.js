@@ -154,6 +154,93 @@ export default function SuperAdminPage() {
         );
     }
 
+    const renderTable = (data, emptyMessage) => {
+        if (data.length === 0) {
+            return (
+                <div className="empty-state">
+                    <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
+                    <p className="empty-state-text">{emptyMessage}</p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="table-container">
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>{t('superadmin.iftarTitle')}</th>
+                            <th>{t('superadmin.date')}</th>
+                            <th>{t('superadmin.gender')}</th>
+                            <th>{t('superadmin.capacity')}</th>
+                            <th>{t('admin.registered')}</th>
+                            <th>{t('admin.checkedIn')}</th>
+                            <th>{t('admin.viewStudents') || 'الطلاب'}</th>
+                            <th>{t('superadmin.toggleActive')}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.map(iftar => (
+                            <tr key={iftar.id}>
+                                <td style={{ fontWeight: 600 }}>{iftar.title}</td>
+                                <td dir="ltr">{iftar.date}</td>
+                                <td>
+                                    <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'}`}>
+                                        {iftar.gender === 'male' ? t('superadmin.male') : t('superadmin.female')}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div
+                                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--brand-primary)', fontWeight: 500 }}
+                                        onClick={() => setEditCapacityModal({ isOpen: true, iftarId: iftar.id, currentCapacity: iftar.capacity, newCapacity: iftar.capacity, title: iftar.title })}
+                                        title={t('superadmin.editCapacity')}
+                                    >
+                                        {iftar.capacity}
+                                        <Edit2 size={14} />
+                                    </div>
+                                </td>
+                                <td>{iftar.registered || 0}</td>
+                                <td>{iftar.checkedIn || 0}</td>
+                                <td>
+                                    <button
+                                        className="btn btn-sm btn-secondary"
+                                        onClick={() => router.push(`/admin/students?iftarId=${iftar.id}`)}
+                                        title={t('admin.viewStudents') || 'عرض سجل الطلاب'}
+                                    >
+                                        <Users size={16} />
+                                    </button>
+                                </td>
+                                <td>
+                                    <button
+                                        className={`btn btn-sm ${iftar.is_active ? 'btn-success' : 'btn-secondary'}`}
+                                        onClick={() => toggleActive(iftar.id)}
+                                    >
+                                        {iftar.is_active ? t('superadmin.active') : t('superadmin.inactive')}
+                                    </button>
+                                </td>
+                                <td>
+                                    <button
+                                        className="btn btn-sm btn-danger"
+                                        onClick={() => deleteIftar(iftar.id)}
+                                    >
+                                        {t('superadmin.delete')}
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const currentIftarsList = iftars.filter(iftar => iftar.date >= todayStr);
+    const pastIftarsList = iftars.filter(iftar => iftar.date < todayStr);
+
     return (
         <>
             <Header showLogout onLogout={handleLogout} />
@@ -254,84 +341,16 @@ export default function SuperAdminPage() {
                     </form>
                 </div>
 
-                {/* All Iftars Table */}
-                <div className="card animate-slide-up">
-                    <h2 className="section-title">{t('superadmin.allIftars')}</h2>
+                {/* Current & Upcoming Iftars Table */}
+                <div className="card animate-slide-up mb-4">
+                    <h2 className="section-title">{t('superadmin.currentIftars') || 'الحملات الحالية والقادمة'}</h2>
+                    {renderTable(currentIftarsList, t('superadmin.noCurrentIftars') || 'لا يوجد حملات حالية')}
+                </div>
 
-                    {iftars.length === 0 ? (
-                        <div className="empty-state">
-                            <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
-                            <p className="empty-state-text">No iftars yet</p>
-                        </div>
-                    ) : (
-                        <div className="table-container">
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>{t('superadmin.iftarTitle')}</th>
-                                        <th>{t('superadmin.date')}</th>
-                                        <th>{t('superadmin.gender')}</th>
-                                        <th>{t('superadmin.capacity')}</th>
-                                        <th>{t('admin.registered')}</th>
-                                        <th>{t('admin.checkedIn')}</th>
-                                        <th>{t('admin.viewStudents') || 'الطلاب'}</th>
-                                        <th>{t('superadmin.toggleActive')}</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {iftars.map(iftar => (
-                                        <tr key={iftar.id}>
-                                            <td style={{ fontWeight: 600 }}>{iftar.title}</td>
-                                            <td dir="ltr">{iftar.date}</td>
-                                            <td>
-                                                <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'}`}>
-                                                    {iftar.gender === 'male' ? t('superadmin.male') : t('superadmin.female')}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div
-                                                    style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--brand-primary)', fontWeight: 500 }}
-                                                    onClick={() => setEditCapacityModal({ isOpen: true, iftarId: iftar.id, currentCapacity: iftar.capacity, newCapacity: iftar.capacity, title: iftar.title })}
-                                                    title={t('superadmin.editCapacity')}
-                                                >
-                                                    {iftar.capacity}
-                                                    <Edit2 size={14} />
-                                                </div>
-                                            </td>
-                                            <td>{iftar.registered || 0}</td>
-                                            <td>{iftar.checkedIn || 0}</td>
-                                            <td>
-                                                <button
-                                                    className="btn btn-sm btn-secondary"
-                                                    onClick={() => router.push(`/admin/students?iftarId=${iftar.id}`)}
-                                                    title={t('admin.viewStudents') || 'عرض سجل الطلاب'}
-                                                >
-                                                    <Users size={16} />
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    className={`btn btn-sm ${iftar.is_active ? 'btn-success' : 'btn-secondary'}`}
-                                                    onClick={() => toggleActive(iftar.id)}
-                                                >
-                                                    {iftar.is_active ? t('superadmin.active') : t('superadmin.inactive')}
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    className="btn btn-sm btn-danger"
-                                                    onClick={() => deleteIftar(iftar.id)}
-                                                >
-                                                    {t('superadmin.delete')}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                {/* Past Iftars Table */}
+                <div className="card animate-slide-up">
+                    <h2 className="section-title">{t('superadmin.pastIftars') || 'الحملات السابقة'}</h2>
+                    {renderTable(pastIftarsList, t('superadmin.noPastIftars') || 'لا يوجد حملات سابقة')}
                 </div>
             </main>
 

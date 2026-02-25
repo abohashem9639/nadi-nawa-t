@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import getDb from '@/lib/db';
+import { getSession } from '@/lib/auth';
 
 // GET — List today's active iftars (public) or filtered by gender
 export async function GET(request) {
@@ -13,10 +14,13 @@ export async function GET(request) {
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+        const session = await getSession();
+        const role = session?.role;
+
         let query;
         let params;
 
-        if (allDates) {
+        if (role === 'superadmin' && allDates) {
             // For SuperAdmin — all iftars
             if (gender) {
                 query = 'SELECT * FROM iftars WHERE gender = $1 ORDER BY date DESC, created_at DESC';
@@ -25,13 +29,18 @@ export async function GET(request) {
                 query = 'SELECT * FROM iftars ORDER BY date DESC, created_at DESC';
                 params = [];
             }
+        } else if (role === 'male_admin' || role === 'female_admin') {
+            // For Admins — only today's iftars (even if inactive) matching their area
+            const adminGender = role === 'male_admin' ? 'male' : 'female';
+            query = 'SELECT * FROM iftars WHERE date = $1 AND gender = $2 ORDER BY created_at DESC';
+            params = [today, adminGender];
         } else {
-            // For students — only today's active iftars
+            // For students (public) — today's and future active iftars
             if (gender) {
-                query = 'SELECT * FROM iftars WHERE date = $1 AND is_active = 1 AND gender = $2 ORDER BY created_at DESC';
+                query = 'SELECT * FROM iftars WHERE date >= $1 AND is_active = 1 AND gender = $2 ORDER BY date ASC, created_at DESC';
                 params = [today, gender];
             } else {
-                query = 'SELECT * FROM iftars WHERE date = $1 AND is_active = 1 ORDER BY created_at DESC';
+                query = 'SELECT * FROM iftars WHERE date >= $1 AND is_active = 1 ORDER BY date ASC, created_at DESC';
                 params = [today];
             }
         }

@@ -109,7 +109,11 @@
         "editCapacity": "Kapasiteyi Düzenle",
         "newCapacity": "Yeni Kapasite",
         "save": "Kaydet",
-        "cancel": "İptal"
+        "cancel": "İptal",
+        "currentIftars": "Mevcut ve Gelecek İftarlar",
+        "pastIftars": "Geçmiş İftarlar",
+        "noCurrentIftars": "Mevcut iftar yok",
+        "noPastIftars": "Geçmiş iftar yok"
     },
     "language": "Türkçe",
     "dir": "ltr"

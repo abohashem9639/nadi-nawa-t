@@ -12,7 +12,8 @@ export default function AdminPage() {
     const router = useRouter();
 
     const [admin, setAdmin] = useState(null);
-    const [iftar, setIftar] = useState(null);
+    const [iftars, setIftars] = useState([]);
+    const [selectedIftarId, setSelectedIftarId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [scanResult, setScanResult] = useState(null);
     const [scannerActive, setScannerActive] = useState(false);
@@ -39,19 +40,25 @@ export default function AdminPage() {
                 return;
             }
             setAdmin(data);
-            await fetchTodayIftar(data.role === 'male_admin' ? 'male' : 'female');
+            await fetchTodayIftars(data.role === 'male_admin' ? 'male' : 'female');
         } catch {
             router.push('/login');
-        } finally {
             setLoading(false);
         }
     }
 
-    async function fetchTodayIftar(gender) {
-        const res = await fetch(`/api/iftars?gender=${gender}`);
-        const data = await res.json();
-        if (data.iftars && data.iftars.length > 0) {
-            setIftar(data.iftars[0]);
+    async function fetchTodayIftars(gender) {
+        try {
+            const res = await fetch(`/api/iftars?gender=${gender}`);
+            const data = await res.json();
+            if (data.iftars) {
+                setIftars(data.iftars);
+                if (data.iftars.length === 1) {
+                    setSelectedIftarId(data.iftars[0].id);
+                }
+            }
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -112,7 +119,7 @@ export default function AdminPage() {
 
             // Refresh iftar counts in background (do not block UI)
             const genderFilter = admin.role === 'male_admin' ? 'male' : 'female';
-            fetchTodayIftar(genderFilter).catch(console.error);
+            fetchTodayIftars(genderFilter).catch(console.error);
         } catch (err) {
             console.error(err);
             setScanResult({ type: 'error', message: t('admin.checkinNotFound') });
@@ -194,6 +201,8 @@ export default function AdminPage() {
         router.push('/login');
     }
 
+    const iftar = iftars.find(i => i.id === selectedIftarId);
+
     if (loading) {
         return (
             <>
@@ -214,43 +223,57 @@ export default function AdminPage() {
                     <p className="page-subtitle">{admin?.name}</p>
                 </div>
 
-                {!iftar ? (
-                    <div className="empty-state animate-fade-in">
-                        <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
-                        <p className="empty-state-text">{t('admin.noIftar')}</p>
-                    </div>
+                {!selectedIftarId ? (
+                    iftars.length === 0 ? (
+                        <div className="empty-state animate-fade-in">
+                            <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
+                            <p className="empty-state-text">{t('admin.noIftar')}</p>
+                        </div>
+                    ) : (
+                        <div className="campaign-list animate-slide-up">
+                            <h2 className="section-title mb-4">{t('admin.selectCampaign') || 'اختر حملة اليوم'}</h2>
+                            {iftars.map(camp => (
+                                <div key={camp.id} className="card mb-3" onClick={() => setSelectedIftarId(camp.id)} style={{ cursor: 'pointer', border: '1px solid var(--border-color)', transition: 'border-color 0.2s', padding: '20px' }}>
+                                    <h3 style={{ fontSize: '1.2rem', marginBottom: '12px', color: 'var(--text-primary)' }}>{camp.title}</h3>
+                                    <div style={{ display: 'flex', gap: '20px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                        <span><strong>{t('admin.capacity')}:</strong> {camp.capacity}</span>
+                                        <span><strong>{t('admin.registered')}:</strong> {camp.registered || 0}</span>
+                                    </div>
+                                    <div style={{ marginTop: '12px', color: 'var(--brand-primary)', fontWeight: '500', fontSize: '0.9rem' }}>
+                                        {t('admin.viewCampaign') || 'عرض الحملة ومسح الـ QR'} &rarr;
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )
                 ) : (
                     <>
+                        <button className="btn btn-secondary mb-4" onClick={() => setSelectedIftarId(null)} style={{ padding: '8px 16px', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            &larr; {t('admin.backToList') || 'العودة للقائمة'}
+                        </button>
+
                         {/* Today's Iftar Info */}
                         <div className="card mb-3 animate-slide-up">
                             <h2 className="section-title">{t('admin.todayIftar')}</h2>
-                            <h3 style={{ fontSize: '1.3rem', marginBottom: '16px' }}>{iftar.title}</h3>
+                            <h3 style={{ fontSize: '1.3rem', marginBottom: '16px' }}>{iftar?.title}</h3>
                             <div className="stats-grid">
                                 <div className="stat-card">
-                                    <div className="stat-value">{iftar.capacity}</div>
+                                    <div className="stat-value">{iftar?.capacity}</div>
                                     <div className="stat-label">{t('admin.capacity')}</div>
                                 </div>
                                 <div className="stat-card">
-                                    <div className="stat-value">{iftar.registered || 0}</div>
+                                    <div className="stat-value">{iftar?.registered || 0}</div>
                                     <div className="stat-label">{t('admin.registered')}</div>
                                 </div>
                                 <div className="stat-card">
-                                    <div className="stat-value">{iftar.checkedIn || 0}</div>
+                                    <div className="stat-value">{iftar?.checkedIn || 0}</div>
                                     <div className="stat-label">{t('admin.checkedIn')}</div>
                                 </div>
                                 <div className="stat-card">
-                                    <div className="stat-value">{Math.max(0, (iftar.registered || 0) - (iftar.checkedIn || 0))}</div>
+                                    <div className="stat-value">{Math.max(0, (iftar?.registered || 0) - (iftar?.checkedIn || 0))}</div>
                                     <div className="stat-label">{t('admin.remaining')}</div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="mt-3">
-                            <button
-                                className="btn btn-secondary btn-full"
-                                onClick={() => router.push(`/admin/students?iftarId=${iftar.id}`)}
-                            >
-                                <Users size={18} /> {t('admin.viewStudents') || 'عرض سجل الطلاب'}
-                            </button>
                         </div>
 
                         {/* Removes old inline Check-in Result string */}

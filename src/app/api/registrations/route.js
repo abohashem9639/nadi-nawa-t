@@ -11,6 +11,11 @@ export async function GET(request) {
             return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
         }
 
+        // Restrict access to superadmin only
+        if (session.role !== 'superadmin') {
+            return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+        }
+
         const { searchParams } = new URL(request.url);
         const iftarId = searchParams.get('iftarId');
 

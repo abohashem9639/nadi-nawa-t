@@ -109,7 +109,11 @@
     "editCapacity": "تعديل السعة",
     "newCapacity": "السعة الجديدة",
     "save": "حفظ",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "currentIftars": "الإفطارات الحالية والقادمة",
+    "pastIftars": "الإفطارات السابقة",
+    "noCurrentIftars": "لا توجد إفطارات حالية",
+    "noPastIftars": "لا توجد إفطارات سابقة"
   },
   "language": "العربية",
   "dir": "rtl"

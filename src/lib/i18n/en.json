@@ -109,7 +109,11 @@
         "editCapacity": "Edit Capacity",
         "newCapacity": "New Capacity",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "currentIftars": "Current & Upcoming Iftars",
+        "pastIftars": "Past Iftars",
+        "noCurrentIftars": "No current iftars",
+        "noPastIftars": "No past iftars"
     },
     "language": "English",
     "dir": "ltr"
