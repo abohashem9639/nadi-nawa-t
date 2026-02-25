@@ -7,7 +7,7 @@ import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, Moon, Users, Shield } from 'lucide-react';
 
 export default function SuperAdminPage() {
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const router = useRouter();
 
     const [admin, setAdmin] = useState(null);
@@ -122,7 +122,7 @@ export default function SuperAdminPage() {
                         onClick={() => router.push('/superadmin/admins')}
                         style={{ margin: '0 auto', opacity: 0.9 }}
                     >
-                        <Shield size={16} /> {dir === 'rtl' ? 'إدارة المشرفين' : 'Manage Admins'}
+                        <Shield size={16} /> {isRtl ? 'إدارة المشرفين' : 'Manage Admins'}
                     </button>
                 </div>
 

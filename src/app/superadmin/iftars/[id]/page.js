@@ -7,7 +7,7 @@ import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, ArrowLeft, Users, CheckCircle2, Circle, MessageCircle } from 'lucide-react';
 
 export default function SuperAdminIftarDetailsPage() {
-    const { t, dir } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const router = useRouter();
     const params = useParams();
     const iftarId = params.id;
@@ -97,10 +97,10 @@ export default function SuperAdminIftarDetailsPage() {
                 <div className="page-header" style={{ position: 'relative' }}>
                     <button
                         className="btn btn-secondary btn-icon"
-                        style={{ position: 'absolute', [dir === 'rtl' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
+                        style={{ position: 'absolute', [isRtl ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
                         onClick={() => router.push('/superadmin')}
                     >
-                        <ArrowLeft size={20} style={{ transform: dir === 'rtl' ? 'rotate(180deg)' : 'none' }} />
+                        <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                     </button>
                     <h1 className="page-title">{t('superadmin.stats') || 'تفاصيل الإفطار والإحصائيات'}</h1>
                     <p className="page-subtitle">{iftar?.title}</p>

@@ -7,7 +7,7 @@ import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, ArrowLeft, UserPlus, Shield, UserX } from 'lucide-react';
 
 export default function SuperAdminManageAdmins() {
-    const { t, dir } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const router = useRouter();
 
     const [superAdmin, setSuperAdmin] = useState(null);
@@ -75,20 +75,20 @@ export default function SuperAdminManageAdmins() {
                 setRole('male_admin');
                 await fetchAdmins();
             } else if (data.error === 'username_exists') {
-                setErrorMsg(dir === 'rtl' ? 'اسم المستخدم موجود مسبقاً' : 'Username already exists');
+                setErrorMsg(isRtl ? 'اسم المستخدم موجود مسبقاً' : 'Username already exists');
             } else {
-                setErrorMsg(dir === 'rtl' ? 'حدث خطأ أثناء الإنشاء' : 'Error creating admin');
+                setErrorMsg(isRtl ? 'حدث خطأ أثناء الإنشاء' : 'Error creating admin');
             }
         } catch (err) {
             console.error(err);
-            setErrorMsg(dir === 'rtl' ? 'حدث خطأ أثناء الإنشاء' : 'Error creating admin');
+            setErrorMsg(isRtl ? 'حدث خطأ أثناء الإنشاء' : 'Error creating admin');
         } finally {
             setCreating(false);
         }
     }
 
     async function deleteAdmin(id, adminName) {
-        const confirmMsg = dir === 'rtl'
+        const confirmMsg = isRtl
             ? `هل أنت متأكد من حذف المشرف ${adminName}؟`
             : `Are you sure you want to delete admin ${adminName}?`;
 
@@ -125,19 +125,19 @@ export default function SuperAdminManageAdmins() {
                 <div className="page-header" style={{ position: 'relative' }}>
                     <button
                         className="btn btn-secondary btn-icon"
-                        style={{ position: 'absolute', [dir === 'rtl' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
+                        style={{ position: 'absolute', [isRtl ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
                         onClick={() => router.push('/superadmin')}
                     >
-                        <ArrowLeft size={20} style={{ transform: dir === 'rtl' ? 'rotate(180deg)' : 'none' }} />
+                        <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                     </button>
-                    <h1 className="page-title">{dir === 'rtl' ? 'إدارة المشرفين' : 'Manage Admins'}</h1>
+                    <h1 className="page-title">{isRtl ? 'إدارة المشرفين' : 'Manage Admins'}</h1>
                     <p className="page-subtitle">{superAdmin?.name}</p>
                 </div>
 
                 {/* Create Admin Form */}
                 <div className="card mb-4 animate-slide-up">
                     <h2 className="section-title flex items-center gap-2">
-                        <UserPlus size={20} /> {dir === 'rtl' ? 'إضافة مشرف جديد' : 'Add New Admin'}
+                        <UserPlus size={20} /> {isRtl ? 'إضافة مشرف جديد' : 'Add New Admin'}
                     </h2>
 
                     {errorMsg && (
@@ -149,11 +149,11 @@ export default function SuperAdminManageAdmins() {
                     <form onSubmit={handleCreate}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label className="form-label">{dir === 'rtl' ? 'اسم المشرف (للعرض)' : 'Display Name'}</label>
+                                <label className="form-label">{isRtl ? 'اسم المشرف (للعرض)' : 'Display Name'}</label>
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder={dir === 'rtl' ? 'مثال: أحمد محمد' : 'e.g. John Doe'}
+                                    placeholder={isRtl ? 'مثال: أحمد محمد' : 'e.g. John Doe'}
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     required
@@ -190,8 +190,8 @@ export default function SuperAdminManageAdmins() {
                                     value={role}
                                     onChange={(e) => setRole(e.target.value)}
                                 >
-                                    <option value="male_admin">{dir === 'rtl' ? 'مشرف قسم الطلاب' : 'Male Section Admin'}</option>
-                                    <option value="female_admin">{dir === 'rtl' ? 'مشرفة قسم الطالبات' : 'Female Section Admin'}</option>
+                                    <option value="male_admin">{isRtl ? 'مشرف قسم الطلاب' : 'Male Section Admin'}</option>
+                                    <option value="female_admin">{isRtl ? 'مشرفة قسم الطالبات' : 'Female Section Admin'}</option>
                                 </select>
                             </div>
                         </div>
@@ -210,7 +210,7 @@ export default function SuperAdminManageAdmins() {
                 {/* Admins List */}
                 <div className="card animate-slide-up" style={{ animationDelay: '0.1s' }}>
                     <h2 className="section-title flex items-center gap-2">
-                        <Shield size={20} /> {dir === 'rtl' ? 'المشرفون الحاليون' : 'Current Admins'}
+                        <Shield size={20} /> {isRtl ? 'المشرفون الحاليون' : 'Current Admins'}
                     </h2>
 
                     {admins.length === 0 ? (
@@ -222,7 +222,7 @@ export default function SuperAdminManageAdmins() {
                             <table className="table">
                                 <thead>
                                     <tr>
-                                        <th>{dir === 'rtl' ? 'الاسم' : 'Name'}</th>
+                                        <th>{isRtl ? 'الاسم' : 'Name'}</th>
                                         <th>{t('login.username') || 'Username'}</th>
                                         <th>{t('superadmin.gender') || 'Role'}</th>
                                         <th></th>
@@ -238,7 +238,7 @@ export default function SuperAdminManageAdmins() {
                                                     {a.role === 'male_admin' ? t('home.male') : t('home.female')}
                                                 </span>
                                             </td>
-                                            <td className="text-right" style={{ textAlign: dir === 'rtl' ? 'left' : 'right' }}>
+                                            <td className="text-right" style={{ textAlign: isRtl ? 'left' : 'right' }}>
                                                 <button
                                                     className="btn btn-sm btn-danger btn-icon"
                                                     onClick={() => deleteAdmin(a.id, a.name)}

@@ -7,7 +7,7 @@ import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, ArrowLeft, MessageCircle, CheckCircle2, Circle } from 'lucide-react';
 
 function AdminStudentsContent() {
-    const { t, dir } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const router = useRouter();
     const searchParams = useSearchParams();
     const iftarId = searchParams.get('iftarId');
@@ -98,10 +98,10 @@ function AdminStudentsContent() {
                 <div className="page-header" style={{ position: 'relative' }}>
                     <button
                         className="btn btn-secondary btn-icon"
-                        style={{ position: 'absolute', [dir === 'rtl' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
+                        style={{ position: 'absolute', [isRtl ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
                         onClick={() => router.push(admin?.role === 'superadmin' ? '/superadmin' : '/admin')}
                     >
-                        <ArrowLeft size={20} style={{ transform: dir === 'rtl' ? 'rotate(180deg)' : 'none' }} />
+                        <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                     </button>
                     <h1 className="page-title">{t('admin.viewStudents') || 'سجل الطلاب'}</h1>
                     <p className="page-subtitle">{iftarTitle}</p>
