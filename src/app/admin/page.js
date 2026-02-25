@@ -107,12 +107,12 @@ export default function AdminPage() {
                 studentName: data.studentName || '',
             });
 
-            // Refresh iftar counts
-            const genderFilter = admin.role === 'male_admin' ? 'male' : 'female';
-            await fetchTodayIftar(genderFilter);
-
             setIsScanning(false);
             setShowModal(true);
+
+            // Refresh iftar counts in background (do not block UI)
+            const genderFilter = admin.role === 'male_admin' ? 'male' : 'female';
+            fetchTodayIftar(genderFilter).catch(console.error);
         } catch (err) {
             console.error(err);
             setScanResult({ type: 'error', message: t('admin.checkinNotFound') });
@@ -148,7 +148,7 @@ export default function AdminPage() {
                 await scanner.start(
                     { facingMode: 'environment' }, // Force rear camera
                     {
-                        fps: 10,
+                        fps: 30, // Increased for faster scanning
                         qrbox: { width: 250, height: 250 },
                         aspectRatio: 1.0
                     },
