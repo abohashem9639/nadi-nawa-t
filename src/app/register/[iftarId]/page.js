@@ -4,8 +4,101 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Calendar, User } from 'lucide-react';
+import { Calendar, User, Search, ChevronDown } from 'lucide-react';
 import countries from '@/lib/countries.json';
+
+// --- Custom Country Selector ---
+function CountrySelector({ selectedCode, onSelect, lang }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+
+    // Quick helpers
+    const getCountryName = (c) => {
+        if (lang === 'en') return c.nameEn;
+        if (lang === 'tr') return c.nameTr;
+        return c.nameAr;
+    };
+
+    const selectedCountry = countries.find(c => c.code === selectedCode) || countries.find(c => c.code === 'TR');
+
+    const filtered = countries.filter(c => {
+        const term = search.toLowerCase();
+        return c.dialCode.includes(term) || getCountryName(c).toLowerCase().includes(term);
+    });
+
+    return (
+        <div style={{ position: 'relative', width: '135px', flexShrink: 0 }}>
+            {/* Overlay to close dropdown when clicking outside */}
+            {isOpen && (
+                <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+                    onClick={() => { setIsOpen(false); setSearch(''); }}
+                />
+            )}
+
+            <div
+                className="form-input"
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 8px', userSelect: 'none' }}
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} dir="ltr">
+                    {selectedCountry.flag} {selectedCountry.dialCode}
+                </span>
+                <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+            </div>
+
+            {isOpen && (
+                <div style={{
+                    position: 'absolute', top: '100%', left: 0,
+                    width: '280px', zIndex: 50, background: 'var(--bg-card)',
+                    border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)',
+                    marginTop: '4px', boxShadow: 'var(--shadow-md)',
+                    maxHeight: '300px', display: 'flex', flexDirection: 'column'
+                }}>
+                    <div style={{ padding: '8px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Search size={16} color="var(--text-muted)" />
+                        <input
+                            type="text"
+                            autoFocus
+                            placeholder={lang === 'ar' ? 'البحث عن دولة...' : (lang === 'tr' ? 'Ülke ara...' : 'Search country...')}
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            style={{
+                                border: 'none', background: 'transparent', color: 'var(--text-primary)',
+                                outline: 'none', flex: 1, fontSize: '0.9rem'
+                            }}
+                        />
+                    </div>
+                    <div style={{ overflowY: 'auto', flex: 1, padding: '4px 0' }}>
+                        {filtered.length > 0 ? filtered.map(c => (
+                            <div
+                                key={c.code}
+                                onClick={() => { onSelect(c.code); setIsOpen(false); setSearch(''); }}
+                                style={{
+                                    padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                                    borderBottom: '1px solid var(--border-color)', fontSize: '0.9rem'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-card-hover)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                                <span style={{ fontSize: '1.2rem' }}>{c.flag}</span>
+                                <span dir="ltr" style={{ fontWeight: 600, width: '45px', color: 'var(--brand-dark)' }}>{c.dialCode}</span>
+                                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>
+                                    {getCountryName(c)}
+                                </span>
+                            </div>
+                        )) : (
+                            <div style={{ padding: '12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                No results found
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+// ------------------------------
 
 export default function RegisterPage() {
     const { t, lang } = useTranslation();
@@ -135,23 +228,15 @@ export default function RegisterPage() {
                             <div className="form-group">
                                 <label className="form-label">{t('register.mobile')}</label>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <select
-                                        className="form-select"
-                                        style={{ width: '135px', flexShrink: 0, padding: '12px 8px', textOverflow: 'ellipsis' }}
-                                        value={selectedCountryCode}
-                                        onChange={(e) => setSelectedCountryCode(e.target.value)}
-                                        dir="ltr"
-                                    >
-                                        {countries.map(c => (
-                                            <option key={c.code} value={c.code}>
-                                                {c.flag} {c.dialCode} {getCountryName(c)}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <CountrySelector
+                                        selectedCode={selectedCountryCode}
+                                        onSelect={setSelectedCountryCode}
+                                        lang={lang}
+                                    />
                                     <input
                                         type="tel"
                                         className="form-input"
-                                        placeholder={selectedCountry.example ? `${examplePrefix} ${selectedCountry.example}` : t('register.mobilePlaceholder')}
+                                        placeholder={selectedCountry.example ? `${selectedCountry.example} :${examplePrefix}` : t('register.mobilePlaceholder')}
                                         value={mobileNumber}
                                         onChange={(e) => setMobileNumber(e.target.value)}
                                         required

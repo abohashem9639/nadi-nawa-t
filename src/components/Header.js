@@ -12,12 +12,11 @@ export default function Header({ showLogout, onLogout }) {
         <header className="header">
             <div className="header-brand">
                 <img src="/images/nadi-nawa-logo.png" alt="نادي نواة" className="header-logo" />
-                <div className="header-quote-container">
-                    <span className="header-quote">من النواة انطلقنا، شباب مثقف على الحق اجتمع</span>
-                </div>
             </div>
 
             <div className="header-actions">
+                <img src="/images/ghiras-logo.png" alt="غراس 26" className="header-logo" style={{ marginInlineEnd: '10px' }} />
+
                 {/* Desktop View (Visible on larger screens, hidden on mobile by CSS) */}
                 <div className="desktop-actions" style={{ display: 'none' }}>
                     <div className="lang-switcher">
