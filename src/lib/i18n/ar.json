@@ -79,7 +79,10 @@
     "unbanConfirm": "هل أنت متأكد من إلغاء حظر هذا الطالب؟",
     "confirm": "تأكيد",
     "cancel": "إلغاء",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "backToList": "العودة للقائمة",
+    "selectCampaign": "اختر حملة اليوم",
+    "viewCampaign": "عرض الحملة ومسح الـ QR"
   },
   "superadmin": {
     "title": "لوحة التحكم",

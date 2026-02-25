@@ -79,7 +79,10 @@
         "unbanConfirm": "Are you sure you want to unblock this student?",
         "confirm": "Confirm",
         "cancel": "Cancel",
-        "logout": "Logout"
+        "logout": "Logout",
+        "backToList": "Back to List",
+        "selectCampaign": "Select Today's Campaign",
+        "viewCampaign": "View Campaign & Scan QR"
     },
     "superadmin": {
         "title": "Dashboard",

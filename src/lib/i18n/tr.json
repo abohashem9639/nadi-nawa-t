@@ -79,7 +79,10 @@
         "unbanConfirm": "Bu öğrencinin engelini kaldırmak istediğinizden emin misiniz?",
         "confirm": "Onayla",
         "cancel": "İptal",
-        "logout": "Çıkış Yap"
+        "logout": "Çıkış Yap",
+        "backToList": "Listeye Dön",
+        "selectCampaign": "Bugünkü Kampanyayı Seç",
+        "viewCampaign": "Kampanyayı Görüntüle ve QR Okut"
     },
     "superadmin": {
         "title": "Kontrol Paneli",
