@@ -119,16 +119,16 @@ export default function HomePage() {
               {t('home.clubTitle')}
             </h2>
 
-            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 auto', maxWidth: '400px', color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '0.95rem', textAlign: 'start' }}>
-              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 auto', maxWidth: '400px', color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '1rem', textAlign: 'right' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
                 <span>{t('home.clubPoint1')}</span>
               </li>
-              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
                 <span>{t('home.clubPoint2')}</span>
               </li>
-              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '12px' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', gap: '8px', marginBottom: '12px' }}>
                 <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem', lineHeight: '1' }}>•</span>
                 <span>{t('home.clubPoint3')}</span>
               </li>
