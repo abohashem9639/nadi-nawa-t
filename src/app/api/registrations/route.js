@@ -20,7 +20,11 @@ export async function GET(request) {
 
         // Fetch registrations for the specific iftar, ordered by registration time
         const { rows } = await db.query(
-            'SELECT id, student_name, mobile_number, checked_in, registered_at, checked_in_at FROM registrations WHERE iftar_id = $1 ORDER BY registered_at ASC',
+            `SELECT r.id, r.student_name, r.mobile_number, r.checked_in, r.registered_at, r.checked_in_at, 
+             CASE WHEN b.mobile_number IS NOT NULL THEN 1 ELSE 0 END as is_banned 
+             FROM registrations r 
+             LEFT JOIN banned_numbers b ON r.mobile_number = b.mobile_number 
+             WHERE r.iftar_id = $1 ORDER BY r.registered_at ASC`,
             [iftarId]
         );
 

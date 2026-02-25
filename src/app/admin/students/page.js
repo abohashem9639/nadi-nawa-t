@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, ArrowLeft, MessageCircle, CheckCircle2, Circle } from 'lucide-react';
+import { Loader2, ArrowLeft, CheckCircle2, Circle, UserX, UserCheck } from 'lucide-react';
 
 function AdminStudentsContent() {
     const { t, isRtl } = useTranslation();
@@ -15,6 +15,7 @@ function AdminStudentsContent() {
     const [admin, setAdmin] = useState(null);
     const [students, setStudents] = useState([]);
     const [iftarTitle, setIftarTitle] = useState('');
+    const [iftarStats, setIftarStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -44,12 +45,12 @@ function AdminStudentsContent() {
 
     async function fetchStudents() {
         try {
-            // First fetch the iftar details to get the title
-            const allIftarsRes = await fetch('/api/iftars?all=true');
-            const allIftarsData = await allIftarsRes.json();
-            const currentIftar = allIftarsData.iftars?.find(i => i.id === iftarId);
-            if (currentIftar) {
-                setIftarTitle(currentIftar.title);
+            // First fetch the detailed iftar stats
+            const statsRes = await fetch(`/api/stats/${iftarId}`);
+            if (statsRes.ok) {
+                const statsData = await statsRes.json();
+                setIftarStats(statsData.iftar);
+                setIftarTitle(statsData.iftar.title);
             }
 
             // Then fetch the registered students for this iftar
@@ -72,13 +73,28 @@ function AdminStudentsContent() {
 
     // Function to format the phone number for WhatsApp API
     const formatWhatsAppNumber = (number) => {
-        // Remove spaces, dashes, plus signs, or any non-numeric characters
         let cleanNumber = number.replace(/\D/g, '');
-
-        // WhatsApp API requires the country code without the '+' sign
-        // The mobile_number from the DB already includes the country code (e.g. +90...)
         return cleanNumber;
     };
+
+    async function blockStudent(mobileNumber, action) {
+        if (!confirm(t(action === 'ban' ? 'admin.banConfirm' : 'admin.unbanConfirm') || 'Are you sure?')) return;
+        try {
+            const res = await fetch('/api/ban', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobileNumber, action })
+            });
+            if (res.ok) {
+                fetchStudents(); // Refresh
+            } else {
+                alert(t('admin.banError') || 'Error occurred');
+            }
+        } catch (error) {
+            console.error(error);
+            alert(t('admin.banError') || 'Error occurred');
+        }
+    }
 
     if (loading) {
         return (
@@ -107,12 +123,32 @@ function AdminStudentsContent() {
                     <p className="page-subtitle">{iftarTitle}</p>
                 </div>
 
+                {iftarStats && (
+                    <div className="stats-grid animate-fade-in mb-4">
+                        <div className="stat-card">
+                            <div className="stat-value">{iftarStats.capacity}</div>
+                            <div className="stat-label">{t('admin.capacity') || 'السعة الإجمالية'}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{iftarStats.registered}</div>
+                            <div className="stat-label">{t('admin.registered') || 'المسجلين'}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{iftarStats.checkedIn}</div>
+                            <div className="stat-label">{t('admin.checkedIn') || 'الحاضرين'}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">{Math.max(0, iftarStats.registered - iftarStats.checkedIn)}</div>
+                            <div className="stat-label">{t('admin.remaining') || 'الغياب'}</div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="card animate-slide-up">
                     <div className="flex justify-between items-center mb-3">
-                        <h2 className="section-title mb-0">{t('admin.registered')}: {students.length}</h2>
-                        <div className="badge badge-success flex items-center gap-1">
-                            <CheckCircle2 size={14} /> {students.filter(s => s.checked_in === 1).length} {t('admin.checkedIn')}
-                        </div>
+                        <h2 className="section-title mb-0 flex items-center gap-2">
+                            {t('admin.registered')}: {students.length}
+                        </h2>
                     </div>
 
                     {students.length === 0 ? (
@@ -149,16 +185,39 @@ function AdminStudentsContent() {
                                                 )}
                                             </td>
                                             <td className="text-center">
-                                                <a
-                                                    href={`https://wa.me/${formatWhatsAppNumber(student.mobile_number)}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm"
-                                                    style={{ backgroundColor: '#25D366', color: 'white', borderColor: '#25D366', padding: '6px' }}
-                                                    title="Mesaage on WhatsApp"
-                                                >
-                                                    <MessageCircle size={18} />
-                                                </a>
+                                                <div className="flex justify-center gap-2">
+                                                    <a
+                                                        href={`https://wa.me/${formatWhatsAppNumber(student.mobile_number)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="btn btn-sm"
+                                                        style={{ backgroundColor: '#25D366', color: 'white', borderColor: '#25D366', padding: '6px' }}
+                                                        title="WhatsApp"
+                                                    >
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path fillRule="evenodd" clipRule="evenodd" d="M12.0135 1.5C6.21633 1.5 1.5 6.22234 1.5 12.0268C1.5 13.9114 1.99653 15.6841 2.86877 17.2081L1.5034 22.1837L6.56839 20.854C8.0435 21.6563 9.77197 22.1154 11.6094 22.1154C17.4087 22.1154 22.1265 17.394 22.1265 11.5875C22.1265 5.78311 17.4087 1.5 12.0135 1.5ZM17.4565 15.4377C17.218 16.1098 16.2736 16.6853 15.5562 16.8378C15.0617 16.9427 14.3314 17.027 11.7582 15.961C8.46194 14.5956 6.33152 11.2384 6.16664 11.0206C6.00282 10.8016 4.8091 9.2154 4.8091 7.57508C4.8091 5.93475 5.64283 5.13885 5.9723 4.80053C6.23933 4.5262 6.671 4.40742 7.08253 4.40742C7.21527 4.40742 7.3323 4.41285 7.43399 4.41774C7.74239 4.43265 7.89669 4.45331 8.09914 4.94523C8.34685 5.54636 8.9554 7.03433 9.02983 7.18683C9.10425 7.34042 9.17066 7.52655 9.07923 7.71268C8.98779 7.89882 8.91336 8.01928 8.76435 8.19293C8.61639 8.36658 8.45524 8.54673 8.31828 8.68331C8.16928 8.83582 8.01188 8.99591 8.18553 9.29437C8.35811 9.59392 8.95111 10.5619 9.82436 11.3392C10.9531 12.3444 11.8596 12.6688 12.1818 12.8055C12.5029 12.941 12.8752 12.9204 13.0858 12.6936C13.2964 12.4667 13.918 11.7421 14.1668 11.2951C14.4145 10.8491 14.6622 10.9099 15.0346 11.0454C15.4059 11.182 17.3888 12.1583 17.7854 12.3568C18.182 12.5554 18.4468 12.6552 18.5462 12.8163C18.6445 12.9774 18.6445 13.7337 18.406 14.4068H18.4071L17.4565 15.4377Z" fill="currentColor" />
+                                                        </svg>
+                                                    </a>
+                                                    {student.is_banned === 1 ? (
+                                                        <button
+                                                            className="btn btn-sm"
+                                                            style={{ backgroundColor: '#64748b', color: 'white', borderColor: '#64748b', padding: '6px' }}
+                                                            onClick={() => blockStudent(student.mobile_number, 'unban')}
+                                                            title={t('admin.unbanStudent') || "إلغاء الحظر"}
+                                                        >
+                                                            <UserCheck size={18} />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="btn btn-sm"
+                                                            style={{ backgroundColor: '#ef4444', color: 'white', borderColor: '#ef4444', padding: '6px' }}
+                                                            onClick={() => blockStudent(student.mobile_number, 'ban')}
+                                                            title={t('admin.banStudent') || "حظر"}
+                                                        >
+                                                            <UserX size={18} />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

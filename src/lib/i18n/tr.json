@@ -24,6 +24,7 @@
         "successMsg": "Aşağıdaki QR kodunu kaydedin ve girişte gösterin",
         "alreadyRegistered": "Bu iftar için zaten kayıtlısınız",
         "alreadyRegisteredOther": "Başka bir iftara zaten kayıtlısınız. Birden fazla iftara kayıt olamazsınız.",
+        "bannedNumber": "Üzgünüz, bu numaranın kayıt olması engellendi.",
         "full": "Üzgünüz, bu iftar dolu",
         "error": "Bir hata oluştu, lütfen tekrar deneyin",
         "back": "Ana Sayfaya Dön"
@@ -59,6 +60,15 @@
         "btnContinue": "Devam Et",
         "studentName": "Öğrenci Adı",
         "noIftar": "Bugün bu bölüm için iftar bulunmamaktadır",
+        "viewStudents": "Öğrenciler",
+        "banStudent": "Öğrenciyi Engelle",
+        "unbanStudent": "Engeli Kaldır",
+        "banned": "Engellendi",
+        "banSuccess": "Başarıyla engellendi",
+        "unbanSuccess": "Engel başarıyla kaldırıldı",
+        "banError": "İşlem başarısız",
+        "banConfirm": "Bu öğrenciyi engellemek istediğinizden emin misiniz? Tekrar kayıt olamayacaklar.",
+        "unbanConfirm": "Bu öğrencinin engelini kaldırmak istediğinizden emin misiniz?",
         "logout": "Çıkış Yap"
     },
     "superadmin": {

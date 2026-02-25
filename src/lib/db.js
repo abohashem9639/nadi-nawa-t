@@ -48,6 +48,11 @@ export async function initDb() {
       FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS banned_numbers (
+      mobile_number TEXT PRIMARY KEY,
+      banned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Postgres requires explicit drops for altering table constraints cleanly in simple scripts. 
     -- Since this is an MVP in early dev, we attempt to add the constraint if it was missing.
     DO $$

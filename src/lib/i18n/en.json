@@ -24,6 +24,7 @@
         "successMsg": "Save the QR code below and show it at the entrance",
         "alreadyRegistered": "You are already registered for this iftar",
         "alreadyRegisteredOther": "You are already registered for another iftar. You cannot register for more than one.",
+        "bannedNumber": "Sorry, this number has been blocked from registration.",
         "full": "Sorry, this iftar is full",
         "error": "An error occurred, please try again",
         "back": "Back to Home"
@@ -59,6 +60,15 @@
         "btnContinue": "Continue",
         "studentName": "Student Name",
         "noIftar": "There is no iftar for this section today",
+        "viewStudents": "Overview",
+        "banStudent": "Block Student",
+        "unbanStudent": "Unblock",
+        "banned": "Blocked",
+        "banSuccess": "Blocked successfully",
+        "unbanSuccess": "Unblocked successfully",
+        "banError": "Failed to perform action",
+        "banConfirm": "Are you sure you want to block this student? They won't be able to register again.",
+        "unbanConfirm": "Are you sure you want to unblock this student?",
         "logout": "Logout"
     },
     "superadmin": {

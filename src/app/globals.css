@@ -148,6 +148,45 @@ h4 {
   background-clip: text;
 }
 
+.header-quote-container {
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+  margin: 0 16px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 350px;
+}
+
+.header-quote {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .header-quote-container {
+    max-width: 60vw;
+  }
+
+  .header-quote {
+    padding-right: 100%;
+    animation: marquee-rtl 12s linear infinite;
+  }
+}
+
+@keyframes marquee-rtl {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
 .header-actions {
   display: flex;
   align-items: center;

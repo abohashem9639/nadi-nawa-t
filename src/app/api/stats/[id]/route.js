@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth';
 export async function GET(request, { params }) {
     try {
         const session = await getSession();
-        if (!session || session.role !== 'superadmin') {
+        if (!session || !['superadmin', 'male_admin', 'female_admin'].includes(session.role)) {
             return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
         }
 

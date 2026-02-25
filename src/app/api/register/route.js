@@ -25,6 +25,12 @@ export async function POST(request) {
 
         const cleanMobile = mobileNumber.trim();
 
+        // Check if the number is banned
+        const { rows: bannedRows } = await db.query('SELECT 1 FROM banned_numbers WHERE mobile_number = $1', [cleanMobile]);
+        if (bannedRows.length > 0) {
+            return NextResponse.json({ error: 'banned_number' }, { status: 403 });
+        }
+
         // Check if already registered globally
         const { rows: existings } = await db.query(
             'SELECT * FROM registrations WHERE mobile_number = $1',
