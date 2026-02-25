@@ -11,7 +11,7 @@ export default function Header({ showLogout, onLogout }) {
     return (
         <header className="header">
             <div className="header-brand">
-                <img src="/images/ghiras-logo.png" alt="غراس 26" className="header-logo" />
+                <img src="/images/nadi-nawa-logo.png" alt="نادي نواة" className="header-logo" />
                 <div className="header-quote-container">
                     <span className="header-quote">من النواة انطلقنا، شباب مثقف على الحق اجتمع</span>
                 </div>

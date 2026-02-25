@@ -5,16 +5,17 @@ import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Calendar, User } from 'lucide-react';
+import countries from '@/lib/countries.json';
 
 export default function RegisterPage() {
-    const { t } = useTranslation();
+    const { t, lang } = useTranslation();
     const params = useParams();
     const router = useRouter();
     const iftarId = params.iftarId;
 
     const [iftar, setIftar] = useState(null);
     const [studentName, setStudentName] = useState('');
-    const [countryCode, setCountryCode] = useState('+90');
+    const [selectedCountryCode, setSelectedCountryCode] = useState('TR');
     const [mobileNumber, setMobileNumber] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null); // { type: 'success'|'error', qrToken, message }
@@ -58,13 +59,14 @@ export default function RegisterPage() {
         setResult(null);
 
         try {
+            const selectedCountry = countries.find(c => c.code === selectedCountryCode) || countries.find(c => c.code === 'TR');
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     iftarId,
                     studentName: studentName.trim(),
-                    mobileNumber: `${countryCode}${mobileNumber.trim()}`,
+                    mobileNumber: `${selectedCountry.dialCode}${mobileNumber.trim()}`,
                 }),
             });
 
@@ -89,6 +91,14 @@ export default function RegisterPage() {
             setLoading(false);
         }
     }
+
+    const selectedCountry = countries.find(c => c.code === selectedCountryCode) || countries.find(c => c.code === 'TR');
+    const getCountryName = (c) => {
+        if (lang === 'en') return c.nameEn;
+        if (lang === 'tr') return c.nameTr;
+        return c.nameAr;
+    };
+    const examplePrefix = lang === 'ar' ? 'مثال:' : lang === 'tr' ? 'Örn:' : 'e.g.';
 
     return (
         <>
@@ -127,30 +137,21 @@ export default function RegisterPage() {
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <select
                                         className="form-select"
-                                        style={{ width: '100px', flexShrink: 0, padding: '12px 8px' }}
-                                        value={countryCode}
-                                        onChange={(e) => setCountryCode(e.target.value)}
+                                        style={{ width: '135px', flexShrink: 0, padding: '12px 8px', textOverflow: 'ellipsis' }}
+                                        value={selectedCountryCode}
+                                        onChange={(e) => setSelectedCountryCode(e.target.value)}
                                         dir="ltr"
                                     >
-                                        <option value="+90">🇹🇷 +90</option>
-                                        <option value="+966">🇸🇦 +966</option>
-                                        <option value="+962">🇯🇴 +962</option>
-                                        <option value="+20">🇪🇬 +20</option>
-                                        <option value="+970">🇵🇸 +970</option>
-                                        <option value="+963">🇸🇾 +963</option>
-                                        <option value="+961">🇱🇧 +961</option>
-                                        <option value="+964">🇮🇶 +964</option>
-                                        <option value="+213">🇩🇿 +213</option>
-                                        <option value="+212">🇲🇦 +212</option>
-                                        <option value="+216">🇹🇳 +216</option>
-                                        <option value="+965">🇰🇼 +965</option>
-                                        <option value="+974">🇶🇦 +974</option>
-                                        <option value="+971">🇦🇪 +971</option>
+                                        {countries.map(c => (
+                                            <option key={c.code} value={c.code}>
+                                                {c.flag} {c.dialCode} {getCountryName(c)}
+                                            </option>
+                                        ))}
                                     </select>
                                     <input
                                         type="tel"
                                         className="form-input"
-                                        placeholder={t('register.mobilePlaceholder')}
+                                        placeholder={selectedCountry.example ? `${examplePrefix} ${selectedCountry.example}` : t('register.mobilePlaceholder')}
                                         value={mobileNumber}
                                         onChange={(e) => setMobileNumber(e.target.value)}
                                         required
@@ -187,13 +188,21 @@ export default function RegisterPage() {
                         </p>
 
                         {qrDataUrl && (
-                            <div className="qr-container mt-2">
+                            <div className="qr-container mt-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <div className="qr-wrapper">
                                     <img src={qrDataUrl} alt="QR Code" width={280} height={280} />
                                 </div>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '8px' }}>
                                     {studentName}
                                 </p>
+                                <a
+                                    href={qrDataUrl}
+                                    download={`nadi-nawa-qr-${iftarId}.png`}
+                                    className="btn btn-primary"
+                                    style={{ marginTop: '16px', textDecoration: 'none', display: 'flex', justifyContent: 'center', minWidth: '200px' }}
+                                >
+                                    {t('register.downloadQR') || 'تنزيل الصورة'}
+                                </a>
                             </div>
                         )}
 

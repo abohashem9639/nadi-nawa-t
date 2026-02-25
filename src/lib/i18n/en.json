@@ -27,7 +27,8 @@
         "bannedNumber": "Sorry, this number has been blocked from registration.",
         "full": "Sorry, this iftar is full",
         "error": "An error occurred, please try again",
-        "back": "Back to Home"
+        "back": "Back to Home",
+        "downloadQR": "Download Image"
     },
     "login": {
         "title": "Admin Login",

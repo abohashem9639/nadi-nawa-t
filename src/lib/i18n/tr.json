@@ -27,7 +27,8 @@
         "bannedNumber": "Üzgünüz, bu numaranın kayıt olması engellendi.",
         "full": "Üzgünüz, bu iftar dolu",
         "error": "Bir hata oluştu, lütfen tekrar deneyin",
-        "back": "Ana Sayfaya Dön"
+        "back": "Ana Sayfaya Dön",
+        "downloadQR": "Görüntüyü İndir"
     },
     "login": {
         "title": "Yönetici Girişi",
