@@ -494,10 +494,12 @@ h4 {
 }
 
 .progress-bar {
-  width: 100%;
   height: 6px;
-  background: var(--bg-input);
-  border-radius: 3px;
+  background: rgba(166, 110, 41, 0.15);
+  /* light brand color background */
+  border: 1px solid rgba(166, 110, 41, 0.2);
+  /* subtle border */
+  border-radius: 4px;
   overflow: hidden;
   margin-bottom: 12px;
 }
