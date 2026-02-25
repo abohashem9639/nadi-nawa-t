@@ -101,49 +101,56 @@ export default function AdminPage() {
         }
     }
 
-    async function startScanner() {
-        try {
-            const { Html5QrcodeScanner } = await import('html5-qrcode');
+    function startScanner() {
+        setScannerActive(true);
 
-            // Clear any existing instance first
-            if (html5QrRef.current) {
-                try { await html5QrRef.current.clear(); } catch { }
+        // Wait a short tick for React to render the div as visible (display: block)
+        setTimeout(async () => {
+            try {
+                const { Html5Qrcode } = await import('html5-qrcode');
+
+                if (html5QrRef.current) {
+                    try { await html5QrRef.current.clear(); } catch { }
+                }
+
+                const scanner = new Html5Qrcode('qr-reader');
+                html5QrRef.current = scanner;
+
+                await scanner.start(
+                    { facingMode: 'environment' }, // Force rear camera
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    (decodedText) => {
+                        handleCheckin(decodedText);
+                        scanner.pause(true);
+                        setTimeout(() => {
+                            try { scanner.resume(); } catch { }
+                        }, 3000);
+                    },
+                    (error) => {
+                        // ignore errors during scan
+                    }
+                );
+            } catch (err) {
+                console.error('Scanner error:', err);
+                alert('Camera setup failed or denied. Please ensure camera permissions are granted.');
+                setScannerActive(false);
             }
-
-            setScannerActive(true);
-
-            // Use Html5QrcodeScanner for built-in UI
-            const scanner = new Html5QrcodeScanner(
-                "qr-reader",
-                { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true },
-                false
-            );
-
-            html5QrRef.current = scanner;
-
-            scanner.render((decodedText) => {
-                handleCheckin(decodedText);
-                // Pause automatically handled by handleCheckin logic or manual action
-                scanner.pause(true);
-                setTimeout(() => {
-                    try { scanner.resume(); } catch { }
-                }, 3000);
-            }, (error) => {
-                // ignore errors during scan
-            });
-
-        } catch (err) {
-            console.error('Scanner error:', err);
-            alert('Camera setup failed');
-            setScannerActive(false);
-        }
+        }, 100);
     }
 
-    function stopScanner() {
+    async function stopScanner() {
         if (html5QrRef.current) {
             try {
+                // Must stop streaming before clearing
+                await html5QrRef.current.stop();
                 html5QrRef.current.clear();
-            } catch { }
+            } catch (err) {
+                console.error('Error stopping scanner', err);
+            }
             html5QrRef.current = null;
         }
         setScannerActive(false);
