@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Settings, X } from 'lucide-react';
+import { Settings, X, LogOut, Globe } from 'lucide-react';
 
 export default function Header({ showLogout, onLogout }) {
     const { t, lang, switchLang } = useTranslation();
@@ -12,7 +12,6 @@ export default function Header({ showLogout, onLogout }) {
         <header className="header">
             <div className="header-brand">
                 <img src="/images/ghiras-logo.png" alt="غراس 26" className="header-logo" />
-                <span className="header-title">{t('appName')}</span>
             </div>
 
             <div className="header-actions">
@@ -39,27 +38,36 @@ export default function Header({ showLogout, onLogout }) {
                     <div className="mobile-menu-overlay" onClick={() => setMenuOpen(false)}>
                         <div className="mobile-menu-card" onClick={(e) => e.stopPropagation()}>
                             <div className="mobile-menu-header">
-                                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{t('language') || 'Settings'}</h3>
+                                <h3 style={{ margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Settings size={20} /> {t('language') || 'Settings'}
+                                </h3>
                                 <button className="btn-close" onClick={() => setMenuOpen(false)}>
-                                    <X size={20} />
+                                    <X size={24} />
                                 </button>
                             </div>
 
                             <div className="mobile-menu-content">
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>اللغة / Language</p>
-                                <div className="lang-switcher" style={{ width: '100%', justifyContent: 'space-between', marginBottom: '24px' }}>
-                                    <button className={`lang-btn ${lang === 'ar' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { switchLang('ar'); setMenuOpen(false); }}>عربي</button>
-                                    <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { switchLang('en'); setMenuOpen(false); }}>EN</button>
-                                    <button className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { switchLang('tr'); setMenuOpen(false); }}>TR</button>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                                        <Globe size={16} /> اللغة / Language
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                                        <button className={`btn btn-sm ${lang === 'ar' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '12px 0' }} onClick={() => { switchLang('ar'); setMenuOpen(false); }}>عربي</button>
+                                        <button className={`btn btn-sm ${lang === 'en' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '12px 0' }} onClick={() => { switchLang('en'); setMenuOpen(false); }}>EN</button>
+                                        <button className={`btn btn-sm ${lang === 'tr' ? 'btn-primary' : 'btn-secondary'}`} style={{ flex: 1, padding: '12px 0' }} onClick={() => { switchLang('tr'); setMenuOpen(false); }}>TR</button>
+                                    </div>
                                 </div>
 
                                 {showLogout && (
-                                    <button
-                                        className="btn btn-danger btn-full"
-                                        onClick={() => { onLogout(); setMenuOpen(false); }}
-                                    >
-                                        {t('admin.logout') || 'Logout'}
-                                    </button>
+                                    <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
+                                        <button
+                                            className="btn btn-danger btn-full"
+                                            onClick={() => { onLogout(); setMenuOpen(false); }}
+                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px' }}
+                                        >
+                                            <LogOut size={20} /> {t('admin.logout') || 'Logout'}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
