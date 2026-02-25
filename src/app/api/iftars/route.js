@@ -35,12 +35,12 @@ export async function GET(request) {
             query = 'SELECT * FROM iftars WHERE date = $1 AND gender = $2 ORDER BY created_at DESC';
             params = [today, adminGender];
         } else {
-            // For students (public) — today's and future active iftars
+            // For students (public) — only today's active iftars
             if (gender) {
-                query = 'SELECT * FROM iftars WHERE date >= $1 AND is_active = 1 AND gender = $2 ORDER BY date ASC, created_at DESC';
+                query = 'SELECT * FROM iftars WHERE date = $1 AND is_active = 1 AND gender = $2 ORDER BY created_at DESC';
                 params = [today, gender];
             } else {
-                query = 'SELECT * FROM iftars WHERE date >= $1 AND is_active = 1 ORDER BY date ASC, created_at DESC';
+                query = 'SELECT * FROM iftars WHERE date = $1 AND is_active = 1 ORDER BY created_at DESC';
                 params = [today];
             }
         }
