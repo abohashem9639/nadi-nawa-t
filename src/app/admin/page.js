@@ -11,6 +11,7 @@ export default function AdminPage() {
 
     const [admin, setAdmin] = useState(null);
     const [iftar, setIftar] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [scanResult, setScanResult] = useState(null);
     const [scannerActive, setScannerActive] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
