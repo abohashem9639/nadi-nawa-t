@@ -124,22 +124,24 @@ export default function HomePage() {
 
           {/* Nadi Nawa Section */}
           <div className="card mb-4" style={{ textAlign: 'center' }}>
-            <div style={{ marginBottom: '16px' }}>
-              <img
-                src="/nadi_nawa.png"
-                alt="Nadi Nawa Logo"
-                style={{ height: '60px', width: 'auto', margin: '0 auto', opacity: 0.9 }}
-              />
-            </div>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '4px' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginBottom: '16px' }}>
               {t('home.clubTitle')}
             </h2>
-            <p style={{ fontSize: '0.9rem', color: 'var(--brand-medium)', marginBottom: '12px', letterSpacing: '2px' }}>
-              {t('home.clubEng')}
-            </p>
-            <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '20px' }}>
-              "{t('home.clubMotto')}"
-            </p>
+
+            <ul style={{ listStyleType: 'none', padding: 0, margin: '0 0 24px 0', color: 'var(--text-secondary)', lineHeight: '1.5', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
+                <span>{t('home.clubPoint1')}</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
+                <span>{t('home.clubPoint2')}</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span style={{ color: 'var(--brand-primary)', fontSize: '1.2rem' }}>•</span>
+                <span>{t('home.clubPoint3')}</span>
+              </li>
+            </ul>
 
             <a
               href="https://linktr.ee/NadiNawa"
