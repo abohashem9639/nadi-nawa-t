@@ -33,6 +33,7 @@ export async function POST(request) {
                 message: 'wrong_section',
                 studentName: registration.student_name,
                 correctSection: registration.gender,
+                isArqam: registration.is_arqam === 1,
             }, { status: 200 });
         }
 
@@ -43,6 +44,7 @@ export async function POST(request) {
                 message: 'already_checked_in',
                 studentName: registration.student_name,
                 checkedInAt: registration.checked_in_at,
+                isArqam: registration.is_arqam === 1,
             }, { status: 200 });
         }
 
@@ -58,6 +60,7 @@ export async function POST(request) {
             message: 'check_in_success',
             studentName: registration.student_name,
             iftarTitle: registration.iftar_title,
+            isArqam: registration.is_arqam === 1,
         }, { status: 200 });
     } catch (error) {
         console.error('Error checking in:', error);

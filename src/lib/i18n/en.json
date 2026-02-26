@@ -17,7 +17,11 @@
         "clubPoint1": "A youth student gathering in Sakarya",
         "clubPoint2": "Its goal is to create a faith and brotherhood environment",
         "clubPoint3": "We cooperate in our academic journey, and build brotherhood bonds",
-        "followUs": "Follow us on our platforms"
+        "followUs": "Follow us on our platforms",
+        "areYouArqam": "Are you an Al-Arqam student?",
+        "yes": "Yes",
+        "no": "No",
+        "arqamStudents": "Al-Arqam Students"
     },
     "register": {
         "title": "Iftar Registration",

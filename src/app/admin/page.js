@@ -112,6 +112,7 @@ export default function AdminPage() {
                 type,
                 message,
                 studentName: data.studentName || '',
+                isArqam: data.isArqam || false,
             });
 
             setIsScanning(false);
@@ -324,7 +325,25 @@ export default function AdminPage() {
                                     </div>
 
                                     {scanResult.studentName && (
-                                        <div className="modal-student">{scanResult.studentName}</div>
+                                        <div className="modal-student" style={{ marginBottom: scanResult.isArqam ? '4px' : '16px' }}>{scanResult.studentName}</div>
+                                    )}
+
+                                    {scanResult.isArqam && (
+                                        <div style={{
+                                            background: 'var(--brand-primary)',
+                                            color: '#fff',
+                                            padding: '8px 16px',
+                                            borderRadius: '8px',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            margin: '0 auto 16px auto',
+                                            fontWeight: 'bold',
+                                            fontSize: '1.1rem',
+                                            boxShadow: '0 4px 12px rgba(184, 134, 11, 0.3)'
+                                        }}>
+                                            <Users size={18} /> {t('home.arqamStudents') || 'من طلاب الأرقم'}
+                                        </div>
                                     )}
 
                                     <div className="modal-message">{scanResult.message}</div>

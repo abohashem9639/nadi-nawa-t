@@ -17,7 +17,11 @@
         "clubPoint1": "Sakarya'da genç bir öğrenci topluluğu",
         "clubPoint2": "Amacı inanç temelli ve kardeşçe bir ortam yaratmaktır",
         "clubPoint3": "Akademik yolculuğumuzda işbirliği yapıyor ve kardeşlik bağları kuruyoruz",
-        "followUs": "Bizi platformlarımızdan takip edin"
+        "followUs": "Bizi platformlarımızdan takip edin",
+        "areYouArqam": "Erkam Derneği öğrencisi misiniz?",
+        "yes": "Evet",
+        "no": "Hayır",
+        "arqamStudents": "Erkam Derneği Öğrencileri"
     },
     "register": {
         "title": "İftar Kaydı",
