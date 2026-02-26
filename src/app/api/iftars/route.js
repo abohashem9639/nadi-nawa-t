@@ -10,10 +10,11 @@ export async function GET(request) {
         const gender = searchParams.get('gender');
         const allDates = searchParams.get('all') === 'true';
 
-        // Get today's date in YYYY-MM-DD format based on local timezone, avoiding UTC shifts
+        // Get today's date in YYYY-MM-DD format explicitly forced to UTC+3 (Turkey/Saudi Arabia) 
+        // This prevents Vercel's UTC servers from thinking it's still yesterday at midnight
         const now = new Date();
-        const offset = now.getTimezoneOffset();
-        const localDate = new Date(now.getTime() - (offset * 60 * 1000));
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const localDate = new Date(utc + (3600000 * 3)); // +3 hours
         const today = localDate.toISOString().split('T')[0];
 
         const session = await getSession();
