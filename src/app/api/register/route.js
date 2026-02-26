@@ -26,19 +26,6 @@ export async function POST(request) {
 
         const cleanName = studentName.trim();
 
-        // Check if exactly the same name is already registered for THIS iftar to prevent spam clicks
-        const { rows: existings } = await db.query(
-            'SELECT * FROM registrations WHERE iftar_id = $1 AND student_name = $2',
-            [iftarId, cleanName]
-        );
-        const existing = existings[0];
-
-        if (existing) {
-            return NextResponse.json({
-                error: 'already_registered',
-                qrToken: existing.qr_token,
-            }, { status: 409 });
-        }
 
         // Check capacity
         const { rows: regCountRows } = await db.query(
