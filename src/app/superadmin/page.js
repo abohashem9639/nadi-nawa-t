@@ -205,7 +205,7 @@ export default function SuperAdminPage() {
                                 <td>
                                     <button
                                         className="btn btn-sm btn-secondary"
-                                        onClick={() => router.push(`/admin/students?iftarId=${iftar.id}`)}
+                                        onClick={() => router.push(`/superadmin/iftars/${iftar.id}`)}
                                         title={t('admin.viewStudents') || 'عرض سجل الطلاب'}
                                     >
                                         <Users size={16} />
