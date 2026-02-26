@@ -240,7 +240,7 @@ export default function AdminPage() {
                                         <span><strong>{t('admin.capacity')}:</strong> {camp.capacity}</span>
                                         <span><strong>{t('admin.registered')}:</strong> {camp.registered || 0}</span>
                                     </div>
-                                    <div style={{ marginTop: '12px', color: 'var(--brand-primary)', fontWeight: '500', fontSize: '0.9rem' }}>
+                                    <div style={{ marginTop: '12px', color: 'var(--brand-medium)', fontWeight: '500', fontSize: '0.9rem' }}>
                                         {t('admin.viewCampaign') || 'عرض الحملة ومسح الـ QR'} &rarr;
                                     </div>
                                 </div>
@@ -266,8 +266,8 @@ export default function AdminPage() {
                                     <div className="stat-value">{iftar?.registered || 0}</div>
                                     <div className="stat-label">{t('admin.registered')}</div>
                                 </div>
-                                <div className="stat-card" style={{ background: 'var(--bg-card-hover)', borderColor: 'var(--brand-primary)', borderWidth: '2px' }}>
-                                    <div className="stat-value" style={{ color: 'var(--brand-primary)' }}>{iftar?.arqamCount || 0}</div>
+                                <div className="stat-card" style={{ background: 'var(--bg-card-hover)', borderColor: 'var(--brand-medium)', borderWidth: '2px' }}>
+                                    <div className="stat-value" style={{ color: 'var(--brand-medium)' }}>{iftar?.arqamCount || 0}</div>
                                     <div className="stat-label flex items-center justify-center gap-1">
                                         <Users size={14} /> {t('home.arqamStudents') || 'طلاب الأرقم'}
                                     </div>
@@ -330,7 +330,7 @@ export default function AdminPage() {
 
                                     {scanResult.isArqam && (
                                         <div style={{
-                                            background: 'var(--brand-primary)',
+                                            background: 'var(--brand-medium)',
                                             color: '#fff',
                                             padding: '8px 16px',
                                             borderRadius: '8px',
@@ -339,10 +339,10 @@ export default function AdminPage() {
                                             gap: '8px',
                                             margin: '0 auto 16px auto',
                                             fontWeight: 'bold',
-                                            fontSize: '1.1rem',
-                                            boxShadow: '0 4px 12px rgba(184, 134, 11, 0.3)'
+                                            fontSize: '1.2rem',
+                                            boxShadow: '0 4px 12px rgba(166, 110, 41, 0.4)'
                                         }}>
-                                            <Users size={18} /> {t('home.arqamStudents') || 'من طلاب الأرقم'}
+                                            <Users size={20} /> {t('home.arqamStudents') || 'من طلاب الأرقم'}
                                         </div>
                                     )}
 

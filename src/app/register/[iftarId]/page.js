@@ -129,7 +129,7 @@ export default function RegisterPage() {
                                     id="arqamCheck"
                                     checked={isArqam}
                                     onChange={(e) => setIsArqam(e.target.checked)}
-                                    style={{ width: '18px', height: '18px', accentColor: 'var(--brand-primary)', cursor: 'pointer' }}
+                                    style={{ width: '18px', height: '18px', accentColor: 'var(--brand-medium)', cursor: 'pointer' }}
                                 />
                                 <label htmlFor="arqamCheck" style={{ margin: 0, color: 'var(--text-secondary)', cursor: 'pointer', userSelect: 'none' }}>
                                     {t('home.areYouArqam') || 'هل أنت من طلاب الأرقم؟'}
