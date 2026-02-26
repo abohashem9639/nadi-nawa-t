@@ -10,9 +10,11 @@ export async function GET(request) {
         const gender = searchParams.get('gender');
         const allDates = searchParams.get('all') === 'true';
 
-        // Get today's date in YYYY-MM-DD format (local timezone, NOT UTC)
+        // Get today's date in YYYY-MM-DD format based on local timezone, avoiding UTC shifts
         const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const offset = now.getTimezoneOffset();
+        const localDate = new Date(now.getTime() - (offset * 60 * 1000));
+        const today = localDate.toISOString().split('T')[0];
 
         const session = await getSession();
         const role = session?.role;

@@ -1018,8 +1018,26 @@ h4 {
     max-width: 100%;
   }
 
+  .stats-grid {
+    display: flex !important;
+    gap: 16px;
+    margin-bottom: 24px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .stat-card {
+    flex: 1;
+    border: 1px solid #ddd !important;
+    padding: 16px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    background: #fff !important;
+    text-align: center;
+    box-shadow: none;
+  }
+
   .card,
-  .stat-card,
   .iftar-card {
     border: 1px solid #ddd;
     box-shadow: none;
@@ -1030,6 +1048,16 @@ h4 {
 
   .table-container {
     border: none;
+    page-break-inside: auto;
+  }
+
+  .table {
+    page-break-inside: auto;
+  }
+
+  .table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
 
   .table th {
