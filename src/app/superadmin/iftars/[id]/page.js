@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2 } from 'lucide-react';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -84,6 +84,31 @@ export default function SuperAdminIftarDetailsPage() {
 
     const printReport = () => {
         window.print();
+    };
+
+    const handleDeleteStudent = (studentId, studentName) => {
+        setDialogConfig({
+            isOpen: true,
+            title: t('superadmin.deleteStudent') || 'حذف الطالب',
+            message: `${t('superadmin.deleteStudentConfirm') || 'هل أنت متأكد أنك تريد حذف هذا الطالب من القائمة نهائياً؟'}\n${studentName}`,
+            type: 'danger',
+            onConfirm: async () => {
+                setDialogConfig({ isOpen: false });
+                try {
+                    const res = await fetch(`/api/registrations/${studentId}`, {
+                        method: 'DELETE'
+                    });
+                    if (res.ok) {
+                        await Promise.all([fetchIftarDetails(), fetchStudents()]);
+                    } else {
+                        alert(t('register.error') || 'Error deleting student');
+                    }
+                } catch (err) {
+                    console.error("Error deleting student:", err);
+                    alert(t('register.error') || 'Error deleting student');
+                }
+            }
+        });
     };
 
     if (loading) {
@@ -184,6 +209,7 @@ export default function SuperAdminIftarDetailsPage() {
                                         <th>#</th>
                                         <th>{t('admin.studentName') || 'الاسم'}</th>
                                         <th className="text-center">{t('admin.checkedIn') || 'الحضور'}</th>
+                                        <th className="text-center">{t('superadmin.delete') || 'حذف'}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -199,6 +225,16 @@ export default function SuperAdminIftarDetailsPage() {
                                                 ) : (
                                                     <Circle size={20} className="text-slate-300 mx-auto" />
                                                 )}
+                                            </td>
+                                            <td className="text-center">
+                                                <button
+                                                    className="btn btn-sm btn-icon"
+                                                    style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '6px', margin: '0 auto', display: 'flex' }}
+                                                    onClick={() => handleDeleteStudent(student.id, student.student_name)}
+                                                    title={t('superadmin.deleteStudent') || 'حذف الطالب'}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
