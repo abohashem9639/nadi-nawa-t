@@ -64,10 +64,17 @@ export async function GET(request) {
             );
             const checkinCount = parseInt(checkinRows[0].count);
 
+            const { rows: arqamRows } = await db.query(
+                'SELECT COUNT(*) as count FROM registrations WHERE iftar_id = $1 AND is_arqam = 1',
+                [iftar.id]
+            );
+            const arqamCount = parseInt(arqamRows[0].count);
+
             return {
                 ...iftar,
                 registered: regCount,
                 checkedIn: checkinCount,
+                arqamCount: arqamCount,
             };
         }));
 

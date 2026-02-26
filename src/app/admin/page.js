@@ -265,6 +265,12 @@ export default function AdminPage() {
                                     <div className="stat-value">{iftar?.registered || 0}</div>
                                     <div className="stat-label">{t('admin.registered')}</div>
                                 </div>
+                                <div className="stat-card" style={{ background: 'var(--bg-card-hover)', borderColor: 'var(--brand-primary)', borderWidth: '2px' }}>
+                                    <div className="stat-value" style={{ color: 'var(--brand-primary)' }}>{iftar?.arqamCount || 0}</div>
+                                    <div className="stat-label flex items-center justify-center gap-1">
+                                        <Users size={14} /> {t('home.arqamStudents') || 'طلاب الأرقم'}
+                                    </div>
+                                </div>
                                 <div className="stat-card">
                                     <div className="stat-value">{iftar?.checkedIn || 0}</div>
                                     <div className="stat-label">{t('admin.checkedIn')}</div>

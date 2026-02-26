@@ -43,6 +43,7 @@ export async function initDb() {
       mobile_number TEXT UNIQUE NOT NULL,
       qr_token TEXT UNIQUE NOT NULL,
       checked_in INTEGER NOT NULL DEFAULT 0,
+      is_arqam INTEGER NOT NULL DEFAULT 0,
       registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       checked_in_at TIMESTAMP WITH TIME ZONE,
       FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE
@@ -53,7 +54,20 @@ export async function initDb() {
       banned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
-    -- Postgres requires explicit drops for altering table constraints cleanly in simple scripts. 
+    -- Add is_arqam to existing registrations table if missing
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name='registrations' AND column_name='is_arqam'
+      ) THEN
+        ALTER TABLE registrations ADD COLUMN is_arqam INTEGER NOT NULL DEFAULT 0;
+      END IF;
+    END
+    $$;
+
+    -- Postgres requires explicit drops for altering table constraints cleanly in simple scripts.
     -- Since this is an MVP in early dev, we attempt to add the constraint if it was missing.
     DO $$
     BEGIN

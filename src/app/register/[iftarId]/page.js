@@ -14,6 +14,7 @@ export default function RegisterPage() {
 
     const [iftar, setIftar] = useState(null);
     const [studentName, setStudentName] = useState('');
+    const [isArqam, setIsArqam] = useState(false);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null); // { type: 'success'|'error', qrToken, message }
     const [qrDataUrl, setQrDataUrl] = useState(null);
@@ -62,6 +63,7 @@ export default function RegisterPage() {
                 body: JSON.stringify({
                     iftarId,
                     studentName: studentName.trim(),
+                    isArqam: isArqam
                 }),
             });
 
@@ -119,6 +121,19 @@ export default function RegisterPage() {
                                     onChange={(e) => setStudentName(e.target.value)}
                                     required
                                 />
+                            </div>
+
+                            <div className="form-group flex-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    id="arqamCheck"
+                                    checked={isArqam}
+                                    onChange={(e) => setIsArqam(e.target.checked)}
+                                    style={{ width: '18px', height: '18px', accentColor: 'var(--brand-primary)', cursor: 'pointer' }}
+                                />
+                                <label htmlFor="arqamCheck" style={{ margin: 0, color: 'var(--text-secondary)', cursor: 'pointer', userSelect: 'none' }}>
+                                    {t('home.areYouArqam') || 'هل أنت من طلاب الأرقم؟'}
+                                </label>
                             </div>
 
                             {result?.type === 'error' && (

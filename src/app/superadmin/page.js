@@ -221,6 +221,7 @@ export default function SuperAdminPage() {
                             <th>{t('superadmin.date')}</th>
                             <th>{t('superadmin.gender')}</th>
                             <th>{t('superadmin.capacity')}</th>
+                            <th>{t('home.arqamStudents') || 'طلاب الأرقم'}</th>
                             <th>{t('admin.registered')}</th>
                             <th>{t('admin.checkedIn')}</th>
                             <th>{t('admin.viewStudents') || 'الطلاب'}</th>
@@ -248,6 +249,7 @@ export default function SuperAdminPage() {
                                         <Edit2 size={14} />
                                     </div>
                                 </td>
+                                <td>{iftar.arqamCount || 0}</td>
                                 <td>{iftar.registered || 0}</td>
                                 <td>{iftar.checkedIn || 0}</td>
                                 <td>

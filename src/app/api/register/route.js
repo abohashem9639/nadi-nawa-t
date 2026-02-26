@@ -7,7 +7,7 @@ export async function POST(request) {
     try {
         const db = await getDb();
         const body = await request.json();
-        const { iftarId, studentName } = body;
+        const { iftarId, studentName, isArqam } = body;
 
         if (!iftarId || !studentName) {
             return NextResponse.json({ error: 'missing_fields' }, { status: 400 });
@@ -42,11 +42,12 @@ export async function POST(request) {
         const id = uuidv4();
         const qrToken = `GHIRAS_${id}`; // Unique token for QR
         const dummyMobile = uuidv4(); // Unique dummy mobile to satisfy DB UNIQUE constraint without migration
+        const arqamFlag = isArqam ? 1 : 0;
 
         await db.query(`
-            INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token)
-            VALUES ($1, $2, $3, $4, $5)
-        `, [id, iftarId, cleanName, dummyMobile, qrToken]);
+            INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token, is_arqam)
+            VALUES ($1, $2, $3, $4, $5, $6)
+        `, [id, iftarId, cleanName, dummyMobile, qrToken, arqamFlag]);
 
         return NextResponse.json({
             success: true,
