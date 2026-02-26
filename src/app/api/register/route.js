@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import getDb from '@/lib/db';
+import { v4 as uuidv4 } from 'uuid';
 
 // POST — Student registration
 export async function POST(request) {
     try {
         const db = await getDb();
         const body = await request.json();
-        const { iftarId, studentName, mobileNumber } = body;
+        const { iftarId, studentName } = body;
 
-        if (!iftarId || !studentName || !mobileNumber) {
+        if (!iftarId || !studentName) {
             return NextResponse.json({ error: 'missing_fields' }, { status: 400 });
         }
 
@@ -23,34 +24,20 @@ export async function POST(request) {
             return NextResponse.json({ error: 'iftar_not_found' }, { status: 404 });
         }
 
-        const cleanMobile = mobileNumber.trim();
+        const cleanName = studentName.trim();
 
-        // Check if the number is banned
-        const { rows: bannedRows } = await db.query('SELECT 1 FROM banned_numbers WHERE mobile_number = $1', [cleanMobile]);
-        if (bannedRows.length > 0) {
-            return NextResponse.json({ error: 'banned_number' }, { status: 403 });
-        }
-
-        // Check if already registered globally
+        // Check if exactly the same name is already registered for THIS iftar to prevent spam clicks
         const { rows: existings } = await db.query(
-            'SELECT * FROM registrations WHERE mobile_number = $1',
-            [cleanMobile]
+            'SELECT * FROM registrations WHERE iftar_id = $1 AND student_name = $2',
+            [iftarId, cleanName]
         );
         const existing = existings[0];
 
         if (existing) {
-            // Already registered for exactly this iftar
-            if (existing.iftar_id === iftarId) {
-                return NextResponse.json({
-                    error: 'already_registered',
-                    qrToken: existing.qr_token,
-                }, { status: 409 });
-            } else {
-                // Registered for a different iftar
-                return NextResponse.json({
-                    error: 'already_registered_other'
-                }, { status: 409 });
-            }
+            return NextResponse.json({
+                error: 'already_registered',
+                qrToken: existing.qr_token,
+            }, { status: 409 });
         }
 
         // Check capacity
@@ -65,19 +52,19 @@ export async function POST(request) {
         }
 
         // Create registration
-        const { v4: uuidv4 } = await import('uuid');
         const id = uuidv4();
-        const qrToken = uuidv4();
+        const qrToken = `GHIRAS_${id}`; // Unique token for QR
+        const dummyMobile = uuidv4(); // Unique dummy mobile to satisfy DB UNIQUE constraint without migration
 
-        await db.query(
-            'INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token) VALUES ($1, $2, $3, $4, $5)',
-            [id, iftarId, studentName.trim(), cleanMobile, qrToken]
-        );
+        await db.query(`
+            INSERT INTO registrations (id, iftar_id, student_name, mobile_number, qr_token)
+            VALUES ($1, $2, $3, $4, $5)
+        `, [id, iftarId, cleanName, dummyMobile, qrToken]);
 
         return NextResponse.json({
             success: true,
             qrToken,
-            studentName: studentName.trim(),
+            studentName: cleanName,
         }, { status: 201 });
     } catch (error) {
         console.error('Error registering:', error);

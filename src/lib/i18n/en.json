@@ -31,11 +31,13 @@
         "successMsg": "Save the QR code below and show it at the entrance",
         "alreadyRegistered": "You are already registered for this iftar",
         "alreadyRegisteredOther": "You are already registered for another iftar. You cannot register for more than one.",
-        "bannedNumber": "Sorry, this number has been blocked from registration.",
-        "full": "Sorry, this iftar is full",
+        "full": "Sorry, seats are full",
         "error": "An error occurred, please try again",
         "back": "Back to Home",
-        "downloadQR": "Download Image"
+        "downloadQR": "Download Image",
+        "qrInstruction1": "Save this QR code image and show it to the admin upon entry.",
+        "qrInstruction2": "Do not share this code with anyone to avoid losing your reservation.",
+        "qrInstruction3": "This code is valid for one-time use only."
     },
     "login": {
         "title": "Admin Login",

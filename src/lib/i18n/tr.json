@@ -31,11 +31,13 @@
         "successMsg": "Aşağıdaki QR kodunu kaydedin ve girişte gösterin",
         "alreadyRegistered": "Bu iftar için zaten kayıtlısınız",
         "alreadyRegisteredOther": "Başka bir iftara zaten kayıtlısınız. Birden fazla iftara kayıt olamazsınız.",
-        "bannedNumber": "Üzgünüz, bu numaranın kayıt olması engellendi.",
         "full": "Üzgünüz, bu iftar dolu",
         "error": "Bir hata oluştu, lütfen tekrar deneyin",
         "back": "Ana Sayfaya Dön",
-        "downloadQR": "Görüntüyü İndir"
+        "downloadQR": "Görüntüyü İndir",
+        "qrInstruction1": "Bu QR kod görüntüsünü kaydedin ve girişte görevliye gösterin.",
+        "qrInstruction2": "Rezervasyonunuzun iptal olmaması için bu kodu kimseyle paylaşmayın.",
+        "qrInstruction3": "Bu kod yalnızca tek kullanımlıktır."
     },
     "login": {
         "title": "Yönetici Girişi",
