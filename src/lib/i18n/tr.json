@@ -124,7 +124,8 @@
         "newPassword": "Yeni Şifre",
         "leaveBlankPassword": "Değiştirmek istemiyorsanız boş bırakın",
         "profileUpdateSuccess": "Profil başarıyla güncellendi",
-        "profileUpdateError": "Güncelleme başarısız, kullanıcı adı zaten kullanımda olabilir"
+        "profileUpdateError": "Güncelleme başarısız, kullanıcı adı zaten kullanımda olabilir",
+        "printReport": "Raporu İndir (PDF)"
     },
     "language": "Türkçe",
     "dir": "ltr"

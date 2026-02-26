@@ -124,7 +124,8 @@
     "newPassword": "كلمة المرور الجديدة",
     "leaveBlankPassword": "اترك الحقل فارغاً إذا لم ترغب بتغييرها",
     "profileUpdateSuccess": "تم تحديث بيانات الحساب بنجاح",
-    "profileUpdateError": "تعذر تحديث البيانات، قد يكون اسم المستخدم مستخدماً بالفعل"
+    "profileUpdateError": "تعذر تحديث البيانات، قد يكون اسم المستخدم مستخدماً بالفعل",
+    "printReport": "تحميل التقرير (PDF)"
   },
   "language": "العربية",
   "dir": "rtl"

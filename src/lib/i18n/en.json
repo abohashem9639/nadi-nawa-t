@@ -124,7 +124,8 @@
         "newPassword": "New Password",
         "leaveBlankPassword": "Leave blank if you don't want to change it",
         "profileUpdateSuccess": "Profile updated successfully",
-        "profileUpdateError": "Failed to update, username might already exist"
+        "profileUpdateError": "Failed to update, username might already exist",
+        "printReport": "Download PDF Report"
     },
     "language": "English",
     "dir": "ltr"

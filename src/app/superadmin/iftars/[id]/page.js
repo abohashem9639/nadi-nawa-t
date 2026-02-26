@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { ArrowLeft, CheckCircle2, Circle, Loader2, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer } from 'lucide-react';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -82,6 +82,10 @@ export default function SuperAdminIftarDetailsPage() {
         router.push('/login');
     }
 
+    const printReport = () => {
+        window.print();
+    };
+
     if (loading) {
         return (
             <>
@@ -92,6 +96,13 @@ export default function SuperAdminIftarDetailsPage() {
             </>
         );
     }
+
+    // Calculations for percentages
+    const totalRegistered = iftar?.registered || 0;
+    const checkedIn = iftar?.checkedIn || 0;
+    const absent = Math.max(0, totalRegistered - checkedIn);
+    const attendancePercent = totalRegistered > 0 ? Math.round((checkedIn / totalRegistered) * 100) : 0;
+    const absentPercent = totalRegistered > 0 ? Math.round((absent / totalRegistered) * 100) : 0;
 
     return (
         <>
@@ -104,6 +115,13 @@ export default function SuperAdminIftarDetailsPage() {
                         onClick={() => router.push('/superadmin')}
                     >
                         <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
+                    </button>
+                    <button
+                        className="btn btn-primary btn-sm flex items-center gap-2"
+                        style={{ position: 'absolute', [isRtl ? 'left' : 'right']: 0, top: '50%', transform: 'translateY(-50%)' }}
+                        onClick={printReport}
+                    >
+                        <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تحميل التقرير (PDF)'}</span>
                     </button>
                     <h1 className="page-title">{t('superadmin.stats') || 'تفاصيل الإفطار والإحصائيات'}</h1>
                     <p className="page-subtitle">{iftar?.title}</p>
@@ -120,15 +138,19 @@ export default function SuperAdminIftarDetailsPage() {
                                 <div className="stat-label">{t('admin.capacity') || 'السعة الإجمالية'}</div>
                             </div>
                             <div className="stat-card">
-                                <div className="stat-value">{iftar.registered}</div>
+                                <div className="stat-value">{totalRegistered}</div>
                                 <div className="stat-label">{t('admin.registered') || 'المسجلين'}</div>
                             </div>
                             <div className="stat-card">
-                                <div className="stat-value">{iftar.checkedIn}</div>
+                                <div className="stat-value">
+                                    {checkedIn} <span style={{ fontSize: '1.2rem', color: 'var(--success)' }}>({attendancePercent}%)</span>
+                                </div>
                                 <div className="stat-label">{t('admin.checkedIn') || 'الحاضرين'}</div>
                             </div>
                             <div className="stat-card">
-                                <div className="stat-value">{Math.max(0, iftar.registered - iftar.checkedIn)}</div>
+                                <div className="stat-value">
+                                    {absent} <span style={{ fontSize: '1.2rem', color: 'var(--danger)' }}>({absentPercent}%)</span>
+                                </div>
                                 <div className="stat-label">{t('admin.remaining') || 'الغياب'}</div>
                             </div>
                         </div>

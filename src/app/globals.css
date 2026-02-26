@@ -998,3 +998,71 @@ h4 {
   background: linear-gradient(to bottom, var(--brand-gold), var(--brand-medium));
   border-radius: 2px;
 }
+
+/* ── Print Styles ── */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .header,
+  .btn,
+  .mobile-menu-overlay,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  .container {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .card,
+  .stat-card,
+  .iftar-card {
+    border: 1px solid #ddd;
+    box-shadow: none;
+    break-inside: avoid;
+    backdrop-filter: none;
+    page-break-inside: avoid;
+  }
+
+  .table-container {
+    border: none;
+  }
+
+  .table th {
+    background: #f3f4f6 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    color: #000;
+    border-bottom: 2px solid #ccc;
+  }
+
+  .table td,
+  .table th {
+    color: #000;
+    border-color: #ddd;
+  }
+
+  .page-title,
+  .stat-value {
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important;
+    background: none !important;
+  }
+
+  .stat-label,
+  .section-title,
+  .iftar-card-title,
+  .text-secondary,
+  .text-muted {
+    color: #333 !important;
+  }
+
+  svg {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, Moon, Users, Shield, Edit2, Settings } from 'lucide-react';
+import { Loader2, Moon, Users, Shield, Edit2, Settings, Printer } from 'lucide-react';
 
 export default function SuperAdminPage() {
     const { t, isRtl } = useTranslation();
@@ -251,13 +251,22 @@ export default function SuperAdminPage() {
                                 <td>{iftar.registered || 0}</td>
                                 <td>{iftar.checkedIn || 0}</td>
                                 <td>
-                                    <button
-                                        className="btn btn-sm btn-secondary"
-                                        onClick={() => router.push(`/superadmin/iftars/${iftar.id}`)}
-                                        title={t('admin.viewStudents') || 'عرض سجل الطلاب'}
-                                    >
-                                        <Users size={16} />
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            className="btn btn-sm btn-secondary"
+                                            onClick={() => router.push(`/superadmin/iftars/${iftar.id}`)}
+                                            title={t('admin.viewStudents') || 'عرض سجل الطلاب'}
+                                        >
+                                            <Users size={16} />
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-primary"
+                                            onClick={() => router.push(`/superadmin/iftars/${iftar.id}`)}
+                                            title={t('superadmin.printReport') || 'تحميل التقرير (PDF)'}
+                                        >
+                                            <Printer size={16} />
+                                        </button>
+                                    </div>
                                 </td>
                                 <td>
                                     <button
