@@ -118,7 +118,13 @@
     "currentIftars": "الإفطارات الحالية والقادمة",
     "pastIftars": "الإفطارات السابقة",
     "noCurrentIftars": "لا توجد إفطارات حالية",
-    "noPastIftars": "لا توجد إفطارات سابقة"
+    "noPastIftars": "لا توجد إفطارات سابقة",
+    "editProfile": "إعدادات الحساب",
+    "newUsername": "اسم المستخدم الجديد",
+    "newPassword": "كلمة المرور الجديدة",
+    "leaveBlankPassword": "اترك الحقل فارغاً إذا لم ترغب بتغييرها",
+    "profileUpdateSuccess": "تم تحديث بيانات الحساب بنجاح",
+    "profileUpdateError": "تعذر تحديث البيانات، قد يكون اسم المستخدم مستخدماً بالفعل"
   },
   "language": "العربية",
   "dir": "rtl"

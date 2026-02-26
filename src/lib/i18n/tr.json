@@ -118,7 +118,13 @@
         "currentIftars": "Mevcut ve Gelecek İftarlar",
         "pastIftars": "Geçmiş İftarlar",
         "noCurrentIftars": "Mevcut iftar yok",
-        "noPastIftars": "Geçmiş iftar yok"
+        "noPastIftars": "Geçmiş iftar yok",
+        "editProfile": "Hesap Ayarları",
+        "newUsername": "Yeni Kullanıcı Adı",
+        "newPassword": "Yeni Şifre",
+        "leaveBlankPassword": "Değiştirmek istemiyorsanız boş bırakın",
+        "profileUpdateSuccess": "Profil başarıyla güncellendi",
+        "profileUpdateError": "Güncelleme başarısız, kullanıcı adı zaten kullanımda olabilir"
     },
     "language": "Türkçe",
     "dir": "ltr"

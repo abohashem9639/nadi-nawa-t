@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, Moon, Users, Shield, Edit2 } from 'lucide-react';
+import { Loader2, Moon, Users, Shield, Edit2, Settings } from 'lucide-react';
 
 export default function SuperAdminPage() {
     const { t, isRtl } = useTranslation();
@@ -26,6 +26,12 @@ export default function SuperAdminPage() {
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
     const [editCapacityModal, setEditCapacityModal] = useState({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' });
 
+    // Edit Profile Form
+    const [editProfileModal, setEditProfileModal] = useState({ isOpen: false });
+    const [profileUsername, setProfileUsername] = useState('');
+    const [profilePassword, setProfilePassword] = useState('');
+    const [updatingProfile, setUpdatingProfile] = useState(false);
+
     useEffect(() => {
         checkAuth();
     }, []);
@@ -39,6 +45,7 @@ export default function SuperAdminPage() {
                 return;
             }
             setAdmin(data);
+            setProfileUsername(data.username || '');
             await Promise.all([fetchIftars(), fetchStats()]);
         } catch {
             router.push('/login');
@@ -141,6 +148,47 @@ export default function SuperAdminPage() {
     async function handleLogout() {
         await fetch('/api/auth/logout', { method: 'POST' });
         router.push('/login');
+    }
+
+    async function handleUpdateProfile(e) {
+        e.preventDefault();
+        setUpdatingProfile(true);
+        try {
+            const res = await fetch('/api/admins/me', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: profileUsername,
+                    password: profilePassword
+                })
+            });
+
+            if (res.ok) {
+                setDialogConfig({
+                    isOpen: true,
+                    title: 'Success',
+                    message: t('superadmin.profileUpdateSuccess') || 'Profile updated successfully',
+                    type: 'success',
+                    onConfirm: () => {
+                        setEditProfileModal({ isOpen: false });
+                        setProfilePassword('');
+                        checkAuth(); // refresh admin name if changed
+                    }
+                });
+            } else {
+                setDialogConfig({
+                    isOpen: true,
+                    title: 'Error',
+                    message: t('superadmin.profileUpdateError') || 'Error updating profile',
+                    type: 'danger',
+                    onConfirm: () => { }
+                });
+            }
+        } catch (error) {
+            console.error('Profile update error:', error);
+        } finally {
+            setUpdatingProfile(false);
+        }
     }
 
     if (loading) {
@@ -249,13 +297,23 @@ export default function SuperAdminPage() {
                     <h1 className="page-title">{t('superadmin.title')}</h1>
                     <p className="page-subtitle mb-3">{admin?.name}</p>
 
-                    <button
-                        className="btn btn-secondary btn-sm flex items-center gap-2"
-                        onClick={() => router.push('/superadmin/admins')}
-                        style={{ margin: '0 auto', opacity: 0.9 }}
-                    >
-                        <Shield size={16} /> {isRtl ? 'إدارة المشرفين' : 'Manage Admins'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button
+                            className="btn btn-secondary btn-sm flex items-center gap-2"
+                            onClick={() => router.push('/superadmin/admins')}
+                            style={{ opacity: 0.9 }}
+                        >
+                            <Shield size={16} /> {isRtl ? 'إدارة المشرفين' : 'Manage Admins'}
+                        </button>
+
+                        <button
+                            className="btn btn-secondary btn-sm flex items-center gap-2"
+                            onClick={() => setEditProfileModal({ isOpen: true })}
+                            style={{ opacity: 0.9 }}
+                        >
+                            <Settings size={16} /> {t('superadmin.editProfile') || 'Edit Profile'}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -362,6 +420,59 @@ export default function SuperAdminPage() {
                 onConfirm={dialogConfig.onConfirm}
                 onCancel={() => setDialogConfig({ isOpen: false })}
             />
+
+            {/* Edit Profile Modal */}
+            {editProfileModal.isOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-fade-in" style={{ padding: '24px', maxWidth: '400px', width: '90%' }}>
+                        <h3 className="section-title mb-3">{t('superadmin.editProfile') || 'Edit Profile'}</h3>
+                        <form onSubmit={handleUpdateProfile}>
+                            <div className="form-group">
+                                <label className="form-label">{t('superadmin.newUsername') || 'New Username'}</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={profileUsername}
+                                    onChange={(e) => setProfileUsername(e.target.value)}
+                                    required
+                                    dir="ltr"
+                                />
+                            </div>
+                            <div className="form-group mb-4">
+                                <label className="form-label">{t('superadmin.newPassword') || 'New Password'}</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder={t('superadmin.leaveBlankPassword') || 'Leave blank to keep current'}
+                                    value={profilePassword}
+                                    onChange={(e) => setProfilePassword(e.target.value)}
+                                    dir="ltr"
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary btn-full"
+                                    onClick={() => {
+                                        setEditProfileModal({ isOpen: false });
+                                        setProfilePassword('');
+                                    }}
+                                >
+                                    {t('superadmin.cancel') || 'Cancel'}
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary btn-full"
+                                    disabled={updatingProfile}
+                                >
+                                    {updatingProfile ? <Loader2 size={18} className="spinner" /> : (t('superadmin.save') || 'Save')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {editCapacityModal.isOpen && (
                 <div className="modal-overlay" onClick={() => setEditCapacityModal({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' })}>

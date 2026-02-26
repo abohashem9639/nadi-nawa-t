@@ -118,7 +118,13 @@
         "currentIftars": "Current & Upcoming Iftars",
         "pastIftars": "Past Iftars",
         "noCurrentIftars": "No current iftars",
-        "noPastIftars": "No past iftars"
+        "noPastIftars": "No past iftars",
+        "editProfile": "Profile Settings",
+        "newUsername": "New Username",
+        "newPassword": "New Password",
+        "leaveBlankPassword": "Leave blank if you don't want to change it",
+        "profileUpdateSuccess": "Profile updated successfully",
+        "profileUpdateError": "Failed to update, username might already exist"
     },
     "language": "English",
     "dir": "ltr"
