@@ -259,6 +259,7 @@ export default function SuperAdminPage() {
                                         >
                                             <Users size={16} />
                                         </button>
+                                        {/* Temporarily hidden PDF Report button
                                         <button
                                             className="btn btn-sm btn-primary"
                                             onClick={() => router.push(`/superadmin/iftars/${iftar.id}`)}
@@ -266,6 +267,7 @@ export default function SuperAdminPage() {
                                         >
                                             <Printer size={16} />
                                         </button>
+                                        */}
                                     </div>
                                 </td>
                                 <td>

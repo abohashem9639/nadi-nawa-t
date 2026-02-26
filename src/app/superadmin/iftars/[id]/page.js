@@ -116,6 +116,7 @@ export default function SuperAdminIftarDetailsPage() {
                     >
                         <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                     </button>
+                    {/* Temporarily hidden PDF Report button 
                     <button
                         className="btn btn-primary btn-sm flex items-center gap-2"
                         style={{ position: 'absolute', [isRtl ? 'left' : 'right']: 0, top: '50%', transform: 'translateY(-50%)' }}
@@ -123,6 +124,7 @@ export default function SuperAdminIftarDetailsPage() {
                     >
                         <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تحميل التقرير (PDF)'}</span>
                     </button>
+                    */}
                     <h1 className="page-title">{t('superadmin.stats') || 'تفاصيل الإفطار والإحصائيات'}</h1>
                     <p className="page-subtitle">{iftar?.title}</p>
                 </div>
