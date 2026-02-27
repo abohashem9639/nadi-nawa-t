@@ -330,7 +330,7 @@ export default function SuperAdminManageAdmins() {
 
             {/* Change Password Modal */}
             {editingAdmin && (
-                <div className="dialog-overlay" style={{ zIndex: 1000 }}>
+                <div className="dialog-overlay" style={{ zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div className="dialog-content animate-scale" style={{ maxWidth: '400px', width: '90%', background: 'var(--bg-card)' }}>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="mb-0" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
@@ -373,7 +373,7 @@ export default function SuperAdminManageAdmins() {
                                     style={{ flex: 1, background: 'var(--brand-medium)', borderColor: 'var(--brand-medium)', color: '#fff' }}
                                     disabled={isUpdatingPassword}
                                 >
-                                    {isUpdatingPassword ? <Loader2 size={16} className="spinner" /> : (isRtl ? 'حفظ الحفظ' : 'Save')}
+                                    {isUpdatingPassword ? <Loader2 size={16} className="spinner" /> : (isRtl ? 'حفظ' : 'Save')}
                                 </button>
                                 <button
                                     type="button"
