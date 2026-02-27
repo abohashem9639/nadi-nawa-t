@@ -130,8 +130,10 @@ export default function SuperAdminIftarDetailsPage() {
     const absentPercent = totalRegistered > 0 ? Math.round((absent / totalRegistered) * 100) : 0;
 
     const nameCounts = {};
+    const latestRegistrationId = {};
     students.forEach(s => {
         nameCounts[s.student_name] = (nameCounts[s.student_name] || 0) + 1;
+        latestRegistrationId[s.student_name] = s.id; // Because students are sorted by date ASC, the last id is the latest
     });
     const duplicateStudentsCount = students.filter(s => nameCounts[s.student_name] > 1).length;
 
@@ -224,13 +226,30 @@ export default function SuperAdminIftarDetailsPage() {
                                 <tbody>
                                     {students.map((student, index) => {
                                         const isDuplicate = nameCounts[student.student_name] > 1;
+                                        const isLatest = isDuplicate && latestRegistrationId[student.student_name] === student.id;
+                                        const isOldDuplicate = isDuplicate && !isLatest;
+
+                                        let rowBg = 'transparent';
+                                        let badgeColor = '';
+                                        let badgeText = '';
+
+                                        if (isOldDuplicate) {
+                                            rowBg = 'var(--danger-bg)';
+                                            badgeColor = 'var(--danger)';
+                                            badgeText = '(نسخة قديمة - تُحذف)';
+                                        } else if (isLatest) {
+                                            rowBg = 'var(--success-bg)';
+                                            badgeColor = 'var(--success)';
+                                            badgeText = '(النسخة الأحدث - تُحفظ)';
+                                        }
+
                                         return (
-                                            <tr key={student.id} style={{ backgroundColor: isDuplicate ? 'var(--warning-bg)' : 'transparent' }}>
+                                            <tr key={student.id} style={{ backgroundColor: rowBg }}>
                                                 <td className="text-muted">{index + 1}</td>
                                                 <td style={{ fontWeight: student.checked_in ? 600 : 400 }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                         {student.student_name}
-                                                        {isDuplicate && <span style={{ color: 'var(--warning)', fontSize: '0.8rem', fontWeight: 'bold' }}>(مكرر)</span>}
+                                                        {isDuplicate && <span style={{ color: badgeColor, fontSize: '0.8rem', fontWeight: 'bold' }}>{badgeText}</span>}
                                                     </div>
                                                 </td>
                                                 <td className="text-center">
