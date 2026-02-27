@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import getDb from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
+// Force this route to always be dynamic (never cached by Vercel CDN)
+export const dynamic = 'force-dynamic';
+
 // GET — List today's active iftars (public) or filtered by gender
 export async function GET(request) {
     try {
@@ -78,7 +81,9 @@ export async function GET(request) {
             };
         }));
 
-        return NextResponse.json({ iftars: iftarsWithCounts });
+        const response = NextResponse.json({ iftars: iftarsWithCounts });
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+        return response;
     } catch (error) {
         console.error('Error fetching iftars:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

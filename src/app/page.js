@@ -18,7 +18,7 @@ export default function HomePage() {
 
   async function fetchIftars() {
     try {
-      const res = await fetch('/api/iftars');
+      const res = await fetch('/api/iftars', { cache: 'no-store' });
       const data = await res.json();
       setIftars(data.iftars || []);
     } catch (err) {
