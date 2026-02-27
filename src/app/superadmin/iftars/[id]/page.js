@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search } from 'lucide-react';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -17,6 +17,7 @@ export default function SuperAdminIftarDetailsPage() {
     const [iftar, setIftar] = useState(null);
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
 
@@ -197,15 +198,26 @@ export default function SuperAdminIftarDetailsPage() {
                 )}
 
                 <div className="card animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                    <div className="flex justify-between items-center mb-3">
+                    <div className="flex justify-between items-center mb-3 flex-wrap gap-3">
                         <h2 className="section-title mb-0 flex items-center gap-2">
                             <Users size={20} /> سجل الطلاب
                             {duplicateStudentsCount > 0 && (
-                                <span className="badge" style={{ background: 'var(--warning)', color: '#fff', fontSize: '0.8rem', padding: '2px 8px' }}>
+                                <span className="badge hide-print" style={{ background: 'var(--warning)', color: '#fff', fontSize: '0.8rem', padding: '2px 8px' }}>
                                     {duplicateStudentsCount} مكرر
                                 </span>
                             )}
                         </h2>
+                        <div className="search-container hide-print" style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+                            <Search size={18} style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', [isRtl ? 'right' : 'left']: '12px', color: 'var(--text-muted)' }} />
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder={t('admin.searchStudent') || 'بحث عن طالب...'}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ padding: isRtl ? '8px 36px 8px 12px' : '8px 12px 8px 36px', height: '40px', fontSize: '0.9rem' }}
+                            />
+                        </div>
                     </div>
 
                     {students.length === 0 ? (
@@ -224,54 +236,56 @@ export default function SuperAdminIftarDetailsPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {students.map((student, index) => {
-                                        const isDuplicate = nameCounts[student.student_name] > 1;
-                                        const isLatest = isDuplicate && latestRegistrationId[student.student_name] === student.id;
-                                        const isOldDuplicate = isDuplicate && !isLatest;
+                                    {students
+                                        .filter(student => student.student_name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                        .map((student, index) => {
+                                            const isDuplicate = nameCounts[student.student_name] > 1;
+                                            const isLatest = isDuplicate && latestRegistrationId[student.student_name] === student.id;
+                                            const isOldDuplicate = isDuplicate && !isLatest;
 
-                                        let rowBg = 'transparent';
-                                        let badgeColor = '';
-                                        let badgeText = '';
+                                            let rowBg = 'transparent';
+                                            let badgeColor = '';
+                                            let badgeText = '';
 
-                                        if (isOldDuplicate) {
-                                            rowBg = 'var(--danger-bg)';
-                                            badgeColor = 'var(--danger)';
-                                            badgeText = '(نسخة قديمة - تُحذف)';
-                                        } else if (isLatest) {
-                                            rowBg = 'var(--success-bg)';
-                                            badgeColor = 'var(--success)';
-                                            badgeText = '(النسخة الأحدث - تُحفظ)';
-                                        }
+                                            if (isOldDuplicate) {
+                                                rowBg = 'var(--danger-bg)';
+                                                badgeColor = 'var(--danger)';
+                                                badgeText = '(نسخة قديمة - تُحذف)';
+                                            } else if (isLatest) {
+                                                rowBg = 'var(--success-bg)';
+                                                badgeColor = 'var(--success)';
+                                                badgeText = '(النسخة الأحدث - تُحفظ)';
+                                            }
 
-                                        return (
-                                            <tr key={student.id} style={{ backgroundColor: rowBg }}>
-                                                <td className="text-muted">{index + 1}</td>
-                                                <td style={{ fontWeight: student.checked_in ? 600 : 400 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        {student.student_name}
-                                                        {isDuplicate && <span style={{ color: badgeColor, fontSize: '0.8rem', fontWeight: 'bold' }}>{badgeText}</span>}
-                                                    </div>
-                                                </td>
-                                                <td className="text-center">
-                                                    {student.checked_in === 1 ? (
-                                                        <CheckCircle2 size={20} className="text-emerald-500 mx-auto" />
-                                                    ) : (
-                                                        <Circle size={20} className="text-slate-300 mx-auto" />
-                                                    )}
-                                                </td>
-                                                <td className="text-center hide-print">
-                                                    <button
-                                                        className="btn btn-sm btn-icon"
-                                                        style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '6px', margin: '0 auto', display: 'flex' }}
-                                                        onClick={() => handleDeleteStudent(student.id, student.student_name)}
-                                                        title={t('superadmin.deleteStudent') || 'حذف الطالب'}
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                            return (
+                                                <tr key={student.id} style={{ backgroundColor: rowBg }}>
+                                                    <td className="text-muted">{index + 1}</td>
+                                                    <td style={{ fontWeight: student.checked_in ? 600 : 400 }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            {student.student_name}
+                                                            {isDuplicate && <span className="hide-print" style={{ color: badgeColor, fontSize: '0.8rem', fontWeight: 'bold' }}>{badgeText}</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-center">
+                                                        {student.checked_in === 1 ? (
+                                                            <CheckCircle2 size={20} className="text-emerald-500 mx-auto" />
+                                                        ) : (
+                                                            <Circle size={20} className="text-slate-300 mx-auto" />
+                                                        )}
+                                                    </td>
+                                                    <td className="text-center hide-print">
+                                                        <button
+                                                            className="btn btn-sm btn-icon"
+                                                            style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '6px', margin: '0 auto', display: 'flex' }}
+                                                            onClick={() => handleDeleteStudent(student.id, student.student_name)}
+                                                            title={t('superadmin.deleteStudent') || 'حذف الطالب'}
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                 </tbody>
                             </table>
                         </div>
