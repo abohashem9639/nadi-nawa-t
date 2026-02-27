@@ -129,6 +129,12 @@ export default function SuperAdminIftarDetailsPage() {
     const attendancePercent = totalRegistered > 0 ? Math.round((checkedIn / totalRegistered) * 100) : 0;
     const absentPercent = totalRegistered > 0 ? Math.round((absent / totalRegistered) * 100) : 0;
 
+    const nameCounts = {};
+    students.forEach(s => {
+        nameCounts[s.student_name] = (nameCounts[s.student_name] || 0) + 1;
+    });
+    const duplicateStudentsCount = students.filter(s => nameCounts[s.student_name] > 1).length;
+
     return (
         <>
             <Header showLogout onLogout={handleLogout} />
@@ -141,7 +147,6 @@ export default function SuperAdminIftarDetailsPage() {
                     >
                         <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                     </button>
-                    {/* Temporarily hidden PDF Report button 
                     <button
                         className="btn btn-primary btn-sm flex items-center gap-2"
                         style={{ position: 'absolute', [isRtl ? 'left' : 'right']: 0, top: '50%', transform: 'translateY(-50%)' }}
@@ -149,7 +154,6 @@ export default function SuperAdminIftarDetailsPage() {
                     >
                         <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تحميل التقرير (PDF)'}</span>
                     </button>
-                    */}
                     <h1 className="page-title">{t('superadmin.stats') || 'تفاصيل الإفطار والإحصائيات'}</h1>
                     <p className="page-subtitle">{iftar?.title}</p>
                 </div>
@@ -194,6 +198,11 @@ export default function SuperAdminIftarDetailsPage() {
                     <div className="flex justify-between items-center mb-3">
                         <h2 className="section-title mb-0 flex items-center gap-2">
                             <Users size={20} /> سجل الطلاب
+                            {duplicateStudentsCount > 0 && (
+                                <span className="badge" style={{ background: 'var(--warning)', color: '#fff', fontSize: '0.8rem', padding: '2px 8px' }}>
+                                    {duplicateStudentsCount} مكرر
+                                </span>
+                            )}
                         </h2>
                     </div>
 
@@ -209,35 +218,41 @@ export default function SuperAdminIftarDetailsPage() {
                                         <th>#</th>
                                         <th>{t('admin.studentName') || 'الاسم'}</th>
                                         <th className="text-center">{t('admin.checkedIn') || 'الحضور'}</th>
-                                        <th className="text-center">{t('superadmin.delete') || 'حذف'}</th>
+                                        <th className="text-center hide-print">{t('superadmin.delete') || 'حذف'}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {students.map((student, index) => (
-                                        <tr key={student.id}>
-                                            <td className="text-muted">{index + 1}</td>
-                                            <td style={{ fontWeight: student.checked_in ? 600 : 400 }}>
-                                                {student.student_name}
-                                            </td>
-                                            <td className="text-center">
-                                                {student.checked_in === 1 ? (
-                                                    <CheckCircle2 size={20} className="text-emerald-500 mx-auto" />
-                                                ) : (
-                                                    <Circle size={20} className="text-slate-300 mx-auto" />
-                                                )}
-                                            </td>
-                                            <td className="text-center">
-                                                <button
-                                                    className="btn btn-sm btn-icon"
-                                                    style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '6px', margin: '0 auto', display: 'flex' }}
-                                                    onClick={() => handleDeleteStudent(student.id, student.student_name)}
-                                                    title={t('superadmin.deleteStudent') || 'حذف الطالب'}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {students.map((student, index) => {
+                                        const isDuplicate = nameCounts[student.student_name] > 1;
+                                        return (
+                                            <tr key={student.id} style={{ backgroundColor: isDuplicate ? 'var(--warning-bg)' : 'transparent' }}>
+                                                <td className="text-muted">{index + 1}</td>
+                                                <td style={{ fontWeight: student.checked_in ? 600 : 400 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {student.student_name}
+                                                        {isDuplicate && <span style={{ color: 'var(--warning)', fontSize: '0.8rem', fontWeight: 'bold' }}>(مكرر)</span>}
+                                                    </div>
+                                                </td>
+                                                <td className="text-center">
+                                                    {student.checked_in === 1 ? (
+                                                        <CheckCircle2 size={20} className="text-emerald-500 mx-auto" />
+                                                    ) : (
+                                                        <Circle size={20} className="text-slate-300 mx-auto" />
+                                                    )}
+                                                </td>
+                                                <td className="text-center hide-print">
+                                                    <button
+                                                        className="btn btn-sm btn-icon"
+                                                        style={{ background: 'var(--danger-bg)', color: 'var(--danger)', padding: '6px', margin: '0 auto', display: 'flex' }}
+                                                        onClick={() => handleDeleteStudent(student.id, student.student_name)}
+                                                        title={t('superadmin.deleteStudent') || 'حذف الطالب'}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
