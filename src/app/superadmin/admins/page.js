@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, ArrowLeft, UserPlus, Shield, UserX } from 'lucide-react';
+import { Loader2, ArrowLeft, UserPlus, Shield, UserX, Key, X } from 'lucide-react';
 
 export default function SuperAdminManageAdmins() {
     const { t, isRtl } = useTranslation();
@@ -24,6 +24,13 @@ export default function SuperAdminManageAdmins() {
     const [errorMsg, setErrorMsg] = useState('');
 
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
+
+    // Edit Password state
+    const [editingAdmin, setEditingAdmin] = useState(null);
+    const [newPassword, setNewPassword] = useState('');
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [updateError, setUpdateError] = useState('');
+    const [updateSuccess, setUpdateSuccess] = useState('');
 
     useEffect(() => {
         checkAuth();
@@ -109,6 +116,40 @@ export default function SuperAdminManageAdmins() {
                 }
             }
         });
+    }
+
+    async function handleUpdatePassword(e) {
+        e.preventDefault();
+        setIsUpdatingPassword(true);
+        setUpdateError('');
+        setUpdateSuccess('');
+
+        try {
+            const res = await fetch(`/api/admins/${editingAdmin.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newPassword }),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                setUpdateSuccess(isRtl ? 'تم تغيير كلمة المرور بنجاح' : 'Password updated successfully');
+                setNewPassword('');
+                setTimeout(() => {
+                    setEditingAdmin(null);
+                    setUpdateSuccess('');
+                }, 2000);
+            } else {
+                setUpdateError(data.error === 'invalid_password'
+                    ? (isRtl ? 'كلمة المرور غير صالحة (الحد الأدنى 6 أحرف)' : 'Invalid password (min 6 chars)')
+                    : (isRtl ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Error updating password'));
+            }
+        } catch (err) {
+            console.error(err);
+            setUpdateError(isRtl ? 'حدث خطأ أثناء تغيير كلمة المرور' : 'Error updating password');
+        } finally {
+            setIsUpdatingPassword(false);
+        }
     }
 
     async function handleLogout() {
@@ -247,7 +288,20 @@ export default function SuperAdminManageAdmins() {
                                                     {a.role === 'male_admin' ? t('home.male') : t('home.female')}
                                                 </span>
                                             </td>
-                                            <td className="text-right" style={{ textAlign: isRtl ? 'left' : 'right' }}>
+                                            <td className="text-right" style={{ textAlign: isRtl ? 'left' : 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                <button
+                                                    className="btn btn-sm btn-icon"
+                                                    style={{ background: 'var(--brand-medium)', color: '#fff' }}
+                                                    onClick={() => {
+                                                        setEditingAdmin(a);
+                                                        setNewPassword('');
+                                                        setUpdateError('');
+                                                        setUpdateSuccess('');
+                                                    }}
+                                                    title={t('login.password') || 'Change Password'}
+                                                >
+                                                    <Key size={16} />
+                                                </button>
                                                 <button
                                                     className="btn btn-sm btn-danger btn-icon"
                                                     onClick={() => deleteAdmin(a.id, a.name)}
@@ -273,6 +327,68 @@ export default function SuperAdminManageAdmins() {
                 onConfirm={dialogConfig.onConfirm}
                 onCancel={() => setDialogConfig({ isOpen: false })}
             />
+
+            {/* Change Password Modal */}
+            {editingAdmin && (
+                <div className="dialog-overlay" style={{ zIndex: 1000 }}>
+                    <div className="dialog-content animate-scale" style={{ maxWidth: '400px', width: '90%', background: 'var(--bg-card)' }}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="mb-0" style={{ fontSize: '1.2rem', fontWeight: 600 }}>
+                                {isRtl ? 'تغيير كلمة المرور' : 'Change Password'} - {editingAdmin.name}
+                            </h3>
+                            <button className="btn-icon" onClick={() => setEditingAdmin(null)} style={{ background: 'transparent', color: 'var(--text-muted)' }}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {updateSuccess && (
+                            <div className="checkin-result success mb-3" style={{ padding: '10px', fontSize: '0.9rem' }}>
+                                {updateSuccess}
+                            </div>
+                        )}
+                        {updateError && (
+                            <div className="checkin-result error mb-3" style={{ padding: '10px', fontSize: '0.9rem' }}>
+                                {updateError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleUpdatePassword}>
+                            <div className="form-group">
+                                <label className="form-label">{isRtl ? 'كلمة المرور الجديدة' : 'New Password'}</label>
+                                <input
+                                    type="password"
+                                    className="form-input"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    required
+                                    dir="ltr"
+                                    minLength="6"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                            <div className="flex gap-2" style={{ marginTop: '20px' }}>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    style={{ flex: 1, background: 'var(--brand-medium)', borderColor: 'var(--brand-medium)', color: '#fff' }}
+                                    disabled={isUpdatingPassword}
+                                >
+                                    {isUpdatingPassword ? <Loader2 size={16} className="spinner" /> : (isRtl ? 'حفظ الحفظ' : 'Save')}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    style={{ flex: 1 }}
+                                    disabled={isUpdatingPassword}
+                                    onClick={() => setEditingAdmin(null)}
+                                >
+                                    {t('superadmin.cancel') || 'Cancel'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
