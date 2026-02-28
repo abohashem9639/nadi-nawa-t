@@ -231,6 +231,7 @@ export default function SuperAdminIftarDetailsPage() {
                                     <tr>
                                         <th>#</th>
                                         <th>{t('admin.studentName') || 'الاسم'}</th>
+                                        <th className="text-center">{t('admin.registrationTime') || 'وقت التسجيل'}</th>
                                         <th className="text-center">{t('admin.checkedIn') || 'الحضور'}</th>
                                         <th className="text-center hide-print">{t('superadmin.delete') || 'حذف'}</th>
                                     </tr>
@@ -265,6 +266,18 @@ export default function SuperAdminIftarDetailsPage() {
                                                             {student.student_name}
                                                             {isDuplicate && <span className="hide-print" style={{ color: badgeColor, fontSize: '0.8rem', fontWeight: 'bold' }}>{badgeText}</span>}
                                                         </div>
+                                                    </td>
+                                                    <td className="text-center text-muted" style={{ fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+                                                        {student.registered_at ? (() => {
+                                                            const d = new Date(student.registered_at);
+                                                            const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+                                                            const local = new Date(utc + (3600000 * 3));
+                                                            const day = String(local.getDate()).padStart(2, '0');
+                                                            const month = String(local.getMonth() + 1).padStart(2, '0');
+                                                            const hours = String(local.getHours()).padStart(2, '0');
+                                                            const mins = String(local.getMinutes()).padStart(2, '0');
+                                                            return `${day}/${month} ${hours}:${mins}`;
+                                                        })() : '—'}
                                                     </td>
                                                     <td className="text-center">
                                                         {student.checked_in === 1 ? (
