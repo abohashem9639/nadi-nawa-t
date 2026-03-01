@@ -25,6 +25,7 @@ export default function SuperAdminPage() {
 
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
     const [editCapacityModal, setEditCapacityModal] = useState({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' });
+    const [editTitleModal, setEditTitleModal] = useState({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' });
 
     // Edit Profile Form
     const [editProfileModal, setEditProfileModal] = useState({ isOpen: false });
@@ -132,6 +133,21 @@ export default function SuperAdminPage() {
         }
     }
 
+    async function handleSaveTitle(e) {
+        e.preventDefault();
+        try {
+            await fetch(`/api/iftars/${editTitleModal.iftarId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: editTitleModal.newTitle }),
+            });
+            setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' });
+            await fetchIftars();
+        } catch (error) {
+            console.error('Error updating title:', error);
+        }
+    }
+
     async function deleteIftar(id) {
         setDialogConfig({
             isOpen: true,
@@ -232,7 +248,16 @@ export default function SuperAdminPage() {
                     <tbody>
                         {data.map(iftar => (
                             <tr key={iftar.id}>
-                                <td style={{ fontWeight: 600 }}>{iftar.title}</td>
+                                <td style={{ fontWeight: 600 }}>
+                                    <div
+                                        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-primary)' }}
+                                        onClick={() => setEditTitleModal({ isOpen: true, iftarId: iftar.id, currentTitle: iftar.title, newTitle: iftar.title })}
+                                        title={isRtl ? 'تعديل العنوان' : 'Edit Title'}
+                                    >
+                                        {iftar.title}
+                                        <Edit2 size={14} style={{ color: 'var(--brand-primary)', flexShrink: 0 }} />
+                                    </div>
+                                </td>
                                 <td dir="ltr">{iftar.date}</td>
                                 <td>
                                     <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'}`}>
@@ -514,6 +539,48 @@ export default function SuperAdminPage() {
                                     type="button"
                                     className="btn btn-secondary"
                                     onClick={() => setEditCapacityModal({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' })}
+                                    style={{ flex: 1 }}
+                                >
+                                    {t('superadmin.cancel') || 'Cancel'}
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                    style={{ flex: 1 }}
+                                >
+                                    {t('superadmin.save') || 'Save'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {editTitleModal.isOpen && (
+                <div className="modal-overlay" onClick={() => setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' })}>
+                    <div className="result-modal primary" onClick={(e) => e.stopPropagation()} style={{ padding: '24px 20px', maxWidth: '400px', width: '90%' }}>
+                        <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                            {isRtl ? 'تعديل عنوان الإفطار' : 'Edit Iftar Title'}
+                        </h3>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem' }}>
+                            {isRtl ? 'العنوان الحالي:' : 'Current title:'} {editTitleModal.currentTitle}
+                        </p>
+                        <form onSubmit={handleSaveTitle}>
+                            <div className="form-group">
+                                <label className="form-label">{isRtl ? 'العنوان الجديد' : 'New Title'}</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={editTitleModal.newTitle}
+                                    onChange={(e) => setEditTitleModal({ ...editTitleModal, newTitle: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' })}
                                     style={{ flex: 1 }}
                                 >
                                     {t('superadmin.cancel') || 'Cancel'}
