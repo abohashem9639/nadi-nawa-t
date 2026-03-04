@@ -89,7 +89,12 @@ export default function RegisterPage() {
         }
     }
 
-
+    const getLocalizedTitle = (iftarObj) => {
+        if (!iftarObj) return '';
+        if (lang === 'tr' && iftarObj.title_tr) return iftarObj.title_tr;
+        if (lang === 'en' && iftarObj.title_en) return iftarObj.title_en;
+        return iftarObj.title; // Default to Arabic
+    };
 
     return (
         <>
@@ -99,7 +104,7 @@ export default function RegisterPage() {
                     <h1 className="page-title">{t('register.title')}</h1>
                     {iftar && (
                         <p className="page-subtitle flex items-center justify-center gap-2">
-                            {iftar.title} — <Calendar size={14} className="ml-1" /> {iftar.date}
+                            {getLocalizedTitle(iftar)} — <Calendar size={14} className="ml-1" /> {iftar.date}
                             <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'} flex items-center gap-1`} style={{ marginInlineStart: '12px' }}>
                                 <User size={14} /> {iftar.gender === 'male' ? t('home.male') : t('home.female')}
                             </span>

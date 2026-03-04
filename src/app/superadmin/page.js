@@ -8,7 +8,7 @@ import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Loader2, Moon, Users, Shield, Edit2, Settings, Printer } from 'lucide-react';
 
 export default function SuperAdminPage() {
-    const { t, isRtl } = useTranslation();
+    const { t, isRtl, lang } = useTranslation();
     const router = useRouter();
 
     const [admin, setAdmin] = useState(null);
@@ -17,7 +17,7 @@ export default function SuperAdminPage() {
     const [loading, setLoading] = useState(true);
 
     // Create Iftar Form
-    const [title, setTitle] = useState('');
+    const [title, setTitle] = useState({ ar: '', tr: '', en: '' });
     const [date, setDate] = useState('');
     const [capacity, setCapacity] = useState('');
     const [gender, setGender] = useState('male');
@@ -25,7 +25,7 @@ export default function SuperAdminPage() {
 
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
     const [editCapacityModal, setEditCapacityModal] = useState({ isOpen: false, iftarId: null, currentCapacity: '', newCapacity: '', title: '' });
-    const [editTitleModal, setEditTitleModal] = useState({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' });
+    const [editTitleModal, setEditTitleModal] = useState({ isOpen: false, iftarId: null, currentTitle: '', newTitle: { ar: '', tr: '', en: '' } });
 
     // Edit Profile Form
     const [editProfileModal, setEditProfileModal] = useState({ isOpen: false });
@@ -74,10 +74,10 @@ export default function SuperAdminPage() {
             const res = await fetch('/api/iftars', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, date, capacity: parseInt(capacity), gender }),
+                body: JSON.stringify({ title: title.ar, title_tr: title.tr, title_en: title.en, date, capacity: parseInt(capacity), gender }),
             });
             if (res.ok) {
-                setTitle('');
+                setTitle({ ar: '', tr: '', en: '' });
                 setDate('');
                 setCapacity('');
                 setGender('male');
@@ -139,9 +139,9 @@ export default function SuperAdminPage() {
             await fetch(`/api/iftars/${editTitleModal.iftarId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: editTitleModal.newTitle }),
+                body: JSON.stringify({ title: editTitleModal.newTitle.ar, title_tr: editTitleModal.newTitle.tr, title_en: editTitleModal.newTitle.en }),
             });
-            setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' });
+            setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: { ar: '', tr: '', en: '' } });
             await fetchIftars();
         } catch (error) {
             console.error('Error updating title:', error);
@@ -218,6 +218,12 @@ export default function SuperAdminPage() {
         );
     }
 
+    const getLocalizedTitle = (iftar) => {
+        if (lang === 'tr' && iftar.title_tr) return iftar.title_tr;
+        if (lang === 'en' && iftar.title_en) return iftar.title_en;
+        return iftar.title; // Default to Arabic
+    };
+
     const renderTable = (data, emptyMessage) => {
         if (data.length === 0) {
             return (
@@ -251,10 +257,10 @@ export default function SuperAdminPage() {
                                 <td style={{ fontWeight: 600 }}>
                                     <div
                                         style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-primary)' }}
-                                        onClick={() => setEditTitleModal({ isOpen: true, iftarId: iftar.id, currentTitle: iftar.title, newTitle: iftar.title })}
+                                        onClick={() => setEditTitleModal({ isOpen: true, iftarId: iftar.id, currentTitle: getLocalizedTitle(iftar), newTitle: { ar: iftar.title || '', tr: iftar.title_tr || '', en: iftar.title_en || '' } })}
                                         title={isRtl ? 'تعديل العنوان' : 'Edit Title'}
                                     >
-                                        {iftar.title}
+                                        {getLocalizedTitle(iftar)}
                                         <Edit2 size={14} style={{ color: 'var(--brand-primary)', flexShrink: 0 }} />
                                     </div>
                                 </td>
@@ -380,14 +386,34 @@ export default function SuperAdminPage() {
                     <form onSubmit={handleCreate}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label className="form-label">{t('superadmin.iftarTitle')}</label>
+                                <label className="form-label">العنوان (عربي)</label>
                                 <input
                                     type="text"
                                     className="form-input"
-                                    placeholder={t('superadmin.iftarTitlePlaceholder')}
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="مثال: إفطار الأسبوع الأول"
+                                    value={title.ar}
+                                    onChange={(e) => setTitle({ ...title, ar: e.target.value })}
                                     required
+                                />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label">Başlık (Türkçe)</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Örn: İlk Hafta İftarı"
+                                    value={title.tr}
+                                    onChange={(e) => setTitle({ ...title, tr: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group" style={{ marginBottom: 0 }}>
+                                <label className="form-label">Title (English)</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="e.g: First Week Iftar"
+                                    value={title.en}
+                                    onChange={(e) => setTitle({ ...title, en: e.target.value })}
                                 />
                             </div>
                             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -557,30 +583,46 @@ export default function SuperAdminPage() {
             )}
 
             {editTitleModal.isOpen && (
-                <div className="modal-overlay" onClick={() => setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' })}>
-                    <div className="result-modal primary" onClick={(e) => e.stopPropagation()} style={{ padding: '24px 20px', maxWidth: '400px', width: '90%' }}>
+                <div className="modal-overlay" onClick={() => setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: { ar: '', tr: '', en: '' } })}>
+                    <div className="result-modal primary" onClick={(e) => e.stopPropagation()} style={{ padding: '24px 20px', maxWidth: '400px', width: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
                         <h3 style={{ fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-primary)' }}>
                             {isRtl ? 'تعديل عنوان الإفطار' : 'Edit Iftar Title'}
                         </h3>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px', fontSize: '0.9rem' }}>
-                            {isRtl ? 'العنوان الحالي:' : 'Current title:'} {editTitleModal.currentTitle}
-                        </p>
+
                         <form onSubmit={handleSaveTitle}>
                             <div className="form-group">
-                                <label className="form-label">{isRtl ? 'العنوان الجديد' : 'New Title'}</label>
+                                <label className="form-label">العنوان (عربي)</label>
                                 <input
                                     type="text"
                                     className="form-input"
-                                    value={editTitleModal.newTitle}
-                                    onChange={(e) => setEditTitleModal({ ...editTitleModal, newTitle: e.target.value })}
+                                    value={editTitleModal.newTitle.ar}
+                                    onChange={(e) => setEditTitleModal({ ...editTitleModal, newTitle: { ...editTitleModal.newTitle, ar: e.target.value } })}
                                     required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Başlık (Türkçe)</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={editTitleModal.newTitle.tr}
+                                    onChange={(e) => setEditTitleModal({ ...editTitleModal, newTitle: { ...editTitleModal.newTitle, tr: e.target.value } })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Title (English)</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={editTitleModal.newTitle.en}
+                                    onChange={(e) => setEditTitleModal({ ...editTitleModal, newTitle: { ...editTitleModal.newTitle, en: e.target.value } })}
                                 />
                             </div>
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
                                 <button
                                     type="button"
                                     className="btn btn-secondary"
-                                    onClick={() => setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: '' })}
+                                    onClick={() => setEditTitleModal({ isOpen: false, iftarId: null, currentTitle: '', newTitle: { ar: '', tr: '', en: '' } })}
                                     style={{ flex: 1 }}
                                 >
                                     {t('superadmin.cancel') || 'Cancel'}

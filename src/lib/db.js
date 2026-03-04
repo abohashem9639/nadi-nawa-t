@@ -67,6 +67,10 @@ export async function initDb() {
     END
     $$;
 
+    -- Add title_tr and title_en to iftars
+    ALTER TABLE iftars ADD COLUMN IF NOT EXISTS title_tr TEXT;
+    ALTER TABLE iftars ADD COLUMN IF NOT EXISTS title_en TEXT;
+
     -- Postgres requires explicit drops for altering table constraints cleanly in simple scripts.
     -- Since this is an MVP in early dev, we attempt to add the constraint if it was missing.
     DO $$

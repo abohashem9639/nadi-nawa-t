@@ -95,7 +95,7 @@ export async function POST(request) {
     try {
         const db = await getDb();
         const body = await request.json();
-        const { title, date, capacity, gender } = body;
+        const { title, title_tr, title_en, date, capacity, gender } = body;
 
         if (!title || !date || !capacity || !gender) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -109,8 +109,8 @@ export async function POST(request) {
         const id = uuidv4();
 
         await db.query(
-            'INSERT INTO iftars (id, title, date, capacity, gender, is_active) VALUES ($1, $2, $3, $4, $5, 1)',
-            [id, title, date, parseInt(capacity), gender]
+            'INSERT INTO iftars (id, title, title_tr, title_en, date, capacity, gender, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, 1)',
+            [id, title, title_tr, title_en, date, parseInt(capacity), gender]
         );
 
         return NextResponse.json({ success: true, id }, { status: 201 });

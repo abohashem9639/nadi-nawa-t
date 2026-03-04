@@ -20,8 +20,10 @@ export async function PATCH(request, { params }) {
             await db.query('UPDATE iftars SET is_active = $1 WHERE id = $2', [newActive, id]);
         }
 
-        if (body.title) {
-            await db.query('UPDATE iftars SET title = $1 WHERE id = $2', [body.title, id]);
+        if (body.title || body.title_tr !== undefined || body.title_en !== undefined) {
+            await db.query('UPDATE iftars SET title = $1, title_tr = $2, title_en = $3 WHERE id = $4',
+                [body.title || iftar.title, body.title_tr || iftar.title_tr, body.title_en || iftar.title_en, id]
+            );
         }
 
         if (body.capacity) {

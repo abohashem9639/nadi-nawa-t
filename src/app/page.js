@@ -36,6 +36,8 @@ export default async function HomePage() {
       return {
         id: iftar.id,
         title: iftar.title,
+        title_tr: iftar.title_tr,
+        title_en: iftar.title_en,
         date: iftar.date,
         capacity: iftar.capacity,
         gender: iftar.gender,

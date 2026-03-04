@@ -23,6 +23,12 @@ export default function HomePageClient({ iftars }) {
         setShowLangModal(false);
     };
 
+    const getLocalizedTitle = (iftar) => {
+        if (lang === 'tr' && iftar.title_tr) return iftar.title_tr;
+        if (lang === 'en' && iftar.title_en) return iftar.title_en;
+        return iftar.title; // Default to Arabic
+    };
+
     return (
         <>
             {showLangModal && (
@@ -79,7 +85,7 @@ export default function HomePageClient({ iftars }) {
                                 >
                                     <div className="iftar-card-header">
                                         <div>
-                                            <h3 className="iftar-card-title">{iftar.title}</h3>
+                                            <h3 className="iftar-card-title">{getLocalizedTitle(iftar)}</h3>
                                             <p className="iftar-card-date flex items-center gap-1 mt-1">
                                                 <Calendar size={14} /> {iftar.date}
                                             </p>
