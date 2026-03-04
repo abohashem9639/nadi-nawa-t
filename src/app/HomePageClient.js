@@ -1,16 +1,55 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Moon, Calendar, User, Users } from 'lucide-react';
+import { Moon, Calendar, User, Users, Globe } from 'lucide-react';
 
 export default function HomePageClient({ iftars }) {
-    const { t } = useTranslation();
+    const { t, switchLang, lang } = useTranslation();
     const router = useRouter();
+    const [showLangModal, setShowLangModal] = useState(false);
+
+    useEffect(() => {
+        if (!localStorage.getItem('ghiras_lang_selected')) {
+            setShowLangModal(true);
+        }
+    }, []);
+
+    const handleSelectLanguage = (selectedLang) => {
+        switchLang(selectedLang);
+        localStorage.setItem('ghiras_lang_selected', 'true');
+        setShowLangModal(false);
+    };
 
     return (
         <>
+            {showLangModal && (
+                <div className="modal-overlay" style={{ zIndex: 9999 }}>
+                    <div className="result-modal primary" style={{ padding: '30px 20px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+                        <Globe size={48} color="var(--brand-primary)" style={{ margin: '0 auto 16px' }} />
+                        <h2 style={{ fontSize: '1.5rem', marginBottom: '12px', color: 'var(--text-primary)' }}>
+                            Select Language
+                        </h2>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                            اختر لغتك المفضلة <br /> Lütfen dil seçin
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <button className="btn btn-primary btn-full" onClick={() => handleSelectLanguage('ar')}>
+                                العربية
+                            </button>
+                            <button className="btn btn-primary btn-full" onClick={() => handleSelectLanguage('tr')}>
+                                Türkçe
+                            </button>
+                            <button className="btn btn-primary btn-full" onClick={() => handleSelectLanguage('en')}>
+                                English
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Header />
             <main className="container">
                 <div className="page-header">
