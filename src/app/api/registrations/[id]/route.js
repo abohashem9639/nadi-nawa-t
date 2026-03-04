@@ -12,6 +12,13 @@ export async function DELETE(request, { params }) {
         const { id } = await params;
         const db = await getDb();
 
+        // Archive the registration before deleting
+        await db.query(`
+            INSERT INTO deleted_registrations (id, iftar_id, student_name, mobile_number, registered_at, deleted_by)
+            SELECT id, iftar_id, student_name, mobile_number, registered_at, $2
+            FROM registrations WHERE id = $1
+        `, [id, session.username]);
+
         const { rowCount } = await db.query('DELETE FROM registrations WHERE id = $1', [id]);
 
         if (rowCount === 0) {

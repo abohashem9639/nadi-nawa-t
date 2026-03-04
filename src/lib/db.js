@@ -54,6 +54,17 @@ export async function initDb() {
       banned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS deleted_registrations (
+      id TEXT PRIMARY KEY,
+      iftar_id TEXT NOT NULL,
+      student_name TEXT NOT NULL,
+      mobile_number TEXT,
+      registered_at TIMESTAMP WITH TIME ZONE,
+      deleted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      deleted_by TEXT,
+      FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE
+    );
+
     -- Add is_arqam to existing registrations table if missing
     DO $$
     BEGIN

@@ -5,7 +5,9 @@ import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -18,6 +20,7 @@ export default function SuperAdminIftarDetailsPage() {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [deletedStudents, setDeletedStudents] = useState([]);
 
     const [dialogConfig, setDialogConfig] = useState({ isOpen: false });
 
@@ -40,7 +43,7 @@ export default function SuperAdminIftarDetailsPage() {
                 return;
             }
 
-            await Promise.all([fetchIftarDetails(), fetchStudents()]);
+            await Promise.all([fetchIftarDetails(), fetchStudents(), fetchDeletedStudents()]);
         } catch {
             router.push('/login');
         } finally {
@@ -67,6 +70,18 @@ export default function SuperAdminIftarDetailsPage() {
             if (res.ok) {
                 const data = await res.json();
                 setStudents(data.students || []);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function fetchDeletedStudents() {
+        try {
+            const res = await fetch(`/api/registrations/deleted?iftarId=${iftarId}`);
+            if (res.ok) {
+                const data = await res.json();
+                setDeletedStudents(data.deletedStudents || []);
             }
         } catch (error) {
             console.error(error);
@@ -100,7 +115,7 @@ export default function SuperAdminIftarDetailsPage() {
                         method: 'DELETE'
                     });
                     if (res.ok) {
-                        await Promise.all([fetchIftarDetails(), fetchStudents()]);
+                        await Promise.all([fetchIftarDetails(), fetchStudents(), fetchDeletedStudents()]);
                     } else {
                         alert(t('register.error') || 'Error deleting student');
                     }
@@ -110,6 +125,36 @@ export default function SuperAdminIftarDetailsPage() {
                 }
             }
         });
+    };
+
+    const downloadDeletedPDF = () => {
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+        // Add Title
+        doc.setFontSize(18);
+        doc.text("Report: Deleted Students", 105, 20, { align: 'center' });
+        doc.setFontSize(14);
+        doc.text(`Iftar: ${iftar?.title || 'Unknown'}`, 105, 30, { align: 'center' });
+        doc.text(`Date of Report: ${new Date().toLocaleDateString()}`, 105, 38, { align: 'center' });
+
+        const tableData = deletedStudents.map((s, i) => [
+            i + 1,
+            s.student_name,
+            s.mobile_number || '—',
+            new Date(s.registered_at).toLocaleString(),
+            new Date(s.deleted_at).toLocaleString()
+        ]);
+
+        doc.autoTable({
+            startY: 45,
+            head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [166, 110, 41] },
+            styles: { fontSize: 10 }
+        });
+
+        doc.save(`deleted_students_${iftarId}.pdf`);
     };
 
     if (loading) {
@@ -157,6 +202,23 @@ export default function SuperAdminIftarDetailsPage() {
                     >
                         <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تحميل التقرير (PDF)'}</span>
                     </button>
+                    {deletedStudents.length > 0 && (
+                        <button
+                            className="btn btn-secondary btn-sm flex items-center gap-2"
+                            style={{
+                                position: 'absolute',
+                                [isRtl ? 'left' : 'right']: isRtl ? '150px' : '150px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                borderColor: 'rgba(239, 68, 68, 0.2)'
+                            }}
+                            onClick={downloadDeletedPDF}
+                        >
+                            <Trash size={16} /> <span className="hide-mobile">{isRtl ? 'المحذوفين (PDF)' : 'Deleted (PDF)'}</span>
+                        </button>
+                    )}
                     <h1 className="page-title">{t('superadmin.stats') || 'تفاصيل الإفطار والإحصائيات'}</h1>
                     <p className="page-subtitle">{iftar?.title}</p>
                 </div>
