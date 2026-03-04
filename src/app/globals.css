@@ -67,6 +67,8 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 112.5%;
+  /* Scale up baseline font size slightly since Parastoo metrics run small */
 }
 
 body {
