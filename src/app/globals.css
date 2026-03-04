@@ -9,7 +9,7 @@
   font-family: 'Brando Arabic';
   src: url('/fonts/BrandoArabic-SemiBold.woff2') format('woff2'),
     url('/fonts/BrandoArabic-SemiBold.woff') format('woff'),
-    url('/fonts/BrandoArabic-SemiBold.ttf') format('truetype');
+    url('/fonts/Arabic.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
