@@ -3,15 +3,7 @@
    Brand Colors + Dark Theme + RTL Support
    ═══════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
-
-@font-face {
-  font-family: 'Brando Arabic';
-  src: url('/fonts/Arabic.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Parastoo:wght@400..700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* ── Brand Colors ── */
@@ -78,7 +70,7 @@ html {
 }
 
 body {
-  font-family: 'Brando Arabic', 'Noto Kufi Arabic', 'Inter', sans-serif;
+  font-family: 'Parastoo', 'Inter', sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
