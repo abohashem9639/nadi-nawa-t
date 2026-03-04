@@ -6,11 +6,13 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function HomePage() {
-  // Calculate today's date in UTC+3 (Turkey/Saudi Arabia timezone)
+  // Calculate today's date in UTC+3 (Turkey/Saudi Arabia timezone) and shift the day boundary to 19:30
   const now = new Date();
   const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
   const localDate = new Date(utc + (3600000 * 3));
-  const today = localDate.toISOString().split('T')[0];
+  // By adding 4.5 hours, 19:30 becomes 00:00 of the next day format-wise.
+  const effectiveDate = new Date(localDate.getTime() + (4.5 * 3600000));
+  const today = effectiveDate.toISOString().split('T')[0];
 
   let iftars = [];
 

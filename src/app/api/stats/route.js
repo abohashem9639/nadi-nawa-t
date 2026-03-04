@@ -6,7 +6,10 @@ export async function GET() {
     try {
         const db = await getDb();
         const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const localDate = new Date(utc + (3600000 * 3));
+        const effectiveDate = new Date(localDate.getTime() + (4.5 * 3600000)); // Shift boundary to 19:30
+        const today = effectiveDate.toISOString().split('T')[0];
 
         const totalIftarsRes = await db.query('SELECT COUNT(*) as count FROM iftars');
         const totalIftars = parseInt(totalIftarsRes.rows[0].count);

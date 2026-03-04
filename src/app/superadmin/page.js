@@ -328,7 +328,10 @@ export default function SuperAdminPage() {
     };
 
     const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const localDate = new Date(utc + (3600000 * 3));
+    const effectiveDate = new Date(localDate.getTime() + (4.5 * 3600000)); // Shift boundary to 19:30
+    const todayStr = effectiveDate.toISOString().split('T')[0];
 
     const currentIftarsList = iftars.filter(iftar => iftar.date >= todayStr);
     const pastIftarsList = iftars.filter(iftar => iftar.date < todayStr);

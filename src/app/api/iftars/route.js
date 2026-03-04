@@ -13,12 +13,13 @@ export async function GET(request) {
         const gender = searchParams.get('gender');
         const allDates = searchParams.get('all') === 'true';
 
-        // Get today's date in YYYY-MM-DD format explicitly forced to UTC+3 (Turkey/Saudi Arabia) 
-        // This prevents Vercel's UTC servers from thinking it's still yesterday at midnight
+        // Get today's date in YYYY-MM-DD format explicitly forced to UTC+3 (Turkey) and shifted day boundary to 19:30
         const now = new Date();
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const localDate = new Date(utc + (3600000 * 3)); // +3 hours
-        const today = localDate.toISOString().split('T')[0];
+        const localDate = new Date(utc + (3600000 * 3));
+        // By adding 4.5 hours, 19:30 becomes 00:00 of the next day format-wise
+        const effectiveDate = new Date(localDate.getTime() + (4.5 * 3600000));
+        const today = effectiveDate.toISOString().split('T')[0];
 
         const session = await getSession();
         const role = session?.role;
