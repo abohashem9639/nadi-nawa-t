@@ -7,9 +7,7 @@
 
 @font-face {
   font-family: 'Brando Arabic';
-  src: url('/fonts/BrandoArabic-SemiBold.woff2') format('woff2'),
-    url('/fonts/BrandoArabic-SemiBold.woff') format('woff'),
-    url('/fonts/Arabic.ttf') format('truetype');
+  src: url('/fonts/Arabic.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
