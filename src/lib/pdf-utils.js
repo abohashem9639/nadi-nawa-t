@@ -1,22 +1,24 @@
 
 import pdfMake from "pdfmake/build/pdfmake";
-// Note: We don't import vfs_fonts because we use our own custom font
-import arabicReshaper from 'arabic-reshaper';
+import * as arabicReshaper from 'arabic-reshaper';
+
+// Handle different import styles for arabic-reshaper
+const reshaper = (arabicReshaper && arabicReshaper.default) ? arabicReshaper.default : arabicReshaper;
 
 /**
  * Prepares reshaped Arabic text for PDF generation.
- * This is necessary because most PDF libraries don't handle glyph joining (shaping) automatically.
- * @param {string} text 
- * @returns {string}
  */
 export function fixArabicText(text) {
     if (!text) return "";
-    // Check if contains Arabic
+    text = String(text);
     const hasArabicData = /[\u0600-\u06FF\uFE70-\uFEFF]/.test(text);
     if (!hasArabicData) return text;
 
     try {
-        return arabicReshaper.reshape(text);
+        if (typeof reshaper.reshape === 'function') {
+            return reshaper.reshape(text);
+        }
+        return text;
     } catch (e) {
         console.error("Reshaping failed:", e);
         return text;
@@ -24,13 +26,15 @@ export function fixArabicText(text) {
 }
 
 /**
- * Configure global PDF settings (fonts, etc.)
- * @param {string} fontBase64 
+ * Generates and downloads a universal PDF report.
  */
-export function configurePDF(fontBase64) {
-    const fontName = 'MainFont';
+export async function downloadUniversalPDF({ title, filename, headers, data, isRtl, fontBase64, summaryData }) {
+    // 1. Setup VFS and Fonts
+    const vfs = {
+        'MainFont.ttf': fontBase64
+    };
 
-    pdfMake.fonts = {
+    const fonts = {
         MainFont: {
             normal: 'MainFont.ttf',
             bold: 'MainFont.ttf',
@@ -39,21 +43,7 @@ export function configurePDF(fontBase64) {
         }
     };
 
-    const vfs = {
-        'MainFont.ttf': fontBase64
-    };
-
-    return { pdfMake, vfs };
-}
-
-/**
- * Generates and downloads a universal PDF report.
- * Supports all languages, RTL, and tables.
- */
-export async function downloadUniversalPDF({ title, filename, headers, data, isRtl, fontBase64, summaryData }) {
-    const { pdfMake, vfs } = configurePDF(fontBase64);
-
-    // Reshape all strings in the data
+    // 2. Prepare Content
     const reshapedTitle = fixArabicText(title);
     const reshapedHeaders = headers.map(h => fixArabicText(h));
     const reshapedData = data.map(row => row.map(cell => fixArabicText(String(cell))));
@@ -106,8 +96,8 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
             headerRows: 1,
             widths: headers.map(() => 'auto'),
             body: [
-                reshapedHeaders.map(h => ({ text: h, style: 'tableHeader' })),
-                ...reshapedData
+                reshapedHeaders.map(h => ({ text: h, style: 'tableHeader', margin: [5, 2] })),
+                ...reshapedData.map(row => row.map(cell => ({ text: cell, margin: [5, 2] })))
             ]
         },
         layout: {
@@ -117,5 +107,7 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         }
     });
 
-    pdfMake.createPdf(docDefinition, null, null, vfs).download(filename);
+    // 3. Create and Download
+    // Using the 4-argument signature: createPdf(docDefinition, tableLayouts, fonts, vfs)
+    pdfMake.createPdf(docDefinition, null, fonts, vfs).download(filename);
 }
