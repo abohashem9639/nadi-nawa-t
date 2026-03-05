@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
             return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
         }
 
-        const iftarId = params.id;
+        const { id: iftarId } = await params;
         if (!iftarId) {
             return NextResponse.json({ error: 'missing_iftar_id' }, { status: 400 });
         }

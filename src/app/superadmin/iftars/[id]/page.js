@@ -93,10 +93,7 @@ export default function SuperAdminIftarDetailsPage() {
         router.push('/login');
     }
 
-    async function handleLogout() {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        router.push('/login');
-    }
+
 
     const printReport = () => {
         window.print();
