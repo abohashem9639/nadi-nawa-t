@@ -88,7 +88,9 @@
         "logout": "Logout",
         "backToList": "Back to List",
         "selectCampaign": "Select Today's Campaign",
-        "viewCampaign": "View Campaign & Scan QR"
+        "viewCampaign": "View Campaign & Scan QR",
+        "searchStudent": "Search for a student...",
+        "registrationTime": "Registration Time"
     },
     "superadmin": {
         "title": "Dashboard",

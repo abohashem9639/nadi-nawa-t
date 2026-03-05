@@ -7,7 +7,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -128,33 +128,56 @@ export default function SuperAdminIftarDetailsPage() {
     };
 
     const downloadDeletedPDF = () => {
-        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        try {
+            console.log("Starting PDF generation for:", iftarId);
+            if (!deletedStudents || deletedStudents.length === 0) {
+                alert("No deleted students to export.");
+                return;
+            }
 
-        // Add Title
-        doc.setFontSize(18);
-        doc.text("Report: Deleted Students", 105, 20, { align: 'center' });
-        doc.setFontSize(14);
-        doc.text(`Iftar: ${iftar?.title || 'Unknown'}`, 105, 30, { align: 'center' });
-        doc.text(`Date of Report: ${new Date().toLocaleDateString()}`, 105, 38, { align: 'center' });
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-        const tableData = deletedStudents.map((s, i) => [
-            i + 1,
-            s.student_name,
-            s.mobile_number || '—',
-            new Date(s.registered_at).toLocaleString(),
-            new Date(s.deleted_at).toLocaleString()
-        ]);
+            doc.setFontSize(18);
+            doc.text("Deleted Students Report", 105, 20, { align: 'center' });
 
-        doc.autoTable({
-            startY: 45,
-            head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [166, 110, 41] },
-            styles: { fontSize: 10 }
-        });
+            doc.setFontSize(12);
+            doc.text(`Iftar: ${iftar?.title || '—'}`, 105, 28, { align: 'center' });
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 34, { align: 'center' });
 
-        doc.save(`deleted_students_${iftarId}.pdf`);
+            const tableData = deletedStudents.map((s, i) => {
+                const formatDate = (date) => {
+                    if (!date) return '—';
+                    try {
+                        const d = new Date(date);
+                        return d.toLocaleString();
+                    } catch { return '—'; }
+                };
+                return [
+                    i + 1,
+                    s.student_name || '—',
+                    s.mobile_number || '—',
+                    formatDate(s.registered_at),
+                    formatDate(s.deleted_at),
+                    s.deleted_by || '—'
+                ];
+            });
+
+            autoTable(doc, {
+                startY: 42,
+                head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [166, 110, 41] },
+                styles: { fontSize: 8, cellPadding: 2 }
+            });
+
+            console.log("Saving PDF...");
+            doc.save(`deleted_students_${iftarId}.pdf`);
+            console.log("PDF download triggered");
+        } catch (error) {
+            console.error("PDF generation failed:", error);
+            alert("Error generating PDF: " + (error.message || "Unknown error"));
+        }
     };
 
     if (loading) {
@@ -187,40 +210,47 @@ export default function SuperAdminIftarDetailsPage() {
         <>
             <Header showLogout onLogout={handleLogout} />
             <main className="container" style={{ paddingBottom: '40px' }}>
-                <div className="page-header" style={{ position: 'relative' }}>
-                    <button
-                        className="btn btn-secondary btn-icon"
-                        style={{ position: 'absolute', [isRtl ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)' }}
-                        onClick={() => router.push('/superadmin')}
-                    >
-                        <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
-                    </button>
-                    <button
-                        className="btn btn-primary btn-sm flex items-center gap-2"
-                        style={{ position: 'absolute', [isRtl ? 'left' : 'right']: 0, top: '50%', transform: 'translateY(-50%)' }}
-                        onClick={printReport}
-                    >
-                        <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تحميل التقرير (PDF)'}</span>
-                    </button>
-                    {deletedStudents.length > 0 && (
+                <div className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px 0', borderBottom: '1px solid var(--border-color)', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
                         <button
-                            className="btn btn-secondary btn-sm flex items-center gap-2"
-                            style={{
-                                position: 'absolute',
-                                [isRtl ? 'left' : 'right']: isRtl ? '150px' : '150px',
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                background: 'rgba(239, 68, 68, 0.1)',
-                                color: '#ef4444',
-                                borderColor: 'rgba(239, 68, 68, 0.2)'
-                            }}
-                            onClick={downloadDeletedPDF}
+                            className="btn btn-secondary btn-icon"
+                            onClick={() => router.push('/superadmin')}
+                            style={{ minWidth: '40px' }}
                         >
-                            <Trash size={16} /> <span className="hide-mobile">{isRtl ? 'المحذوفين (PDF)' : 'Deleted (PDF)'}</span>
+                            <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
                         </button>
-                    )}
-                    <h1 className="page-title">{t('superadmin.stats') || 'تفاصيل الإفطار والإحصائيات'}</h1>
-                    <p className="page-subtitle">{iftar?.title}</p>
+
+                        <div style={{ flex: 1, textAlign: 'center' }}>
+                            <h1 className="page-title" style={{ margin: 0, fontSize: '1.25rem' }}>{t('superadmin.stats') || 'الاحصائيات'}</h1>
+                            <p className="page-subtitle" style={{ margin: 0, fontSize: '0.9rem' }}>{iftar?.title}</p>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px' }} className="hide-print">
+                            {deletedStudents.length > 0 && (
+                                <button
+                                    className="btn btn-secondary btn-sm flex items-center gap-2"
+                                    style={{
+                                        background: 'rgba(239, 68, 68, 0.08)',
+                                        color: '#ef4444',
+                                        borderColor: 'rgba(239, 68, 68, 0.2)',
+                                        padding: '6px 10px'
+                                    }}
+                                    onClick={downloadDeletedPDF}
+                                    title={isRtl ? 'المحذوفين' : 'Deleted'}
+                                >
+                                    <Trash2 size={16} /> <span className="hide-mobile">{isRtl ? 'المحذوفين' : 'Deleted'}</span>
+                                </button>
+                            )}
+                            <button
+                                className="btn btn-primary btn-sm flex items-center gap-2"
+                                onClick={printReport}
+                                style={{ padding: '6px 10px' }}
+                                title={t('superadmin.printReport')}
+                            >
+                                <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تقرير PDF'}</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {iftar && (

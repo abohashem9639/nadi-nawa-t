@@ -88,7 +88,9 @@
     "logout": "تسجيل الخروج",
     "backToList": "العودة للقائمة",
     "selectCampaign": "اختر حملة اليوم",
-    "viewCampaign": "عرض الحملة ومسح الـ QR"
+    "viewCampaign": "عرض الحملة ومسح الـ QR",
+    "searchStudent": "بحث عن طالب...",
+    "registrationTime": "وقت التسجيل"
   },
   "superadmin": {
     "title": "لوحة التحكم",
