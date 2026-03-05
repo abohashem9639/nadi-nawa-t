@@ -2,22 +2,22 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 /**
- * Loads a custom font into a jsPDF document.
+ * Loads the Cairo font (supports Arabic + Latin + numbers + special chars)
  */
 function loadFont(doc, fontBase64) {
-    doc.addFileToVFS('NotoSansArabic.ttf', fontBase64);
-    doc.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
-    doc.setFont('NotoSansArabic');
+    doc.addFileToVFS('Cairo.ttf', fontBase64);
+    doc.addFont('Cairo.ttf', 'Cairo', 'normal');
+    doc.setFont('Cairo');
 }
 
 /**
  * Downloads a universal PDF report.
- * Works with Arabic, English, Turkish – any language.
+ * Works with Arabic, English, Turkish, numbers, percentages – everything.
  */
 export async function downloadUniversalPDF({ title, filename, headers, data, isRtl, fontBase64, summaryData }) {
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-    // Load Arabic-supporting font
+    // Load Cairo font (Arabic + Latin support)
     loadFont(doc, fontBase64);
 
     // Title
@@ -34,17 +34,17 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
     if (summaryData && summaryData.length > 0) {
         autoTable(doc, {
             startY: startY,
-            head: [],
             body: summaryData.map(row => [String(row[0]), String(row[1])]),
             theme: 'grid',
             styles: {
-                font: 'NotoSansArabic',
+                font: 'Cairo',
+                fontStyle: 'normal',
                 fontSize: 10,
                 cellPadding: 3,
                 halign: isRtl ? 'right' : 'left'
             },
             columnStyles: {
-                0: { fontStyle: 'normal', cellWidth: 60 },
+                0: { cellWidth: 60 },
                 1: { cellWidth: 'auto' }
             },
             margin: { left: 30, right: 30 }
@@ -60,11 +60,13 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         theme: 'striped',
         headStyles: {
             fillColor: [166, 110, 41],
-            font: 'NotoSansArabic',
+            font: 'Cairo',
+            fontStyle: 'normal',
             halign: isRtl ? 'right' : 'left'
         },
         styles: {
-            font: 'NotoSansArabic',
+            font: 'Cairo',
+            fontStyle: 'normal',
             fontSize: 8,
             cellPadding: 2,
             halign: isRtl ? 'right' : 'left'
