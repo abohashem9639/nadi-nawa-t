@@ -95,8 +95,96 @@ export default function SuperAdminIftarDetailsPage() {
 
 
 
-    const printReport = () => {
-        window.print();
+    const downloadStatsPDF = () => {
+        try {
+            console.log("Starting Stats PDF generation for:", iftarId);
+
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+            // Title
+            doc.setFontSize(18);
+            doc.text("Statistics & Student Records", 105, 20, { align: 'center' });
+
+            // Subtitles
+            doc.setFontSize(12);
+            doc.text(`Iftar: ${iftar?.title || '—'}`, 105, 28, { align: 'center' });
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 34, { align: 'center' });
+
+            // 1. Summary Statistics Table
+            const summaryTableOptions = {
+                startY: 42,
+                head: [['Statistic', 'Value']],
+                body: [
+                    ['Total Capacity', iftar?.capacity || 0],
+                    ['Registered Students', totalRegistered],
+                    ['Arqam Students', iftar?.arqamCount || 0],
+                    ['Checked In (Attended)', `${checkedIn} (${attendancePercent}%)`],
+                    ['Absent (Remaining)', `${absent} (${absentPercent}%)`]
+                ],
+                theme: 'grid',
+                headStyles: { fillColor: [166, 110, 41] },
+                styles: { fontSize: 10, cellPadding: 3 },
+                margin: { left: 40, right: 40 }
+            };
+
+            try {
+                autoTable(doc, summaryTableOptions);
+            } catch (err) {
+                if (typeof doc.autoTable === 'function') {
+                    doc.autoTable(summaryTableOptions);
+                }
+            }
+
+            // 2. Student Records Table
+            const filteredStudents = students.filter(student =>
+                student.student_name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            const tableData = filteredStudents.map((s, i) => {
+                const formatDate = (date) => {
+                    if (!date) return '—';
+                    try {
+                        const d = new Date(date);
+                        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+                        const local = new Date(utc + (3600000 * 3));
+                        const day = String(local.getDate()).padStart(2, '0');
+                        const month = String(local.getMonth() + 1).padStart(2, '0');
+                        const hours = String(local.getHours()).padStart(2, '0');
+                        const mins = String(local.getMinutes()).padStart(2, '0');
+                        return `${day}/${month} ${hours}:${mins}`;
+                    } catch { return '—'; }
+                };
+                return [
+                    i + 1,
+                    s.student_name || '—',
+                    formatDate(s.registered_at),
+                    s.checked_in === 1 ? 'Present' : 'Absent'
+                ];
+            });
+
+            const recordsTableOptions = {
+                startY: doc.lastAutoTable?.finalY ? doc.lastAutoTable.finalY + 12 : 100,
+                head: [['#', 'Student Name', 'Registration Time', 'Status']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [166, 110, 41] },
+                styles: { fontSize: 8, cellPadding: 2 }
+            };
+
+            try {
+                autoTable(doc, recordsTableOptions);
+            } catch (err) {
+                if (typeof doc.autoTable === 'function') {
+                    doc.autoTable(recordsTableOptions);
+                }
+            }
+
+            doc.save(`stats_report_${iftarId}.pdf`);
+            console.log("Stats PDF download triggered");
+        } catch (error) {
+            console.error("Stats PDF generation failed:", error);
+            alert("Error generating PDF: " + (error.message || "Unknown error"));
+        }
     };
 
     const handleDeleteStudent = (studentId, studentName) => {
@@ -284,7 +372,7 @@ export default function SuperAdminIftarDetailsPage() {
                         )}
                         <button
                             className="btn btn-primary btn-sm flex items-center gap-1"
-                            onClick={printReport}
+                            onClick={downloadStatsPDF}
                             style={{ height: '38px', padding: '0 10px', fontSize: '0.85rem' }}
                         >
                             <Printer size={16} /> <span>{t('superadmin.printReport') || 'Report'}</span>
