@@ -30,12 +30,13 @@ export function fixArabicText(text) {
  */
 export async function downloadUniversalPDF({ title, filename, headers, data, isRtl, fontBase64, summaryData }) {
     // 1. Setup VFS and Fonts
-    const vfs = {
+    // Explicitly set the virtual file system on the global pdfMake object
+    pdfMake.vfs = {
         'MainFont.ttf': fontBase64
     };
 
-    // Define the font structure locally within the docDefinition for better compatibility
-    const fonts = {
+    // Explicitly set the fonts on the global pdfMake object
+    pdfMake.fonts = {
         MainFont: {
             normal: 'MainFont.ttf',
             bold: 'MainFont.ttf',
@@ -75,17 +76,17 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         styles: {
             header: {
                 fontSize: 18,
-                bold: false, // Avoid 'bold' style lookup if only one font is provided
+                bold: false,
                 margin: [0, 0, 0, 10]
             },
             tableHeader: {
-                bold: false, // Avoid 'bold' style lookup
+                bold: false,
                 fontSize: 11,
                 color: 'white',
                 fillColor: '#A66E29'
             },
             summaryLabel: {
-                bold: false, // Avoid 'bold' style lookup
+                bold: false,
                 fontSize: 10
             }
         }
@@ -121,7 +122,6 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
     });
 
     // 3. Create and Download
-    // Important: We must set the fonts to pdfMake.fonts BEFORE createPdf
-    pdfMake.fonts = fonts;
-    pdfMake.createPdf(docDefinition, {}, fonts, vfs).download(filename);
+    // Note: We use the 1-argument signature since we've already set vfs/fonts on the global object
+    pdfMake.createPdf(docDefinition).download(filename);
 }
