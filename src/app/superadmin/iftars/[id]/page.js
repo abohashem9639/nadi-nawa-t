@@ -7,7 +7,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -162,19 +162,8 @@ export default function SuperAdminIftarDetailsPage() {
                 ];
             });
 
-            if (typeof doc.autoTable === 'function') {
-                doc.autoTable({
-                    startY: 42,
-                    head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
-                    body: tableData,
-                    theme: 'striped',
-                    headStyles: { fillColor: [166, 110, 41] },
-                    styles: { fontSize: 8, cellPadding: 2 }
-                });
-            } else {
-                // Fallback for some bundle environments
-                console.error("autoTable not found on doc instance, attempting alternate call");
-                const autoTable = require('jspdf-autotable');
+            // Robust autoTable call
+            try {
                 autoTable(doc, {
                     startY: 42,
                     head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
@@ -183,6 +172,20 @@ export default function SuperAdminIftarDetailsPage() {
                     headStyles: { fillColor: [166, 110, 41] },
                     styles: { fontSize: 8, cellPadding: 2 }
                 });
+            } catch (innerError) {
+                console.error("autoTable function call failed, trying doc.autoTable", innerError);
+                if (typeof doc.autoTable === 'function') {
+                    doc.autoTable({
+                        startY: 42,
+                        head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
+                        body: tableData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [166, 110, 41] },
+                        styles: { fontSize: 8, cellPadding: 2 }
+                    });
+                } else {
+                    throw new Error("autoTable plugin not found");
+                }
             }
 
             console.log("Saving PDF...");
@@ -224,49 +227,71 @@ export default function SuperAdminIftarDetailsPage() {
         <>
             <Header showLogout onLogout={handleLogout} />
             <main className="container" style={{ paddingBottom: '40px' }}>
-                <div className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px 0', borderBottom: '1px solid var(--border-color)', marginBottom: '24px' }}>
-                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <button
-                                className="btn btn-secondary btn-icon"
-                                onClick={() => router.push('/superadmin')}
-                                style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                            >
-                                <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
-                            </button>
-                        </div>
+                <div className="page-header" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '12px',
+                    padding: '16px 0',
+                    borderBottom: '1px solid var(--border-color)',
+                    marginBottom: '24px',
+                    position: 'relative'
+                }}>
+                    {/* Back Button Container */}
+                    <div style={{ width: '44px', display: 'flex', justifyContent: isRtl ? 'flex-end' : 'flex-start' }}>
+                        <button
+                            className="btn btn-secondary btn-icon"
+                            onClick={() => router.push('/superadmin')}
+                            style={{ width: '40px', height: '40px', padding: 0 }}
+                        >
+                            <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
+                        </button>
+                    </div>
 
-                        <div style={{ flex: 1, textAlign: 'center', overflow: 'hidden' }}>
-                            <h1 className="page-title" style={{ margin: 0, fontSize: 'clamp(1rem, 4vw, 1.4rem)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {t('superadmin.stats') || 'Statistics'}
-                            </h1>
-                            <p className="page-subtitle" style={{ margin: 0, fontSize: '0.85rem', opacity: 0.8 }}>{iftar?.title}</p>
-                        </div>
+                    {/* Title Container - Centered */}
+                    <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
+                        <h1 className="page-title" style={{
+                            margin: 0,
+                            fontSize: 'clamp(1rem, 4vw, 1.3rem)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}>
+                            {t('superadmin.stats') || 'Statistics'}
+                        </h1>
+                        <p className="page-subtitle" style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>{iftar?.title}</p>
+                    </div>
 
-                        <div style={{ display: 'flex', gap: '8px' }} className="hide-print">
-                            {deletedStudents.length > 0 && (
-                                <button
-                                    className="btn btn-secondary btn-sm flex items-center gap-2"
-                                    style={{
-                                        background: 'rgba(239, 68, 68, 0.08)',
-                                        color: '#ef4444',
-                                        borderColor: 'rgba(239, 68, 68, 0.2)',
-                                        height: '38px',
-                                        padding: '0 12px'
-                                    }}
-                                    onClick={downloadDeletedPDF}
-                                >
-                                    <Trash2 size={16} /> <span className="hide-mobile">{isRtl ? 'المحذوفين' : 'Deleted'}</span>
-                                </button>
-                            )}
+                    {/* Actions Container */}
+                    <div style={{
+                        display: 'flex',
+                        gap: '8px',
+                        justifyContent: isRtl ? 'flex-start' : 'flex-end',
+                        minWidth: 'auto'
+                    }} className="hide-print">
+                        {deletedStudents.length > 0 && (
                             <button
-                                className="btn btn-primary btn-sm flex items-center gap-2"
-                                onClick={printReport}
-                                style={{ height: '38px', padding: '0 12px' }}
+                                className="btn btn-secondary btn-sm flex items-center gap-1"
+                                style={{
+                                    background: 'rgba(239, 68, 68, 0.08)',
+                                    color: '#ef4444',
+                                    borderColor: 'rgba(239, 68, 68, 0.2)',
+                                    height: '38px',
+                                    padding: '0 10px',
+                                    fontSize: '0.85rem'
+                                }}
+                                onClick={downloadDeletedPDF}
                             >
-                                <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'Report'}</span>
+                                <Trash2 size={16} /> <span>{isRtl ? 'المحذوفين' : 'Deleted'}</span>
                             </button>
-                        </div>
+                        )}
+                        <button
+                            className="btn btn-primary btn-sm flex items-center gap-1"
+                            onClick={printReport}
+                            style={{ height: '38px', padding: '0 10px', fontSize: '0.85rem' }}
+                        >
+                            <Printer size={16} /> <span>{t('superadmin.printReport') || 'Report'}</span>
+                        </button>
                     </div>
                 </div>
 
