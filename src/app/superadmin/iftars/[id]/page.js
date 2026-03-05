@@ -7,7 +7,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash } from 'lucide-react';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import 'jspdf-autotable';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -162,14 +162,28 @@ export default function SuperAdminIftarDetailsPage() {
                 ];
             });
 
-            autoTable(doc, {
-                startY: 42,
-                head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
-                body: tableData,
-                theme: 'striped',
-                headStyles: { fillColor: [166, 110, 41] },
-                styles: { fontSize: 8, cellPadding: 2 }
-            });
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable({
+                    startY: 42,
+                    head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [166, 110, 41] },
+                    styles: { fontSize: 8, cellPadding: 2 }
+                });
+            } else {
+                // Fallback for some bundle environments
+                console.error("autoTable not found on doc instance, attempting alternate call");
+                const autoTable = require('jspdf-autotable');
+                autoTable(doc, {
+                    startY: 42,
+                    head: [['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [166, 110, 41] },
+                    styles: { fontSize: 8, cellPadding: 2 }
+                });
+            }
 
             console.log("Saving PDF...");
             doc.save(`deleted_students_${iftarId}.pdf`);
@@ -210,19 +224,23 @@ export default function SuperAdminIftarDetailsPage() {
         <>
             <Header showLogout onLogout={handleLogout} />
             <main className="container" style={{ paddingBottom: '40px' }}>
-                <div className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px 0', borderBottom: '1px solid var(--border-color)', marginBottom: '24px' }}>
-                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-                        <button
-                            className="btn btn-secondary btn-icon"
-                            onClick={() => router.push('/superadmin')}
-                            style={{ minWidth: '40px' }}
-                        >
-                            <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
-                        </button>
+                <div className="page-header" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px 0', borderBottom: '1px solid var(--border-color)', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                                className="btn btn-secondary btn-icon"
+                                onClick={() => router.push('/superadmin')}
+                                style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                <ArrowLeft size={20} style={{ transform: isRtl ? 'rotate(180deg)' : 'none' }} />
+                            </button>
+                        </div>
 
-                        <div style={{ flex: 1, textAlign: 'center' }}>
-                            <h1 className="page-title" style={{ margin: 0, fontSize: '1.25rem' }}>{t('superadmin.stats') || 'الاحصائيات'}</h1>
-                            <p className="page-subtitle" style={{ margin: 0, fontSize: '0.9rem' }}>{iftar?.title}</p>
+                        <div style={{ flex: 1, textAlign: 'center', overflow: 'hidden' }}>
+                            <h1 className="page-title" style={{ margin: 0, fontSize: 'clamp(1rem, 4vw, 1.4rem)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {t('superadmin.stats') || 'Statistics'}
+                            </h1>
+                            <p className="page-subtitle" style={{ margin: 0, fontSize: '0.85rem', opacity: 0.8 }}>{iftar?.title}</p>
                         </div>
 
                         <div style={{ display: 'flex', gap: '8px' }} className="hide-print">
@@ -233,10 +251,10 @@ export default function SuperAdminIftarDetailsPage() {
                                         background: 'rgba(239, 68, 68, 0.08)',
                                         color: '#ef4444',
                                         borderColor: 'rgba(239, 68, 68, 0.2)',
-                                        padding: '6px 10px'
+                                        height: '38px',
+                                        padding: '0 12px'
                                     }}
                                     onClick={downloadDeletedPDF}
-                                    title={isRtl ? 'المحذوفين' : 'Deleted'}
                                 >
                                     <Trash2 size={16} /> <span className="hide-mobile">{isRtl ? 'المحذوفين' : 'Deleted'}</span>
                                 </button>
@@ -244,10 +262,9 @@ export default function SuperAdminIftarDetailsPage() {
                             <button
                                 className="btn btn-primary btn-sm flex items-center gap-2"
                                 onClick={printReport}
-                                style={{ padding: '6px 10px' }}
-                                title={t('superadmin.printReport')}
+                                style={{ height: '38px', padding: '0 12px' }}
                             >
-                                <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'تقرير PDF'}</span>
+                                <Printer size={16} /> <span className="hide-mobile">{t('superadmin.printReport') || 'Report'}</span>
                             </button>
                         </div>
                     </div>
