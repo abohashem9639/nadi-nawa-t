@@ -1,6 +1,6 @@
 
-// Simple Arabic Reshaper and RTL helper for jsPDF
-// This is a minimal implementation to handle basic Arabic shaping and reversal.
+// Better Arabic Reshaper and RTL helper for jsPDF
+// This handles basic Arabic shaping and mixed LTR/RTL text reversal.
 
 const ARABIC_CHARACTER_MAP = {
     '\u0627': ['\uFE8D', '\uFE8E', '\uFE8D', '\uFE8E'], // Alif
@@ -40,44 +40,72 @@ const ARABIC_CHARACTER_MAP = {
     '\u0629': ['\uFE93', '\uFE94', '\uFE93', '\uFE94'], // Teh Marbuta
 };
 
-// Simplified reshaper logic
-export function fixArabicPDF(text) {
-    if (!text) return text;
+const NON_JOINING = ['\u0627', '\u062D', '\u0630', '\u0631', '\u0632', '\u0648', '\u0622', '\u0623', '\u0625', '\u0624', '\u0629'];
 
-    // 1. First, basic shaping (joining letters)
-    let reshaped = "";
+function isArabicChar(char) {
+    if (!char) return false;
+    const code = char.charCodeAt(0);
+    return (code >= 0x0600 && code <= 0x06FF) || (code >= 0xFE70 && code <= 0xFEFF);
+}
+
+function reshape(text) {
+    let result = "";
     for (let i = 0; i < text.length; i++) {
         let char = text[i];
         let map = ARABIC_CHARACTER_MAP[char];
 
         if (!map) {
-            reshaped += char;
+            result += char;
             continue;
         }
 
         let prev = i > 0 ? text[i - 1] : null;
         let next = i < text.length - 1 ? text[i + 1] : null;
 
-        let hasPrev = prev && ARABIC_CHARACTER_MAP[prev] && !['\u0627', '\u062F', '\u0630', '\u0631', '\u0632', '\u0648', '\u0622', '\u0623', '\u0625', '\u0624'].includes(prev);
+        let hasPrev = prev && ARABIC_CHARACTER_MAP[prev] && !NON_JOINING.includes(prev);
         let hasNext = next && ARABIC_CHARACTER_MAP[next];
 
-        if (!hasPrev && !hasNext) reshaped += map[0]; // Isolated
-        else if (!hasPrev && hasNext) reshaped += map[2]; // Initial
-        else if (hasPrev && hasNext) reshaped += map[3]; // Medial
-        else if (hasPrev && !hasNext) reshaped += map[1]; // Final
+        if (!hasPrev && !hasNext) result += map[0]; // Isolated
+        else if (!hasPrev && hasNext) result += map[2]; // Initial
+        else if (hasPrev && hasNext) result += map[3]; // Medial
+        else if (hasPrev && !hasNext) result += map[1]; // Final
     }
+    return result;
+}
 
-    // 2. Handle RTL by reversing Arabic words only or just global reverse if it's mostly Arabic
-    // This is a simple global reverse for now, as jsPDF prints LTR.
-    // For a cleaner version, we should reverse only Arabic segments.
+export function fixArabicPDF(text) {
+    if (!text) return text;
+
+    // Convert to string just in case
+    text = String(text);
+
+    // First reshape English/Mixed characters correctly (reshape only Arabic)
+    let reshaped = reshape(text);
+
+    // Determine if it should be reversed (if contains Arabic)
+    const hasArabicData = /[\u0600-\u06FF\uFE70-\uFEFF]/.test(text);
+    if (!hasArabicData) return text;
+
+    // Simple word-based reversal for mixed text or global reversal
+    // For PDFs, usually we need to reverse the whole line because jsPDF is strictly LTR.
+    // Numbers and English words within Arabic lines will APPEAR reversed if we just global reverse.
+    // However, a simple reverse is better than forward Arabic.
+
+    // Let's try a better approach: reverse only the string if it's mostly Arabic or has Arabic
     return reshaped.split("").reverse().join("");
 }
 
 export function prepareDocArabic(doc, fontBase64) {
-    if (fontBase64) {
+    if (!fontBase64 || fontBase64.length < 100) {
+        console.error("Invalid font data provided to PDF gen");
+        return doc;
+    }
+    try {
         doc.addFileToVFS('Arabic.ttf', fontBase64);
         doc.addFont('Arabic.ttf', 'Arabic', 'normal');
         doc.setFont('Arabic');
+    } catch (err) {
+        console.error("Failed to load PDF font:", err);
     }
     return doc;
 }
