@@ -34,6 +34,7 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         'MainFont.ttf': fontBase64
     };
 
+    // Define the font structure locally within the docDefinition for better compatibility
     const fonts = {
         MainFont: {
             normal: 'MainFont.ttf',
@@ -74,14 +75,18 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         styles: {
             header: {
                 fontSize: 18,
-                bold: true,
+                bold: false, // Avoid 'bold' style lookup if only one font is provided
                 margin: [0, 0, 0, 10]
             },
             tableHeader: {
-                bold: true,
+                bold: false, // Avoid 'bold' style lookup
                 fontSize: 11,
                 color: 'white',
                 fillColor: '#A66E29'
+            },
+            summaryLabel: {
+                bold: false, // Avoid 'bold' style lookup
+                fontSize: 10
             }
         }
     };
@@ -93,7 +98,7 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
                 widths: ['*', 'auto'],
                 body: summaryData.map(row => [
                     { text: fixArabicText(String(row[1])), alignment: isRtl ? 'right' : 'left' },
-                    { text: fixArabicText(String(row[0])), bold: true, alignment: isRtl ? 'left' : 'right' }
+                    { text: fixArabicText(String(row[0])), style: 'summaryLabel', alignment: isRtl ? 'left' : 'right' }
                 ])
             },
             margin: [40, 10, 40, 20],
@@ -115,10 +120,8 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         }
     });
 
-    // Handle RTL globally if needed (pdfMake supports it via text properties mostly)
-    // For true RTL rendering in tables, we use the alignment property per cell.
-
-    // 3. Create and Download using the correct 4-argument call
-    // createPdf(docDefinition, tableLayouts, fonts, vfs)
+    // 3. Create and Download
+    // Important: We must set the fonts to pdfMake.fonts BEFORE createPdf
+    pdfMake.fonts = fonts;
     pdfMake.createPdf(docDefinition, {}, fonts, vfs).download(filename);
 }
