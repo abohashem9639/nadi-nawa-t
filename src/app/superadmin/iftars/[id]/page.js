@@ -6,10 +6,8 @@ import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { ARABIC_FONT_BASE64 } from '@/lib/fonts/arabic-font';
-import { fixArabicPDF, prepareDocArabic } from '@/lib/pdf-utils';
+import { downloadUniversalPDF } from '@/lib/pdf-utils';
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -97,104 +95,49 @@ export default function SuperAdminIftarDetailsPage() {
 
 
 
-    const downloadStatsPDF = () => {
+    const downloadStatsPDF = async () => {
         try {
-            console.log("Starting Stats PDF generation for:", iftarId);
+            const summaryData = [
+                [isRtl ? 'السعة الإجمالية' : 'Total Capacity', iftar?.capacity || 0],
+                [isRtl ? 'الطلاب المسجلين' : 'Registered Students', totalRegistered],
+                [isRtl ? 'طلاب الأرقم' : 'Arqam Students', iftar?.arqamCount || 0],
+                [isRtl ? 'حضروا' : 'Checked In (Attended)', `${checkedIn} (${attendancePercent}%)`],
+                [isRtl ? 'غائبين' : 'Absent (Remaining)', `${absent} (${absentPercent}%)`]
+            ];
 
-            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            prepareDocArabic(doc, ARABIC_FONT_BASE64);
-
-            // Title
-            doc.setFontSize(18);
-            doc.text(fixArabicPDF(isRtl ? "إحصائيات وسجل الطلاب" : "Statistics & Student Records"), 105, 20, { align: 'center' });
-
-            // Subtitles
-            doc.setFontSize(12);
-            doc.text(fixArabicPDF(`${isRtl ? 'إفطار' : 'Iftar'}: ${iftar?.title || '—'}`), 105, 28, { align: 'center' });
-            doc.text(fixArabicPDF(`${isRtl ? 'تم الاستخراج في' : 'Generated on'}: ${new Date().toLocaleString()}`), 105, 34, { align: 'center' });
-
-            // 1. Summary Statistics Table
-            const summaryTableOptions = {
-                startY: 42,
-                head: [[isRtl ? 'القيمة' : 'Value', isRtl ? 'الإحصائية' : 'Statistic']], // Swapped for RTL
-                body: [
-                    [iftar?.capacity || 0, isRtl ? 'السعة الإجمالية' : 'Total Capacity'],
-                    [totalRegistered, isRtl ? 'الطلاب المسجلين' : 'Registered Students'],
-                    [iftar?.arqamCount || 0, isRtl ? 'طلاب الأرقم' : 'Arqam Students'],
-                    [`${checkedIn} (${attendancePercent}%)`, isRtl ? 'حضروا' : 'Checked In (Attended)'],
-                    [`${absent} (${absentPercent}%)`, isRtl ? 'غائبين' : 'Absent (Remaining)']
-                ].map(row => row.map(cell => fixArabicPDF(String(cell)))),
-                theme: 'grid',
-                headStyles: { fillColor: [166, 110, 41], font: 'Arabic', halign: isRtl ? 'right' : 'left' },
-                styles: { fontSize: 10, cellPadding: 3, font: 'Arabic', halign: isRtl ? 'right' : 'left' },
-                margin: { left: 40, right: 40 }
-            };
-
-            try {
-                autoTable(doc, summaryTableOptions);
-            } catch (err) {
-                if (typeof doc.autoTable === 'function') {
-                    doc.autoTable(summaryTableOptions);
-                }
-            }
-
-            // 2. Student Records Table
             const filteredStudents = students.filter(student =>
                 student.student_name.toLowerCase().includes(searchQuery.toLowerCase())
             );
+
+            const tableHeaders = isRtl
+                ? ['الحالة', 'وقت التسجيل', 'اسم الطالب', '#']
+                : ['#', 'Student Name', 'Registration Time', 'Status'];
 
             const tableData = filteredStudents.map((s, i) => {
                 const formatDate = (date) => {
                     if (!date) return '—';
                     try {
                         const d = new Date(date);
-                        const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-                        const local = new Date(utc + (3600000 * 3));
-                        const day = String(local.getDate()).padStart(2, '0');
-                        const month = String(local.getMonth() + 1).padStart(2, '0');
-                        const hours = String(local.getHours()).padStart(2, '0');
-                        const mins = String(local.getMinutes()).padStart(2, '0');
-                        return `${day}/${month} ${hours}:${mins}`;
+                        return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
                     } catch { return '—'; }
                 };
 
-                // Swapping order if RTL
-                if (isRtl) {
-                    return [
-                        s.checked_in === 1 ? 'حاضر' : 'غائب',
-                        formatDate(s.registered_at),
-                        s.student_name || '—',
-                        i + 1
-                    ].map(cell => fixArabicPDF(String(cell)));
-                }
-                return [
-                    i + 1,
-                    s.student_name || '—',
-                    formatDate(s.registered_at),
-                    s.checked_in === 1 ? 'Present' : 'Absent'
-                ].map(cell => fixArabicPDF(String(cell)));
+                return isRtl
+                    ? [s.checked_in === 1 ? 'حاضر' : 'غائب', formatDate(s.registered_at), s.student_name || '—', i + 1]
+                    : [i + 1, s.student_name || '—', formatDate(s.registered_at), s.checked_in === 1 ? 'Present' : 'Absent'];
             });
 
-            const recordsTableOptions = {
-                startY: doc.lastAutoTable?.finalY ? doc.lastAutoTable.finalY + 12 : 100,
-                head: [isRtl ? ['الحالة', 'وقت التسجيل', 'اسم الطالب', '#'] : ['#', 'Student Name', 'Registration Time', 'Status']],
-                body: tableData,
-                theme: 'striped',
-                headStyles: { fillColor: [166, 110, 41], font: 'Arabic', halign: isRtl ? 'right' : 'left' },
-                styles: { fontSize: 8, cellPadding: 2, font: 'Arabic', halign: isRtl ? 'right' : 'left' }
-            };
-
-            try {
-                autoTable(doc, recordsTableOptions);
-            } catch (err) {
-                if (typeof doc.autoTable === 'function') {
-                    doc.autoTable(recordsTableOptions);
-                }
-            }
-
-            doc.save(`stats_report_${iftarId}.pdf`);
+            await downloadUniversalPDF({
+                title: isRtl ? "إحصائيات وسجل الطلاب" : "Statistics & Student Records",
+                filename: `stats_report_${iftarId}.pdf`,
+                headers: tableHeaders,
+                data: tableData,
+                summaryData: summaryData,
+                isRtl: isRtl,
+                fontBase64: ARABIC_FONT_BASE64
+            });
         } catch (error) {
-            console.error("Stats PDF generation failed:", error);
+            console.error("PDF generation failed:", error);
             alert("Error: " + (error.message || "Unknown error"));
         }
     };
@@ -224,70 +167,36 @@ export default function SuperAdminIftarDetailsPage() {
         });
     };
 
-    const downloadDeletedPDF = () => {
+    const downloadDeletedPDF = async () => {
         try {
-            console.log("Starting PDF generation for:", iftarId);
             if (!deletedStudents || deletedStudents.length === 0) {
                 alert("No deleted students to export.");
                 return;
             }
 
-            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            prepareDocArabic(doc, ARABIC_FONT_BASE64);
-
-            doc.setFontSize(18);
-            doc.text(fixArabicPDF("Deleted Students Report"), 105, 20, { align: 'center' });
-
-            doc.setFontSize(12);
-            doc.text(fixArabicPDF(`${isRtl ? 'إفطار' : 'Iftar'}: ${iftar?.title || '—'}`), 105, 28, { align: 'center' });
-            doc.text(fixArabicPDF(`${isRtl ? 'تم الاستخراج في' : 'Generated on'}: ${new Date().toLocaleString()}`), 105, 34, { align: 'center' });
+            const tableHeaders = isRtl
+                ? ['بواسطة', 'تاريخ الحذف', 'تاريخ التسجيل', 'الجوال', 'الاسم', '#']
+                : ['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By'];
 
             const tableData = deletedStudents.map((s, i) => {
                 const formatDate = (date) => {
                     if (!date) return '—';
-                    try {
-                        const d = new Date(date);
-                        return d.toLocaleString();
-                    } catch { return '—'; }
+                    try { return new Date(date).toLocaleString(); } catch { return '—'; }
                 };
 
-                let row = [
-                    i + 1,
-                    s.student_name || '—',
-                    s.mobile_number || '—',
-                    formatDate(s.registered_at),
-                    formatDate(s.deleted_at),
-                    s.deleted_by || '—'
-                ];
-
-                if (isRtl) row.reverse();
-                return row.map(cell => fixArabicPDF(String(cell)));
+                return isRtl
+                    ? [s.deleted_by || '—', formatDate(s.deleted_at), formatDate(s.registered_at), s.mobile_number || '—', s.student_name || '—', i + 1]
+                    : [i + 1, s.student_name || '—', s.mobile_number || '—', formatDate(s.registered_at), formatDate(s.deleted_at), s.deleted_by || '—'];
             });
 
-            const header = [
-                isRtl ? ['بواسطة', 'تاريخ الحذف', 'تاريخ التسجيل', 'الجوال', 'الاسم', '#'] : ['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By']
-            ];
-
-            const options = {
-                startY: 42,
-                head: header,
-                body: tableData,
-                theme: 'striped',
-                headStyles: { fillColor: [166, 110, 41], font: 'Arabic', halign: isRtl ? 'right' : 'left' },
-                styles: { fontSize: 8, cellPadding: 2, font: 'Arabic', halign: isRtl ? 'right' : 'left' }
-            };
-
-            try {
-                autoTable(doc, options);
-            } catch (innerError) {
-                if (typeof doc.autoTable === 'function') {
-                    doc.autoTable(options);
-                } else {
-                    throw new Error("autoTable plugin not found");
-                }
-            }
-
-            doc.save(`deleted_students_${iftarId}.pdf`);
+            await downloadUniversalPDF({
+                title: isRtl ? "سجل الطلاب المحذوفين" : "Deleted Students Report",
+                filename: `deleted_students_${iftarId}.pdf`,
+                headers: tableHeaders,
+                data: tableData,
+                isRtl: isRtl,
+                fontBase64: ARABIC_FONT_BASE64
+            });
         } catch (error) {
             console.error("PDF generation failed:", error);
             alert("Error: " + (error.message || "Unknown error"));
