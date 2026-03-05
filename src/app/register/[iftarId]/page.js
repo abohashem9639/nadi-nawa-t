@@ -126,6 +126,18 @@ export default function RegisterPage() {
                                     onChange={(e) => setStudentName(e.target.value)}
                                     required
                                 />
+                                <p style={{
+                                    fontSize: '0.78rem',
+                                    color: 'var(--text-muted)',
+                                    marginTop: '8px',
+                                    lineHeight: '1.6',
+                                    background: 'var(--bg-card-hover)',
+                                    padding: '8px 12px',
+                                    borderRadius: '6px',
+                                    borderInlineStart: '3px solid var(--brand-medium)'
+                                }}>
+                                    {t('register.fullNameNotice') || 'يرجى كتابة الاسم الكامل لتجنب تشابه الأسماء. قد يتم حذف التسجيلات التي تحتوي على اسم أول فقط أو أسماء مكررة.'}
+                                </p>
                             </div>
 
                             <div className="form-group flex-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', cursor: 'pointer' }}>

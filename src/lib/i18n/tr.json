@@ -41,7 +41,8 @@
         "downloadQR": "Görüntüyü İndir",
         "qrInstruction1": "Bu QR kod görüntüsünü kaydedin ve girişte görevliye gösterin.",
         "qrInstruction2": "Rezervasyonunuzun iptal olmaması için bu kodu kimseyle paylaşmayın.",
-        "qrInstruction3": "Bu kod yalnızca tek kullanımlıktır."
+        "qrInstruction3": "Bu kod yalnızca tek kullanımlıktır.",
+        "fullNameNotice": "Lütfen ad benzerliğini önlemek için tam adınızı yazın. Yalnızca ilk ad içeren veya yinelenen kayıtlar silinebilir."
     },
     "login": {
         "title": "Yönetici Girişi",

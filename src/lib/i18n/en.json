@@ -41,7 +41,8 @@
         "downloadQR": "Download Image",
         "qrInstruction1": "Save this QR code image and show it to the admin upon entry.",
         "qrInstruction2": "Do not share this code with anyone to avoid losing your reservation.",
-        "qrInstruction3": "This code is valid for one-time use only."
+        "qrInstruction3": "This code is valid for one-time use only.",
+        "fullNameNotice": "Please write your full name to avoid name duplication. Registrations with only a first name or duplicate names may be deleted."
     },
     "login": {
         "title": "Admin Login",
