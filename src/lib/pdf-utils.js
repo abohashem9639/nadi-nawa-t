@@ -1,95 +1,75 @@
-
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-
-// Initialize default fonts first
-pdfMake.addFonts(pdfFonts);
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 /**
- * Generates and downloads a universal PDF report using pdfMake v0.3.x
+ * Loads a custom font into a jsPDF document.
+ */
+function loadFont(doc, fontBase64) {
+    doc.addFileToVFS('NotoSansArabic.ttf', fontBase64);
+    doc.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
+    doc.setFont('NotoSansArabic');
+}
+
+/**
+ * Downloads a universal PDF report.
+ * Works with Arabic, English, Turkish – any language.
  */
 export async function downloadUniversalPDF({ title, filename, headers, data, isRtl, fontBase64, summaryData }) {
-    // 1. Register the Arabic font in the virtual file system
-    pdfMake.virtualfs.writeFileSync('Arabic.ttf', fontBase64);
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-    // 2. Register the font family
-    pdfMake.fonts.Arabic = {
-        normal: 'Arabic.ttf',
-        bold: 'Arabic.ttf',
-        italics: 'Arabic.ttf',
-        bolditalics: 'Arabic.ttf'
-    };
+    // Load Arabic-supporting font
+    loadFont(doc, fontBase64);
 
-    // 3. Build table body
-    const tableBody = [
-        headers.map(h => ({
-            text: h,
-            style: 'tableHeader',
-            alignment: 'center',
-            margin: [5, 5]
-        }))
-    ];
+    // Title
+    doc.setFontSize(18);
+    doc.text(title, 105, 20, { align: 'center' });
 
-    data.forEach(row => {
-        tableBody.push(row.map(cell => ({
-            text: String(cell),
-            alignment: isRtl ? 'right' : 'left',
-            margin: [5, 3]
-        })));
-    });
+    // Date
+    doc.setFontSize(10);
+    doc.text(new Date().toLocaleString(), 105, 28, { align: 'center' });
 
-    // 4. Build the document definition
-    const docDefinition = {
-        content: [
-            { text: title, style: 'header', alignment: 'center' },
-            { text: '\n' },
-        ],
-        defaultStyle: {
-            font: 'Arabic',
-            fontSize: 10,
-        },
-        styles: {
-            header: {
-                fontSize: 18,
-                margin: [0, 0, 0, 10]
-            },
-            tableHeader: {
-                fontSize: 11,
-                color: 'white',
-                fillColor: '#A66E29'
-            }
-        }
-    };
+    let startY = 36;
 
-    // Add summary table if provided
+    // Summary table
     if (summaryData && summaryData.length > 0) {
-        docDefinition.content.push({
-            table: {
-                widths: ['*', 'auto'],
-                body: summaryData.map(row => [
-                    { text: String(row[1]), alignment: isRtl ? 'right' : 'left' },
-                    { text: String(row[0]), alignment: isRtl ? 'left' : 'right' }
-                ])
+        autoTable(doc, {
+            startY: startY,
+            head: [],
+            body: summaryData.map(row => [String(row[0]), String(row[1])]),
+            theme: 'grid',
+            styles: {
+                font: 'NotoSansArabic',
+                fontSize: 10,
+                cellPadding: 3,
+                halign: isRtl ? 'right' : 'left'
             },
-            margin: [40, 10, 40, 20],
-            layout: 'lightHorizontalLines'
+            columnStyles: {
+                0: { fontStyle: 'normal', cellWidth: 60 },
+                1: { cellWidth: 'auto' }
+            },
+            margin: { left: 30, right: 30 }
         });
+        startY = doc.lastAutoTable.finalY + 10;
     }
 
-    // Add main data table
-    docDefinition.content.push({
-        table: {
-            headerRows: 1,
-            widths: headers.map(() => 'auto'),
-            body: tableBody
+    // Main data table
+    autoTable(doc, {
+        startY: startY,
+        head: [headers],
+        body: data.map(row => row.map(cell => String(cell))),
+        theme: 'striped',
+        headStyles: {
+            fillColor: [166, 110, 41],
+            font: 'NotoSansArabic',
+            halign: isRtl ? 'right' : 'left'
         },
-        layout: {
-            fillColor: function (rowIndex) {
-                return (rowIndex % 2 === 0 && rowIndex > 0) ? '#f9f9f9' : null;
-            }
+        styles: {
+            font: 'NotoSansArabic',
+            fontSize: 8,
+            cellPadding: 2,
+            halign: isRtl ? 'right' : 'left'
         }
     });
 
-    // 5. Create and Download
-    pdfMake.createPdf(docDefinition).download(filename);
+    doc.save(filename);
 }
