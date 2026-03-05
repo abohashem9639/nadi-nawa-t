@@ -9,13 +9,13 @@ const reshaper = (arabicReshaper && arabicReshaper.default) ? arabicReshaper.def
  * Prepares reshaped Arabic text for PDF generation.
  */
 export function fixArabicText(text) {
-    if (!text) return "";
+    if (!text || text === '—') return text;
     text = String(text);
     const hasArabicData = /[\u0600-\u06FF\uFE70-\uFEFF]/.test(text);
     if (!hasArabicData) return text;
 
     try {
-        if (typeof reshaper.reshape === 'function') {
+        if (reshaper && typeof reshaper.reshape === 'function') {
             return reshaper.reshape(text);
         }
         return text;
@@ -26,7 +26,7 @@ export function fixArabicText(text) {
 }
 
 /**
- * Generates and downloads a universal PDF report.
+ * Generates and downloads a universal PDF report using pdfMake.
  */
 export async function downloadUniversalPDF({ title, filename, headers, data, isRtl, fontBase64, summaryData }) {
     // 1. Setup VFS and Fonts
@@ -45,8 +45,22 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
 
     // 2. Prepare Content
     const reshapedTitle = fixArabicText(title);
-    const reshapedHeaders = headers.map(h => fixArabicText(h));
-    const reshapedData = data.map(row => row.map(cell => fixArabicText(String(cell))));
+    const reshapedHeaders = headers.map(h => ({
+        text: fixArabicText(h),
+        style: 'tableHeader',
+        alignment: 'center',
+        margin: [5, 5]
+    }));
+
+    const tableBody = [reshapedHeaders];
+
+    data.forEach(row => {
+        tableBody.push(row.map(cell => ({
+            text: fixArabicText(String(cell)),
+            alignment: isRtl ? 'right' : 'left',
+            margin: [5, 3]
+        })));
+    });
 
     const docDefinition = {
         content: [
@@ -56,7 +70,6 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         defaultStyle: {
             font: 'MainFont',
             fontSize: 10,
-            alignment: isRtl ? 'right' : 'left'
         },
         styles: {
             header: {
@@ -68,11 +81,9 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
                 bold: true,
                 fontSize: 11,
                 color: 'white',
-                fillColor: '#A66E29',
-                alignment: 'center'
+                fillColor: '#A66E29'
             }
-        },
-        rtl: isRtl
+        }
     };
 
     // Add summary if provided
@@ -85,7 +96,7 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
                     { text: fixArabicText(String(row[0])), bold: true, alignment: isRtl ? 'left' : 'right' }
                 ])
             },
-            margin: [40, 0, 40, 20],
+            margin: [40, 10, 40, 20],
             layout: 'lightHorizontalLines'
         });
     }
@@ -95,10 +106,7 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         table: {
             headerRows: 1,
             widths: headers.map(() => 'auto'),
-            body: [
-                reshapedHeaders.map(h => ({ text: h, style: 'tableHeader', margin: [5, 2] })),
-                ...reshapedData.map(row => row.map(cell => ({ text: cell, margin: [5, 2] })))
-            ]
+            body: tableBody
         },
         layout: {
             fillColor: function (rowIndex) {
@@ -107,7 +115,10 @@ export async function downloadUniversalPDF({ title, filename, headers, data, isR
         }
     });
 
-    // 3. Create and Download
-    // Using the 4-argument signature: createPdf(docDefinition, tableLayouts, fonts, vfs)
-    pdfMake.createPdf(docDefinition, null, fonts, vfs).download(filename);
+    // Handle RTL globally if needed (pdfMake supports it via text properties mostly)
+    // For true RTL rendering in tables, we use the alignment property per cell.
+
+    // 3. Create and Download using the correct 4-argument call
+    // createPdf(docDefinition, tableLayouts, fonts, vfs)
+    pdfMake.createPdf(docDefinition, {}, fonts, vfs).download(filename);
 }
