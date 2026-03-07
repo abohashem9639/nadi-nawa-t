@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash, MessageCircle } from 'lucide-react';
 import { ARABIC_FONT_BASE64 } from '@/lib/fonts/arabic-font';
 import { downloadUniversalPDF } from '@/lib/pdf-utils';
 
@@ -402,8 +402,30 @@ export default function SuperAdminIftarDetailsPage() {
                                                 <tr key={student.id} style={{ backgroundColor: rowBg }}>
                                                     <td className="text-muted">{index + 1}</td>
                                                     <td style={{ fontWeight: student.checked_in ? 600 : 400 }}>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            {student.student_name}
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                            <span>{student.student_name}</span>
+                                                            {student.mobile_number && !student.mobile_number.includes('-') && (
+                                                                <a
+                                                                    href={`https://wa.me/${student.mobile_number.replace(/\D/g, '')}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="btn btn-sm btn-icon hide-print"
+                                                                    style={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        padding: '4px',
+                                                                        background: '#25D366',
+                                                                        color: 'white',
+                                                                        borderRadius: '50%',
+                                                                        width: '24px',
+                                                                        height: '24px'
+                                                                    }}
+                                                                    title={isRtl ? 'تواصل عبر واتساب' : 'Contact on WhatsApp'}
+                                                                >
+                                                                    <MessageCircle size={14} />
+                                                                </a>
+                                                            )}
                                                             {isDuplicate && <span className="hide-print" style={{ color: badgeColor, fontSize: '0.8rem', fontWeight: 'bold' }}>{badgeText}</span>}
                                                         </div>
                                                     </td>

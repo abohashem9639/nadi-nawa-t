@@ -5,15 +5,17 @@ import { useParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { Calendar, User } from 'lucide-react';
+import PhoneInput from '@/components/PhoneInput';
 
 export default function RegisterPage() {
-    const { t, lang } = useTranslation();
+    const { t, lang, isRtl } = useTranslation();
     const params = useParams();
     const router = useRouter();
     const iftarId = params.iftarId;
 
     const [iftar, setIftar] = useState(null);
     const [studentName, setStudentName] = useState('');
+    const [mobileNumber, setMobileNumber] = useState('');
     const [isArqam, setIsArqam] = useState(false);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null); // { type: 'success'|'error', qrToken, message }
@@ -63,6 +65,7 @@ export default function RegisterPage() {
                 body: JSON.stringify({
                     iftarId,
                     studentName: studentName.trim(),
+                    mobileNumber: iftar?.gender === 'male' ? mobileNumber : undefined,
                     isArqam: isArqam
                 }),
             });
@@ -139,6 +142,24 @@ export default function RegisterPage() {
                                     {t('register.fullNameNotice') || 'يرجى كتابة الاسم الكامل لتجنب تشابه الأسماء. قد يتم حذف التسجيلات التي تحتوي على اسم أول فقط أو أسماء مكررة.'}
                                 </p>
                             </div>
+
+                            {iftar?.gender === 'male' && (
+                                <div className="form-group animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                                    <label className="form-label">{t('register.mobile') || 'رقم الهاتف'}</label>
+                                    <PhoneInput
+                                        value={mobileNumber}
+                                        onChange={(val) => setMobileNumber(val)}
+                                        placeholder={t('register.mobilePlaceholder') || '05xxxxxxxx'}
+                                    />
+                                    <p style={{
+                                        fontSize: '0.78rem',
+                                        color: 'var(--text-muted)',
+                                        marginTop: '8px'
+                                    }}>
+                                        {isRtl ? 'سنحتاج رقم الهاتف للتواصل معك وللتحقق من تسجيلك المسبق' : 'Your phone number is required for communication and verifying past registrations.'}
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="form-group flex-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', cursor: 'pointer' }}>
                                 <input

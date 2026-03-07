@@ -7,7 +7,7 @@ export async function POST(request) {
     try {
         const db = await getDb();
         const body = await request.json();
-        const { iftarId, studentName, isArqam } = body;
+        const { iftarId, studentName, isArqam, mobileNumber } = body;
 
         if (!iftarId || !studentName) {
             return NextResponse.json({ error: 'missing_fields' }, { status: 400 });
@@ -25,7 +25,32 @@ export async function POST(request) {
         }
 
         const cleanName = studentName.trim();
+        const activeMobileNumber = iftar.gender === 'male' ? mobileNumber : null;
 
+        if (iftar.gender === 'male' && (!activeMobileNumber || activeMobileNumber.trim() === '')) {
+            return NextResponse.json({ error: 'missing_mobile' }, { status: 400 });
+        }
+
+        // Check if phone number is already registered
+        if (activeMobileNumber) {
+            const { rows: existingRows } = await db.query(
+                'SELECT qr_token, iftar_id FROM registrations WHERE mobile_number = $1',
+                [activeMobileNumber]
+            );
+
+            if (existingRows.length > 0) {
+                const existing = existingRows[0];
+                if (existing.iftar_id === iftarId) {
+                    return NextResponse.json({
+                        error: 'already_registered',
+                        qrToken: existing.qr_token,
+                        studentName: cleanName
+                    }, { status: 200 });
+                } else {
+                    return NextResponse.json({ error: 'already_registered_other' }, { status: 409 });
+                }
+            }
+        }
 
         // Check capacity
         const { rows: regCountRows } = await db.query(
@@ -41,7 +66,7 @@ export async function POST(request) {
         // Create registration
         const id = uuidv4();
         const qrToken = `GHIRAS_${id}`; // Unique token for QR
-        const dummyMobile = uuidv4(); // Unique dummy mobile to satisfy DB UNIQUE constraint without migration
+        const dummyMobile = activeMobileNumber ? activeMobileNumber : uuidv4(); // Unique dummy mobile for females or if no phone provided
         const arqamFlag = isArqam ? 1 : 0;
 
         await db.query(`
