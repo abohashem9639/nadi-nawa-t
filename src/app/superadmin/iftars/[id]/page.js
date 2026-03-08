@@ -95,7 +95,10 @@ export default function SuperAdminIftarDetailsPage() {
 
 
     const handlePrintStats = () => {
+        const originalTitle = document.title;
+        document.title = `stats_report_${iftarId}`;
         window.print();
+        document.title = originalTitle;
     };
 
     const handleDeleteStudent = (studentId, studentName) => {

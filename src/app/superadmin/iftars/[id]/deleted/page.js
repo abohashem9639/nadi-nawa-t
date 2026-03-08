@@ -61,7 +61,10 @@ export default function DeletedStudentsPage() {
     }
 
     const handlePrint = () => {
+        const originalTitle = document.title;
+        document.title = `deleted_students_${iftarId}`;
         window.print();
+        document.title = originalTitle;
     };
 
     if (loading) {
