@@ -80,7 +80,7 @@ export default function HomePageClient({ iftars }) {
                             return (
                                 <div
                                     key={iftar.id}
-                                    className="iftar-card animate-slide-up"
+                                    className={`iftar-card animate-slide-up ${iftar.gender === 'female' ? 'iftar-card-female' : ''}`}
                                     style={{ animationDelay: `${index * 0.1}s` }}
                                 >
                                     <div className="iftar-card-header">
@@ -111,7 +111,7 @@ export default function HomePageClient({ iftars }) {
 
                                     {!isFull ? (
                                         <button
-                                            className="btn btn-primary btn-full"
+                                            className={`btn btn-full ${iftar.gender === 'female' ? 'btn-female' : 'btn-primary'}`}
                                             onClick={() => router.push(`/register/${iftar.id}`)}
                                         >
                                             {t('home.register')}

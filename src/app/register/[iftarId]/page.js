@@ -117,7 +117,7 @@ export default function RegisterPage() {
 
                 {/* Registration Form */}
                 {!result?.type || result.type === 'error' ? (
-                    <div className="card animate-slide-up" style={{ maxWidth: '500px', margin: '0 auto' }}>
+                    <div className={`card animate-slide-up ${iftar?.gender === 'female' ? 'iftar-card iftar-card-female' : ''}`} style={{ maxWidth: '500px', margin: '0 auto' }}>
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label className="form-label">{t('register.name')}</label>
@@ -182,7 +182,7 @@ export default function RegisterPage() {
 
                             <button
                                 type="submit"
-                                className="btn btn-primary btn-full"
+                                className={`btn btn-full ${iftar?.gender === 'female' ? 'btn-female' : 'btn-primary'}`}
                                 disabled={loading || !studentName.trim()}
                             >
                                 {loading ? t('register.submitting') : t('register.submit')}
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                     </div>
                 ) : (
                     /* QR Code Result */
-                    <div className="card animate-slide-up" style={{ maxWidth: '500px', margin: '0 auto' }}>
+                    <div className={`card animate-slide-up ${iftar?.gender === 'female' ? 'iftar-card iftar-card-female' : ''}`} style={{ maxWidth: '500px', margin: '0 auto' }}>
                         <div className={`checkin-result ${result.type === 'success' ? 'success' : 'warning'}`}>
                             {result.message}
                         </div>
@@ -230,7 +230,7 @@ export default function RegisterPage() {
                                 <a
                                     href={qrDataUrl}
                                     download={`nadi-nawa-qr-${iftarId}.png`}
-                                    className="btn btn-primary"
+                                    className={`btn ${iftar?.gender === 'female' ? 'btn-female' : 'btn-primary'}`}
                                     style={{ marginTop: '24px', textDecoration: 'none', display: 'flex', justifyContent: 'center', minWidth: '200px' }}
                                 >
                                     {t('register.downloadQR') || 'تنزيل الصورة'}
