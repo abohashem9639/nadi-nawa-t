@@ -1044,7 +1044,8 @@ h4 {
   .header,
   .btn,
   .mobile-menu-overlay,
-  .modal-overlay {
+  .modal-overlay,
+  .hide-print {
     display: none !important;
   }
 

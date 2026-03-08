@@ -6,8 +6,7 @@ import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { ArrowLeft, CheckCircle2, Circle, Loader2, Users, Printer, Trash2, Search, FileText, Trash, MessageCircle } from 'lucide-react';
-import { ARABIC_FONT_BASE64 } from '@/lib/fonts/arabic-font';
-import { downloadUniversalPDF } from '@/lib/pdf-utils';
+// PDF imports removed as we use window.print()
 
 export default function SuperAdminIftarDetailsPage() {
     const { t, isRtl } = useTranslation();
@@ -95,51 +94,8 @@ export default function SuperAdminIftarDetailsPage() {
 
 
 
-    const downloadStatsPDF = async () => {
-        try {
-            const summaryData = [
-                [isRtl ? 'السعة الإجمالية' : 'Total Capacity', iftar?.capacity || 0],
-                [isRtl ? 'الطلاب المسجلين' : 'Registered Students', totalRegistered],
-                [isRtl ? 'طلاب الأرقم' : 'Arqam Students', iftar?.arqamCount || 0],
-                [isRtl ? 'حضروا' : 'Checked In (Attended)', `${checkedIn} (${attendancePercent}%)`],
-                [isRtl ? 'غائبين' : 'Absent (Remaining)', `${absent} (${absentPercent}%)`]
-            ];
-
-            const filteredStudents = students.filter(student =>
-                student.student_name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-
-            const tableHeaders = isRtl
-                ? ['الحالة', 'وقت التسجيل', 'اسم الطالب', '#']
-                : ['#', 'Student Name', 'Registration Time', 'Status'];
-
-            const tableData = filteredStudents.map((s, i) => {
-                const formatDate = (date) => {
-                    if (!date) return '—';
-                    try {
-                        const d = new Date(date);
-                        return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-                    } catch { return '—'; }
-                };
-
-                return isRtl
-                    ? [s.checked_in === 1 ? 'حاضر' : 'غائب', formatDate(s.registered_at), s.student_name || '—', i + 1]
-                    : [i + 1, s.student_name || '—', formatDate(s.registered_at), s.checked_in === 1 ? 'Present' : 'Absent'];
-            });
-
-            await downloadUniversalPDF({
-                title: isRtl ? "إحصائيات وسجل الطلاب" : "Statistics & Student Records",
-                filename: `stats_report_${iftarId}.pdf`,
-                headers: tableHeaders,
-                data: tableData,
-                summaryData: summaryData,
-                isRtl: isRtl,
-                fontBase64: ARABIC_FONT_BASE64
-            });
-        } catch (error) {
-            console.error("PDF generation failed:", error);
-            alert("Error: " + (error.message || "Unknown error"));
-        }
+    const handlePrintStats = () => {
+        window.print();
     };
 
     const handleDeleteStudent = (studentId, studentName) => {
@@ -167,41 +123,7 @@ export default function SuperAdminIftarDetailsPage() {
         });
     };
 
-    const downloadDeletedPDF = async () => {
-        try {
-            if (!deletedStudents || deletedStudents.length === 0) {
-                alert("No deleted students to export.");
-                return;
-            }
-
-            const tableHeaders = isRtl
-                ? ['بواسطة', 'تاريخ الحذف', 'تاريخ التسجيل', 'الجوال', 'الاسم', '#']
-                : ['#', 'Name', 'Phone', 'Reg. Date', 'Del. Date', 'By'];
-
-            const tableData = deletedStudents.map((s, i) => {
-                const formatDate = (date) => {
-                    if (!date) return '—';
-                    try { return new Date(date).toLocaleString(); } catch { return '—'; }
-                };
-
-                return isRtl
-                    ? [s.deleted_by || '—', formatDate(s.deleted_at), formatDate(s.registered_at), s.mobile_number || '—', s.student_name || '—', i + 1]
-                    : [i + 1, s.student_name || '—', s.mobile_number || '—', formatDate(s.registered_at), formatDate(s.deleted_at), s.deleted_by || '—'];
-            });
-
-            await downloadUniversalPDF({
-                title: isRtl ? "سجل الطلاب المحذوفين" : "Deleted Students Report",
-                filename: `deleted_students_${iftarId}.pdf`,
-                headers: tableHeaders,
-                data: tableData,
-                isRtl: isRtl,
-                fontBase64: ARABIC_FONT_BASE64
-            });
-        } catch (error) {
-            console.error("PDF generation failed:", error);
-            alert("Error: " + (error.message || "Unknown error"));
-        }
-    };
+    // downloadDeletedPDF has been removed. User is redirected to /deleted.
 
     if (loading) {
         return (
@@ -286,14 +208,14 @@ export default function SuperAdminIftarDetailsPage() {
                                     padding: '0 10px',
                                     fontSize: '0.85rem'
                                 }}
-                                onClick={downloadDeletedPDF}
+                                onClick={() => router.push(`/superadmin/iftars/${iftarId}/deleted`)}
                             >
                                 <Trash2 size={16} /> <span>{isRtl ? 'المحذوفين' : 'Deleted'}</span>
                             </button>
                         )}
                         <button
                             className="btn btn-primary btn-sm flex items-center gap-1"
-                            onClick={downloadStatsPDF}
+                            onClick={handlePrintStats}
                             style={{ height: '38px', padding: '0 10px', fontSize: '0.85rem' }}
                         >
                             <Printer size={16} /> <span>{t('superadmin.printReport') || 'Report'}</span>
