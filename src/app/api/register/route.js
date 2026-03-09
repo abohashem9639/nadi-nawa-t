@@ -31,19 +31,21 @@ export async function POST(request) {
             return NextResponse.json({ error: 'missing_mobile' }, { status: 400 });
         }
 
-        // Check if phone number is already registered
+        // Check if phone number is already registered in an ACTIVE iftar
         if (activeMobileNumber) {
-            const { rows: existingRows } = await db.query(
-                'SELECT qr_token, iftar_id FROM registrations WHERE mobile_number = $1',
-                [activeMobileNumber]
-            );
+            const { rows: existingRows } = await db.query(`
+                SELECT r.qr_token, r.iftar_id 
+                FROM registrations r
+                JOIN iftars i ON r.iftar_id = i.id
+                WHERE r.mobile_number = $1 AND i.is_active = 1
+            `, [activeMobileNumber]);
 
             if (existingRows.length > 0) {
-                const existing = existingRows[0];
-                if (existing.iftar_id === iftarId) {
+                const currentIftarReg = existingRows.find(r => r.iftar_id === iftarId);
+                if (currentIftarReg) {
                     return NextResponse.json({
                         error: 'already_registered',
-                        qrToken: existing.qr_token,
+                        qrToken: currentIftarReg.qr_token,
                         studentName: cleanName
                     }, { status: 200 });
                 } else {
