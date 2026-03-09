@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
-import { Loader2, Moon, Users, Shield, Edit2, Settings, Printer } from 'lucide-react';
+import { Loader2, Moon, Users, Shield, Edit2, Settings, Printer, Star, MessageSquare } from 'lucide-react';
 
 export default function SuperAdminPage() {
     const { t, isRtl, lang } = useTranslation();
@@ -14,6 +14,7 @@ export default function SuperAdminPage() {
     const [admin, setAdmin] = useState(null);
     const [iftars, setIftars] = useState([]);
     const [stats, setStats] = useState({});
+    const [ratingsData, setRatingsData] = useState({ ratings: [], stats: { total: 0, average: 0, five: 0, four: 0, three: 0, two: 0, one: 0 } });
     const [loading, setLoading] = useState(true);
 
     // Create Iftar Form
@@ -47,7 +48,7 @@ export default function SuperAdminPage() {
             }
             setAdmin(data);
             setProfileUsername(data.username || '');
-            await Promise.all([fetchIftars(), fetchStats()]);
+            await Promise.all([fetchIftars(), fetchStats(), fetchRatings()]);
         } catch {
             router.push('/login');
         } finally {
@@ -65,6 +66,16 @@ export default function SuperAdminPage() {
         const res = await fetch('/api/stats');
         const data = await res.json();
         setStats(data);
+    }
+
+    async function fetchRatings() {
+        try {
+            const res = await fetch('/api/ratings');
+            const data = await res.json();
+            setRatingsData(data);
+        } catch (err) {
+            console.error('Error fetching ratings:', err);
+        }
     }
 
     async function handleCreate(e) {
@@ -476,6 +487,105 @@ export default function SuperAdminPage() {
                 <div className="card animate-slide-up">
                     <h2 className="section-title">{t('superadmin.pastIftars') || 'الحملات السابقة'}</h2>
                     {renderTable(pastIftarsList, t('superadmin.noPastIftars') || 'لا يوجد حملات سابقة')}
+                </div>
+
+                {/* Ratings Section */}
+                <div className="card animate-slide-up mt-4">
+                    <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Star size={20} color="#f59e0b" fill="#f59e0b" />
+                        {t('rating.ratingsTitle')}
+                    </h2>
+
+                    {parseInt(ratingsData.stats.total) === 0 ? (
+                        <div className="empty-state" style={{ padding: '32px 0' }}>
+                            <MessageSquare size={48} color="var(--text-muted)" style={{ margin: '0 auto 12px' }} />
+                            <p className="empty-state-text">{t('rating.noRatings')}</p>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Stats Summary */}
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 2fr',
+                                gap: '24px',
+                                marginBottom: '28px',
+                                alignItems: 'center',
+                            }}>
+                                {/* Average */}
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '2.8rem', fontWeight: '700', color: '#f59e0b', lineHeight: 1 }}>
+                                        {ratingsData.stats.average || '0'}
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '2px', margin: '8px 0' }}>
+                                        {[1, 2, 3, 4, 5].map(s => (
+                                            <Star key={s} size={16}
+                                                fill={s <= Math.round(parseFloat(ratingsData.stats.average || 0)) ? '#f59e0b' : 'none'}
+                                                color={s <= Math.round(parseFloat(ratingsData.stats.average || 0)) ? '#f59e0b' : 'var(--text-muted)'}
+                                                strokeWidth={1.5}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                        {ratingsData.stats.total} {t('rating.totalRatings')}
+                                    </div>
+                                </div>
+
+                                {/* Distribution Bars */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {[5, 4, 3, 2, 1].map(star => {
+                                        const count = parseInt(ratingsData.stats[['', 'one', 'two', 'three', 'four', 'five'][star]] || 0);
+                                        const total = parseInt(ratingsData.stats.total || 1);
+                                        const pct = Math.round((count / total) * 100);
+                                        return (
+                                            <div key={star} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', width: '16px', textAlign: 'center' }} dir="ltr">{star}</span>
+                                                <Star size={12} fill="#f59e0b" color="#f59e0b" />
+                                                <div style={{ flex: 1, height: '8px', background: 'var(--bg-card-hover)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                    <div style={{ width: `${pct}%`, height: '100%', background: '#f59e0b', borderRadius: '4px', transition: 'width 0.5s ease' }} />
+                                                </div>
+                                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', width: '28px', textAlign: 'center' }} dir="ltr">{count}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Comments List */}
+                            <h3 style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <MessageSquare size={16} /> {t('rating.comments')}
+                            </h3>
+                            <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {ratingsData.ratings.map((r) => (
+                                    <div key={r.id} style={{
+                                        padding: '12px 16px',
+                                        background: 'var(--bg-card-hover)',
+                                        borderRadius: '10px',
+                                        border: '1px solid var(--border-color)',
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: r.comment ? '8px' : '0' }}>
+                                            <div style={{ display: 'flex', gap: '2px' }}>
+                                                {[1, 2, 3, 4, 5].map(s => (
+                                                    <Star key={s} size={14}
+                                                        fill={s <= r.stars ? '#f59e0b' : 'none'}
+                                                        color={s <= r.stars ? '#f59e0b' : 'var(--text-muted)'}
+                                                        strokeWidth={1.5}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }} dir="ltr">
+                                                {new Date(r.created_at).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        {r.comment && (
+                                            <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6' }}>
+                                                {r.comment}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </main>
 

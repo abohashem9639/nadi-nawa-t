@@ -143,6 +143,21 @@
         "devCredit": "Bu sistem Nadi Nawa iftarlarına hizmet etmek için gönüllü olarak geliştirilmiştir",
         "devName": "Geliştirici: Salahuddin Abo Hashem"
     },
+    "rating": {
+        "title": "Deneyiminizi Değerlendirin ⭐",
+        "subtitle": "İftarlar hakkındaki görüşlerinizi paylaşarak gelişmemize yardımcı olun",
+        "commentPlaceholder": "Notlarınızı veya önerilerinizi buraya yazın... (isteğe bağlı)",
+        "submit": "Değerlendirmeyi Gönder",
+        "submitting": "Gönderiliyor...",
+        "thankYou": "Değerlendirmeniz için teşekkürler!",
+        "thankYouMsg": "Geri bildiriminiz gelecekteki çalışmalarımızı geliştirmemize yardımcı olur",
+        "ratingsTitle": "Değerlendirmeler",
+        "average": "Ortalama Puan",
+        "totalRatings": "Toplam Değerlendirme",
+        "noRatings": "Henüz değerlendirme yok",
+        "comments": "Yorumlar",
+        "noComment": "Yorum yok"
+    },
     "language": "Türkçe",
     "dir": "ltr"
 }

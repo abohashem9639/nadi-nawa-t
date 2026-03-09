@@ -143,7 +143,22 @@
         "body3": "Thank you to every hand that contributed to the success of this massive organizational effort. We ask Allah for acceptance for us all in the remaining nights of this blessed month.",
         "tagline": "Nawa… We plant today, to harvest tomorrow.",
         "devCredit": "This system was developed voluntarily to serve Nadi Nawa iftars",
-        "devName": "Developer: Salahuddin Abo Hashem"
+        "devName": "Developer: Salahuddin Abu Hashem"
+    },
+    "rating": {
+        "title": "Rate Your Experience ⭐",
+        "subtitle": "Share your feedback on the community iftars to help us improve",
+        "commentPlaceholder": "Write your notes or suggestions here... (optional)",
+        "submit": "Submit Rating",
+        "submitting": "Submitting...",
+        "thankYou": "Thank you for your rating!",
+        "thankYouMsg": "Your feedback helps us improve our future work",
+        "ratingsTitle": "Ratings",
+        "average": "Average Rating",
+        "totalRatings": "Total Ratings",
+        "noRatings": "No ratings yet",
+        "comments": "Comments",
+        "noComment": "No comment"
     },
     "language": "English",
     "dir": "ltr"

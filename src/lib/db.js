@@ -65,6 +65,13 @@ export async function initDb() {
       FOREIGN KEY (iftar_id) REFERENCES iftars(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS ratings (
+      id TEXT PRIMARY KEY,
+      stars INTEGER NOT NULL CHECK(stars >= 1 AND stars <= 5),
+      comment TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Add is_arqam to existing registrations table if missing
     DO $$
     BEGIN
