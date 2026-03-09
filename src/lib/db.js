@@ -40,7 +40,7 @@ export async function initDb() {
       id TEXT PRIMARY KEY,
       iftar_id TEXT NOT NULL,
       student_name TEXT NOT NULL,
-      mobile_number TEXT UNIQUE NOT NULL,
+      mobile_number TEXT NOT NULL,
       qr_token TEXT UNIQUE NOT NULL,
       checked_in INTEGER NOT NULL DEFAULT 0,
       is_arqam INTEGER NOT NULL DEFAULT 0,
@@ -86,12 +86,10 @@ export async function initDb() {
     -- Since this is an MVP in early dev, we attempt to add the constraint if it was missing.
     DO $$
     BEGIN
-      IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint WHERE conname = 'registrations_mobile_number_key'
-      ) THEN
-        ALTER TABLE registrations DROP CONSTRAINT IF EXISTS registrations_iftar_id_mobile_number_key;
-        ALTER TABLE registrations ADD CONSTRAINT registrations_mobile_number_key UNIQUE (mobile_number);
-      END IF;
+      -- We previously added a global UNIQUE constraint on mobile_number.
+      -- We must drop it so users can register for, e.g., today and tomorrow.
+      ALTER TABLE registrations DROP CONSTRAINT IF EXISTS registrations_mobile_number_key;
+      ALTER TABLE registrations DROP CONSTRAINT IF EXISTS registrations_iftar_id_mobile_number_key;
     END $$;
   `);
 
