@@ -134,6 +134,17 @@
         "profileUpdateError": "Failed to update, username might already exist",
         "printReport": "Download PDF Report"
     },
+    "completion": {
+        "title": "20 Days… 20 Iftars… One Ghiras!",
+        "body1_pre": "With pride and honor, Nadi Nawa Club and the participating unions announce the completion of the planned ",
+        "body1_highlight": "\"Community Iftars Project\"",
+        "body1_post": " as part of the Ghiras 26 campaign, concluding on the twentieth day of Ramadan.",
+        "body2": "We made a commitment to be with you at the table of brotherhood throughout the first two-thirds of this blessed month. Today, we conclude this continuous series of student giving, asking Allah to accept everyone's good deeds, and that this seed we planted stands as a witness for us, not against us.",
+        "body3": "Thank you to every hand that contributed to the success of this massive organizational effort. We ask Allah for acceptance for us all in the remaining nights of this blessed month.",
+        "tagline": "Nawa… We plant today, to harvest tomorrow.",
+        "devCredit": "This system was developed voluntarily to serve Nadi Nawa iftars",
+        "devName": "Developer: Salahuddin Abo Hashem"
+    },
     "language": "English",
     "dir": "ltr"
 }

@@ -58,74 +58,129 @@ export default function HomePageClient({ iftars }) {
 
             <Header />
             <main className="container">
-                <div className="page-header">
-                    <h1 className="page-title">{t('home.title')}</h1>
-                    <p className="page-subtitle">{t('home.subtitle')}</p>
+                {/* ===== Iftar Completion Announcement ===== */}
+                <div className="animate-slide-up" style={{
+                    maxWidth: '680px',
+                    margin: '0 auto',
+                }}>
+                    {/* Hero Image */}
+                    <div style={{
+                        borderRadius: '20px 20px 0 0',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                        lineHeight: 0,
+                    }}>
+                        <img
+                            src="/images/iftar-completion.png"
+                            alt="٢٠ يوماً.. ٢٠ إفطاراً.. غراسٌ واحد!"
+                            style={{
+                                width: '100%',
+                                height: 'auto',
+                                display: 'block',
+                            }}
+                        />
+                    </div>
+
+                    {/* Message Card */}
+                    <div style={{
+                        background: 'linear-gradient(180deg, #0c2e3c 0%, #0a1f2e 100%)',
+                        borderRadius: '0 0 20px 20px',
+                        padding: '40px 32px 36px',
+                        boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(16, 185, 129, 0.15)',
+                        borderTop: 'none',
+                        position: 'relative',
+                        overflow: 'hidden',
+                    }}>
+                        {/* Decorative glow */}
+                        <div style={{
+                            position: 'absolute',
+                            top: '-60px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: '300px',
+                            height: '120px',
+                            background: 'radial-gradient(ellipse, rgba(16,185,129,0.15) 0%, transparent 70%)',
+                            pointerEvents: 'none',
+                        }} />
+
+                        {/* Title */}
+                        <h2 style={{
+                            textAlign: 'center',
+                            fontSize: '1.6rem',
+                            fontWeight: '700',
+                            color: '#10b981',
+                            marginBottom: '24px',
+                            lineHeight: '1.8',
+                            position: 'relative',
+                        }}>
+                            {t('completion.title')} 🌱
+                        </h2>
+
+                        {/* Divider */}
+                        <div style={{
+                            width: '80px',
+                            height: '3px',
+                            background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
+                            margin: '0 auto 28px',
+                            borderRadius: '2px',
+                        }} />
+
+                        {/* Body Text */}
+                        <div style={{
+                            color: '#cbd5e1',
+                            fontSize: '1.02rem',
+                            lineHeight: '2',
+                            textAlign: 'justify',
+                        }}>
+                            <p style={{ marginBottom: '16px' }}>
+                                {t('completion.body1_pre')}<strong style={{ color: '#34d399' }}>{t('completion.body1_highlight')}</strong>{t('completion.body1_post')}
+                            </p>
+                            <p style={{ marginBottom: '16px' }}>
+                                {t('completion.body2')}
+                            </p>
+                            <p style={{ marginBottom: '0' }}>
+                                {t('completion.body3')}
+                            </p>
+                        </div>
+
+                        {/* Divider */}
+                        <div style={{
+                            width: '80px',
+                            height: '3px',
+                            background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
+                            margin: '28px auto 24px',
+                            borderRadius: '2px',
+                        }} />
+
+                        {/* Closing Tagline */}
+                        <p style={{
+                            textAlign: 'center',
+                            fontSize: '1.15rem',
+                            fontWeight: '600',
+                            color: '#10b981',
+                            lineHeight: '1.8',
+                            margin: 0,
+                        }}>
+                            {t('completion.tagline')} 🌾
+                        </p>
+
+                        {/* Developer Credit */}
+                        <div style={{
+                            marginTop: '32px',
+                            paddingTop: '20px',
+                            borderTop: '1px solid rgba(255,255,255,0.08)',
+                            textAlign: 'center',
+                            color: 'rgba(148,163,184,0.6)',
+                            fontSize: '0.78rem',
+                            lineHeight: '1.7',
+                            direction: 'rtl',
+                        }}>
+                            <p style={{ margin: 0 }}>{t('completion.devCredit')}</p>
+                            <p style={{ margin: '4px 0 0', color: 'rgba(148,163,184,0.45)' }}>{t('completion.devName')}</p>
+                        </div>
+                    </div>
                 </div>
-
-                {iftars.length === 0 ? (
-                    <div className="empty-state animate-fade-in">
-                        <Moon size={64} color="var(--text-muted)" className="mb-3" style={{ margin: '0 auto' }} />
-                        <p className="empty-state-text">{t('home.noIftars')}</p>
-                    </div>
-                ) : (
-                    <div className="iftar-grid">
-                        {iftars.map((iftar, index) => {
-                            const fillPercent = iftar.capacity > 0
-                                ? Math.round((iftar.registered / iftar.capacity) * 100)
-                                : 0;
-                            const isFull = iftar.registered >= iftar.capacity;
-                            const remaining = iftar.capacity - iftar.registered;
-
-                            return (
-                                <div
-                                    key={iftar.id}
-                                    className={`iftar-card animate-slide-up ${iftar.gender === 'female' ? 'iftar-card-female' : ''}`}
-                                    style={{ animationDelay: `${index * 0.1}s` }}
-                                >
-                                    <div className="iftar-card-header">
-                                        <div>
-                                            <h3 className="iftar-card-title">{getLocalizedTitle(iftar)}</h3>
-                                            <p className="iftar-card-date flex items-center gap-1 mt-1">
-                                                <Calendar size={14} /> {iftar.date}
-                                            </p>
-                                        </div>
-                                        <span className={`badge ${iftar.gender === 'male' ? 'badge-male' : 'badge-female'} flex items-center gap-1`}>
-                                            <User size={14} /> {iftar.gender === 'male' ? t('home.male') : t('home.female')}
-                                        </span>
-                                    </div>
-
-                                    <div className="iftar-card-info flex items-center gap-2">
-                                        <span className="iftar-card-capacity flex items-center gap-1">
-                                            <Users size={14} /> {remaining > 0 ? `${remaining} ${t('home.seatsRemaining')}` : t('home.full')}
-                                        </span>
-                                        <span>{iftar.registered} / {iftar.capacity}</span>
-                                    </div>
-
-                                    <div className="progress-bar">
-                                        <div
-                                            className={`progress-fill ${fillPercent >= 100 ? 'full' : fillPercent >= 80 ? 'warning' : ''}`}
-                                            style={{ width: `${Math.min(fillPercent, 100)}%` }}
-                                        />
-                                    </div>
-
-                                    {!isFull ? (
-                                        <button
-                                            className={`btn btn-full ${iftar.gender === 'female' ? 'btn-female' : 'btn-primary'}`}
-                                            onClick={() => router.push(`/register/${iftar.id}`)}
-                                        >
-                                            {t('home.register')}
-                                        </button>
-                                    ) : (
-                                        <button className="btn btn-secondary btn-full" disabled>
-                                            {t('home.full')}
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
 
                 {/* Informational Sections */}
                 <div className="info-sections animate-slide-up" style={{ animationDelay: '0.3s', marginTop: '60px' }}>

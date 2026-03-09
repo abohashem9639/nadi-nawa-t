@@ -132,6 +132,17 @@
         "profileUpdateError": "Güncelleme başarısız, kullanıcı adı zaten kullanımda olabilir",
         "printReport": "Raporu İndir (PDF)"
     },
+    "completion": {
+        "title": "20 Gün… 20 İftar… Tek Bir Ghiras!",
+        "body1_pre": "Gurur ve onurla, Nadi Nawa Kulübü ve katılımcı birlikler olarak, Ghiras 26 kampanyası kapsamında planlanan ",
+        "body1_highlight": "\"Toplu İftar Projesi\"nin",
+        "body1_post": " Ramazan'ın yirminci gününün sonunda başarıyla tamamlandığını duyururuz.",
+        "body2": "Bu mübarek ayın ilk üçte ikisi boyunca kardeşlik sofrasında sizinle birlikte olmaya söz verdik. Bugün, bu kesintisiz öğrenci fedakârlığı serisini tamamlıyoruz ve Yüce Allah'tan herkesin iyi amellerini kabul etmesini, bu diktiğimiz fidanın lehimize şahitlik etmesini diliyoruz.",
+        "body3": "Bu büyük organizasyonun başarısına katkıda bulunan her ele teşekkür ederiz. Bu mübarek ayın kalan gecelerinde hepimiz için Allah'tan kabul dileriz.",
+        "tagline": "Nawa… Bugün dikiyoruz, yarın hasat edeceğiz.",
+        "devCredit": "Bu sistem Nadi Nawa iftarlarına hizmet etmek için gönüllü olarak geliştirilmiştir",
+        "devName": "Geliştirici: Salahuddin Abo Hashem"
+    },
     "language": "Türkçe",
     "dir": "ltr"
 }
