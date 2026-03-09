@@ -31,14 +31,14 @@ export async function POST(request) {
             return NextResponse.json({ error: 'missing_mobile' }, { status: 400 });
         }
 
-        // Check if phone number is already registered in an ACTIVE iftar
+        // Check if phone number is already registered in an iftar on the SAME DATE
         if (activeMobileNumber) {
             const { rows: existingRows } = await db.query(`
                 SELECT r.qr_token, r.iftar_id 
                 FROM registrations r
                 JOIN iftars i ON r.iftar_id = i.id
-                WHERE r.mobile_number = $1 AND i.is_active = 1
-            `, [activeMobileNumber]);
+                WHERE r.mobile_number = $1 AND i.date = $2
+            `, [activeMobileNumber, iftar.date]);
 
             if (existingRows.length > 0) {
                 const currentIftarReg = existingRows.find(r => r.iftar_id === iftarId);
