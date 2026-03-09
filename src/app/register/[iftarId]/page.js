@@ -151,13 +151,6 @@ export default function RegisterPage() {
                                         onChange={(val) => setMobileNumber(val)}
                                         placeholder={t('register.mobilePlaceholder') || '05xxxxxxxx'}
                                     />
-                                    <p style={{
-                                        fontSize: '0.78rem',
-                                        color: 'var(--text-muted)',
-                                        marginTop: '8px'
-                                    }}>
-                                        {isRtl ? 'سنحتاج رقم الهاتف للتواصل معك وللتحقق من تسجيلك المسبق' : 'Your phone number is required for communication and verifying past registrations.'}
-                                    </p>
                                 </div>
                             )}
 
